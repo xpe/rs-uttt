@@ -19,3 +19,13 @@ https://doc.rust-lang.org/reference.html#bitwise-operators
 * `<<` : Left shift. Calls the shl method of the std::ops::Shl trait.
 * `>>` : Right shift (arithmetic). Calls the shr method of the std::ops::Shr
   trait.
+
+## Option Type
+
+According to [Wikipedia: Option Type][wot], Rust has an option type:
+
+```
+enum Option<T> { None, Some(T) }
+```
+
+[wot]: https://en.wikipedia.org/wiki/Option_type
