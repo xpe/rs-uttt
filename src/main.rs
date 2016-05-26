@@ -1,14 +1,20 @@
 #[macro_use]
 extern crate bitflags;
 
-// ---- data: game ----
+// Note: Types (i.e. structs or enums) that end in 'X' are 'extra' data
+// structures, intended for internal use. Often, they are more convenient, but
+// less efficient.
+
+// == data =====================================================================
+
+// -- data: game ---------------------------------------------------------------
 
 // A Game is the combination of a board and an optional last play. Note: a last
 // play is only None for an empty (i.e. initial) board.
 #[derive(Debug)]
-struct Game { board: Board, last_play: Option<Coord_> }
+struct Game { board: Board, last_loc: Option<Loc> }
 
-// ---- data: boards ----
+// -- data: board, sub-board ---------------------------------------------------
 
 // A Board is an array of 9 sub-boards, indexed like this:
 // 0 1 2
@@ -17,8 +23,16 @@ struct Game { board: Board, last_play: Option<Coord_> }
 #[derive(Debug)]
 struct Board([SBoard; 9]);
 
-// An SBoard (sub-board or 'small board') has 3 rows, each having 3 slots. This
-// representation requires 16 bits.
+// An SBoard2 (a sub-board) is an array of 9 slots, indexed like this:
+// 0 1 2
+// 3 4 5
+// 6 7 8
+#[allow(dead_code)]
+#[derive(Debug)]
+struct SBoardX([Slot; 9]);
+
+// An SBoard (a sub-board) has 3 rows, each having 3 slots. This representation
+// requires 16 bits.
 bitflags! {
     flags SBoard: u16 {
         const R0 = 0b0000000000011111,
@@ -27,7 +41,7 @@ bitflags! {
     }
 }
 
-// ---- data: row ----
+// -- data: row ----------------------------------------------------------------
 
 // An enumeration of possible row values. ('E' means empty, 'X' means player X,
 // 'O' means player O.) I'd like to only use 5 bits but Rust needs to align data
@@ -40,50 +54,43 @@ enum Row {
     EEO, EXO, EOO, XEO, XXO, XOO, OEO, OXO, OOO
 }
 
-// I want to use names that indicate when a type/data structure
-// is a bit-level thing vs a conceptual thing.
+// -- data: play, sub-board play -----------------------------------------------
 
-// ---- data: slot ----
-
+// A board play, consisting of a location and player.
 #[derive(Debug)]
-#[repr(u8)]
-enum Slot { Taken(Player), Empty }
+struct Play { loc: Loc, player: Player }
 
-// ---- data: player ----
-
+// A sub-board play, consisting of a sub-board location and player.
 #[derive(Debug)]
-#[repr(u8)]
-enum Player { X, O }
+struct SPlay { loc: SLoc, player: Player }
 
-// ---- data: moves ----
+// -- data: location, sub-board location ---------------------------------------
 
-// A board play
+// A location on a board, consisting of a row index and column index.
+#[allow(dead_code)]
 #[derive(Debug)]
-struct Play { coord: Coord, player: Player }
+struct LocX { row: RI, col: CI }
 
-// A sub-board play
-#[derive(Debug)]
-struct SPlay { coord: SCoord, player: Player }
-
-// ---- data: coordinates (pairs of indexes) ----
-
-// A board coordinate, consisting of a row and column.
-#[derive(Debug)]
-struct Coord { row: RI, col: CI }
-
-// A compact representation for a boord coordinate.
+// A location on a board.
 bitflags! {
-    flags Coord_: u8 {
+    flags Loc: u8 {
         const R = 0b00001111,
         const C = 0b11110000,
     }
 }
 
-// A sub-board coordinate, consisting of a sub-board row and sub-board column.
+// A sub-board location, consisting of a sub-board row and sub-board column.
 #[derive(Debug)]
-struct SCoord { row: SRI, col: SCI }
+struct SLoc { row: SRI, col: SCI }
 
-// ---- data: indexes ----
+// -- data: slot ---------------------------------------------------------------
+
+// A slot is either taken by a player or empty.
+#[derive(Debug)]
+#[repr(u8)]
+enum Slot { Taken(Player), Empty }
+
+// -- data: row and column indexes ---------------------------------------------
 
 // A board row index, ranging from 0 to 8, inclusive.
 #[derive(Debug)]
@@ -95,41 +102,41 @@ enum RI { R0, R1, R2, R3, R4, R5, R6, R7, R8 }
 #[repr(u8)]
 enum CI { C0, C1, C2, C3, C4, C5, C6, C7, C8 }
 
-// A sub-board row index: 0, 1, or 2
+// A sub-board row index: 0, 1, or 2.
 #[derive(Debug)]
 #[repr(u8)]
 enum SRI { R0, R1, R2 }
 
-// A sub-board column index: 0, 1, or 2
+// A sub-board column index: 0, 1, or 2.
 #[derive(Debug)]
 #[repr(u8)]
 enum SCI { C0, C1, C2 }
 
-// ---- functions ----
+// -- data: player -------------------------------------------------------------
+
+#[derive(Debug)]
+#[repr(u8)]
+enum Player { X, O }
+
+// == functions ================================================================
+
+// -- functions: -> game -------------------------------------------------------
 
 fn init_game() -> Game {
-    Game { board: empty_board(), last_play: None }
+    Game { board: empty_board(), last_loc: None }
 }
+
+// -- functions: -> board ------------------------------------------------------
 
 fn empty_board() -> Board {
     Board([SBoard::empty(); 9])
 }
 
-// TODO: remove #[allow(unused_variables)]
-#[allow(unused_variables)]
-fn slot(sb: SBoard) -> Slot {
-    Slot::Empty
-}
+// -- functions: -> sub-board --------------------------------------------------
 
-// Is the move valid for the given sub-board?
-// TODO: remove #[allow(unused_variables)]
-#[allow(unused_variables)]
-fn is_valid_play(sb: SBoard, sp: SPlay) -> bool {
-    // TODO: implement
-    match sp.coord {
-        SCoord { row: r, col: c } => true
-    }
-}
+// -- functions: -> row --------------------------------------------------------
+
+// -- functions: -> slot -------------------------------------------------------
 
 // Returns an array of three Slots for a given Row.
 fn row_slots(row: Row) -> [Slot; 3] {
@@ -167,46 +174,118 @@ fn row_slots(row: Row) -> [Slot; 3] {
     }
 }
 
+// TODO
 // Returns the Slot for a particular column index for a given Row.
 // fn slot_in_row(col: SCI, row: Row) -> Slot {
 //    match
 // }
 
-// ---- debugging / testing ----
-
-fn print_examples() {
-    print_players();
-    print_rows();
-    print_board_indexes();
-    print_sub_board_indexes();
-    print_slots();
-    print_plays();
-    print_sub_board_plays();
-
-    println!("\ninit_game() ...");
-    println!("{:?}", init_game());
-
-    println!("\nslot() ...");
-    println!("{:?}", slot(SBoard::empty()));
-
-    println!("\nis_valid_play() ...");
-    println!("{:?}", is_valid_play(
-        SBoard::empty(),
-        SPlay{ coord: SCoord { row: SRI::R1, col: SCI::C1 },
-               player: Player::X}));
-
-    println!("\nrow_slots() ...");
-    println!("{:?}", row_slots(Row::EXO));
+// TODO: implement
+#[allow(unused_variables)]
+fn sboard_slot(sb: SBoard) -> Slot {
+    Slot::Empty
 }
 
-fn print_players() {
-    println!("\nPlayer ...");
+// -- functions: player --------------------------------------------------------
+
+// TODO: implement
+// Returns the last player of a game.
+#[allow(dead_code)]
+#[allow(unused_variables)]
+fn game_last_player(game: Game) -> Option<Player> {
+    unimplemented!();
+}
+
+// -- functions: -> bool -------------------------------------------------------
+
+// Is the move valid for the given sub-board?
+#[allow(unused_variables)]
+fn is_valid_play(sb: SBoard, sp: SPlay) -> bool {
+    // TODO: implement
+    match sp.loc {
+        SLoc { row: r, col: c } => true
+    }
+}
+
+// -- functions: printing ------------------------------------------------------
+
+#[allow(non_snake_case)]
+fn print_Player() {
+    heading("Player");
     println!("{:?}", Player::X);
     println!("{:?}", Player::O);
 }
 
-fn print_rows() {
-    println!("\nRow ...");
+#[allow(non_snake_case)]
+fn print_SRI() {
+    heading("SRI");
+    println!("{:?}", SRI::R0);
+    println!("{:?}", SRI::R1);
+    println!("{:?}", SRI::R2);
+}
+
+#[allow(non_snake_case)]
+fn print_SCI() {
+    heading("SCI");
+    println!("{:?}", SCI::C0);
+    println!("{:?}", SCI::C1);
+    println!("{:?}", SCI::C2);
+}
+
+#[allow(non_snake_case)]
+fn print_RI() {
+    heading("RI");
+    println!("{:?}", RI::R0);
+    println!("{:?}", RI::R1);
+    println!("{:?}", RI::R2);
+    println!("{:?}", RI::R3);
+    println!("{:?}", RI::R4);
+    println!("{:?}", RI::R5);
+    println!("{:?}", RI::R6);
+    println!("{:?}", RI::R7);
+    println!("{:?}", RI::R8);
+}
+
+#[allow(non_snake_case)]
+fn print_CI() {
+    heading("CI");
+    println!("{:?}", CI::C0);
+    println!("{:?}", CI::C1);
+    println!("{:?}", CI::C2);
+    println!("{:?}", CI::C3);
+    println!("{:?}", CI::C4);
+    println!("{:?}", CI::C5);
+    println!("{:?}", CI::C6);
+    println!("{:?}", CI::C7);
+    println!("{:?}", CI::C8);
+}
+
+#[allow(non_snake_case)]
+fn print_Slot() {
+    heading("Slot");
+    println!("{:?}", Slot::Empty);
+    println!("{:?}", Slot::Taken(Player::X));
+    println!("{:?}", Slot::Taken(Player::O));
+}
+
+#[allow(non_snake_case)]
+fn print_SPlay() {
+    heading("SPlay");
+    println!("{:?}", SPlay {
+        loc: SLoc { row: SRI::R0, col: SCI::C2 },
+        player: Player::X });
+}
+
+// TODO: look at this again
+#[allow(non_snake_case)]
+fn print_Play() {
+    heading("Play");
+    println!("{:?}", Play { loc: Loc::empty(), player: Player::X });
+}
+
+#[allow(non_snake_case)]
+fn print_Row() {
+    heading("Row");
     println!("{:?}", Row::EEE);
     println!("{:?}", Row::EEO);
     println!("{:?}", Row::EEX);
@@ -236,58 +315,85 @@ fn print_rows() {
     println!("{:?}", Row::XXX);
 }
 
-fn print_board_indexes() {
-    println!("\nRI, CI ...");
-    println!("{:?}", RI::R0);
-    println!("{:?}", RI::R1);
-    println!("{:?}", RI::R2);
-    println!("{:?}", RI::R3);
-    println!("{:?}", RI::R4);
-    println!("{:?}", RI::R5);
-    println!("{:?}", RI::R6);
-    println!("{:?}", RI::R7);
-    println!("{:?}", RI::R8);
-    println!("{:?}", CI::C0);
-    println!("{:?}", CI::C1);
-    println!("{:?}", CI::C2);
-    println!("{:?}", CI::C3);
-    println!("{:?}", CI::C4);
-    println!("{:?}", CI::C5);
-    println!("{:?}", CI::C6);
-    println!("{:?}", CI::C7);
-    println!("{:?}", CI::C8);
+// -- functions: helpers for main ----------------------------------------------
+
+fn heading(s: &str) {
+    println!("\n{} ...", s);
 }
 
-fn print_sub_board_indexes() {
-    println!("\nSRI, SCI ...");
-    println!("{:?}", SRI::R0);
-    println!("{:?}", SRI::R1);
-    println!("{:?}", SRI::R2);
-    println!("{:?}", SCI::C0);
-    println!("{:?}", SCI::C1);
-    println!("{:?}", SCI::C2);
-}
-
-fn print_slots() {
-    println!("\nSlot ...");
-    println!("{:?}", Slot::Empty);
-    println!("{:?}", Slot::Taken(Player::X));
-    println!("{:?}", Slot::Taken(Player::O));
-}
-
-fn print_plays() {
-    println!("\nPlay ...");
-    println!("{:?}", Play { coord: Coord { row: RI::R0, col: CI::C0 },
-                            player: Player::X });
-}
-
-fn print_sub_board_plays() {
-    println!("\nSPlay ...");
-    println!("{:?}", SPlay {
-        coord: SCoord{row: SRI::R0, col: SCI::C2},
-        player: Player::X });
-}
+// -- functions: main ----------------------------------------------------------
 
 fn main() {
-    print_examples();
+    // data: players
+    print_Player();
+
+    // data: indexes
+    print_SRI();
+    print_SCI();
+    print_RI();
+    print_CI();
+
+    // data: slot
+    print_Slot();
+
+    // data: sub-board location
+    // print_SLoc();
+
+    // data: board location
+    // print_Loc();
+
+    // data: sub-board play
+    print_SPlay();
+
+    // data: board play
+    print_Play();
+
+    // data: row
+    print_Row();
+
+    // data: sub-board
+
+    // data: board
+    heading("sboard_slot");
+    println!("{:?}", sboard_slot(SBoard::empty()));
+
+    // data: game
+    heading("init_game");
+    println!("{:?}", init_game());
+
+    // functions: -> bool
+    heading("is_valid_play()");
+    println!("{:?}", is_valid_play(
+        SBoard::empty(),
+        SPlay{ loc: SLoc { row: SRI::R1, col: SCI::C1 },
+               player: Player::X}));
+
+    // functions: -> players
+
+    // functions: -> indexes
+
+    // functions: -> slot
+    heading("row_slots()");
+    println!("{:?}", row_slots(Row::EXO));
+
+    // functions: -> sub-board location
+
+    // functions: -> board location
+
+    // functions: -> sub-board play
+
+    // functions: -> board play
+
+    // functions: -> row
+
+    // functions: -> sub-board
+
+    // functions: -> board
+    heading("sboard_slot");
+    println!("{:?}", sboard_slot(SBoard::empty()));
+
+    // functions: -> game
+    heading("init_game");
+    println!("{:?}", init_game());
+
 }
