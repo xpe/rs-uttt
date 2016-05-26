@@ -1,3 +1,5 @@
+#![feature(slice_patterns)]
+
 #[macro_use]
 extern crate bitflags;
 
@@ -86,7 +88,7 @@ struct SLoc { row: SRI, col: SCI }
 // -- data: slot ---------------------------------------------------------------
 
 // A slot is either taken by a player or empty.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 #[repr(u8)]
 enum Slot { Taken(Player), Empty }
 
@@ -114,7 +116,7 @@ enum SCI { C0, C1, C2 }
 
 // -- data: player -------------------------------------------------------------
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 #[repr(u8)]
 enum Player { X, O }
 
@@ -136,9 +138,45 @@ fn empty_board() -> Board {
 
 // -- functions: -> row --------------------------------------------------------
 
+// Returns a row when given an array of three slots.
+fn slot_row(slots: [Slot; 3]) -> Row {
+    const E: Slot = Slot::Empty;
+    const X: Slot = Slot::Taken(Player::X);
+    const O: Slot = Slot::Taken(Player::O);
+    match slots {
+        [E, E, E] => Row::EEE,
+        [E, E, O] => Row::EEO,
+        [E, E, X] => Row::EEX,
+        [E, O, E] => Row::EOE,
+        [E, O, O] => Row::EOO,
+        [E, O, X] => Row::EOX,
+        [E, X, E] => Row::EXE,
+        [E, X, O] => Row::EXO,
+        [E, X, X] => Row::EXX,
+        [O, E, E] => Row::OEE,
+        [O, E, O] => Row::OEO,
+        [O, E, X] => Row::OEX,
+        [O, O, E] => Row::OOE,
+        [O, O, O] => Row::OOO,
+        [O, O, X] => Row::OOX,
+        [O, X, E] => Row::OXE,
+        [O, X, O] => Row::OXO,
+        [O, X, X] => Row::OXX,
+        [X, E, E] => Row::XEE,
+        [X, E, O] => Row::XEO,
+        [X, E, X] => Row::XEX,
+        [X, O, E] => Row::XOE,
+        [X, O, O] => Row::XOO,
+        [X, O, X] => Row::XOX,
+        [X, X, E] => Row::XXE,
+        [X, X, O] => Row::XXO,
+        [X, X, X] => Row::XXX,
+    }
+}
+
 // -- functions: -> slot -------------------------------------------------------
 
-// Returns an array of three Slots for a given Row.
+// Returns an array of three slots for a given row.
 fn row_slots(row: Row) -> [Slot; 3] {
     const E: Slot = Slot::Empty;
     const X: Slot = Slot::Taken(Player::X);
@@ -337,9 +375,11 @@ fn main() {
     print_Slot();
 
     // data: sub-board location
+    // TODO
     // print_SLoc();
 
     // data: board location
+    // TODO
     // print_Loc();
 
     // data: sub-board play
@@ -369,24 +409,34 @@ fn main() {
                player: Player::X}));
 
     // functions: -> players
+    // TODO
 
     // functions: -> indexes
+    // TODO
 
     // functions: -> slot
     heading("row_slots()");
     println!("{:?}", row_slots(Row::EXO));
 
     // functions: -> sub-board location
+    // TODO
 
     // functions: -> board location
+    // TODO
 
     // functions: -> sub-board play
+    // TODO
 
     // functions: -> board play
+    // TODO
 
     // functions: -> row
+    heading("slot_row");
+    println!("{:?}", slot_row(
+        [Slot::Empty, Slot::Taken(Player::X), Slot::Taken(Player::O)]));
 
     // functions: -> sub-board
+    // TODO
 
     // functions: -> board
     heading("sboard_slot");
