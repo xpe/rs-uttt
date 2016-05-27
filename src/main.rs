@@ -304,7 +304,6 @@ fn game_last_player(game: Game) -> Option<Player> {
 
 // -- functions: -> u8 ---------------------------------------------------------
 
-#[allow(dead_code)]
 fn row_as_u8(row: Row) -> u8 {
     match row {
         Row::EEE => 0x00,
@@ -512,7 +511,10 @@ fn main() {
                player: Player::X}));
 
     // functions: -> u8
-    // TODO
+    heading("row_as_u8");
+    println!("EEE -> {:05b}", row_as_u8(Row::EEE));
+    println!("XXX -> {:05b}", row_as_u8(Row::XXX));
+    println!("OOO -> {:05b}", row_as_u8(Row::OOO));
 
     // functions: -> players
     // TODO
