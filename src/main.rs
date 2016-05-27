@@ -1,8 +1,5 @@
 #![feature(slice_patterns)]
 
-#[macro_use]
-extern crate bitflags;
-
 // Note: Types (i.e. structs or enums) that end in 'X' are 'extra' data
 // structures, intended for internal use. Often, they are more convenient, but
 // less efficient.
@@ -34,14 +31,13 @@ struct Board([SBoard; 9]);
 struct SBoardX([Slot; 9]);
 
 // An SBoard (a sub-board) has 3 rows, each having 3 slots. This representation
-// requires 16 bits.
-bitflags! {
-    flags SBoard: u16 {
-        const R0 = 0b0000000000011111,
-        const R1 = 0b0000001111100000,
-        const R2 = 0b0111110000000000,
-    }
-}
+// requires 16 bits:
+//
+// 0b0000000000011111
+// 0b0000001111100000
+// 0b0111110000000000
+#[derive(Debug, Copy, Clone)]
+struct SBoard(u16);
 
 // -- data: row ----------------------------------------------------------------
 
@@ -74,14 +70,12 @@ struct SPlay { loc: SLoc, player: Player }
 struct LocX { row: RI, col: CI }
 
 // A location on a board.
-bitflags! {
-    flags Loc: u8 {
-        const R = 0b00001111,
-        const C = 0b11110000,
-    }
-}
+#[derive(Debug)]
+struct Loc(u8);
+// 0b00001111
+// 0b11110000
 
-// A sub-board location, consisting of a sub-board row and sub-board column.
+// A sub-board location, having two indexes into the sub-board row and col.
 #[derive(Debug)]
 struct SLoc { row: SRI, col: SCI }
 
@@ -130,16 +124,90 @@ fn init_game() -> Game {
 
 // -- functions: -> board ------------------------------------------------------
 
+// TODO: implement
 fn empty_board() -> Board {
-    Board([SBoard::empty(); 9])
+    let sb = empty_sboard();
+    Board([sb; 9])
 }
 
 // -- functions: -> sub-board --------------------------------------------------
 
+// TODO: examine this
+// Note: `SBoard(0)` may be problematic since it assumes 0 means empty.
+fn empty_sboard() -> SBoard {
+    SBoard(0)
+}
+
+// Returns a sub-board from 3 rows.
+// TODO: implement
+#[allow(unused_variables)]
+#[allow(dead_code)]
+fn rows_as_sboard(rows: [Row; 3]) -> SBoard {
+    // let r0 = rows[0];
+    // let r1 = rows[1];
+    // let r2 = rows[2];
+    SBoard(0)
+}
+
+// Returns a sub-board from 9 slots.
+// TODO: implement
+#[allow(unused_variables)]
+#[allow(dead_code)]
+fn slots_as_sboard(rows: [Slot; 9]) -> SBoard {
+    SBoard(0)
+}
+
+// -- functions: -> rows --------------------------------------------------------
+
+// impl SBoard {
+// }
+
 // -- functions: -> row --------------------------------------------------------
 
+impl SBoard {
+    #[allow(dead_code)]
+    fn row(self, ri: SRI) -> Row {
+        let s = match ri { SRI::R0 => 0, SRI::R1 => 5, SRI::R2 => 10 };
+        u8_as_row((self.0 >> s & 0b11111) as u8)
+    }
+}
+
+// Note: the function names includes `_as_` because this is inexpensive.
+fn u8_as_row(x: u8) -> Row {
+    match x {
+        0x00 => Row::EEE,
+        0x01 => Row::EEX,
+        0x02 => Row::EEO,
+        0x03 => Row::EXE,
+        0x04 => Row::EXX,
+        0x05 => Row::EXO,
+        0x06 => Row::EOE,
+        0x07 => Row::EOX,
+        0x08 => Row::EOO,
+        0x09 => Row::XEE,
+        0x0A => Row::XEX,
+        0x0B => Row::XEO,
+        0x0C => Row::XXE,
+        0x0D => Row::XXX,
+        0x0E => Row::XXO,
+        0x0F => Row::XOE,
+        0x10 => Row::XOX,
+        0x11 => Row::XOO,
+        0x12 => Row::OEE,
+        0x13 => Row::OEX,
+        0x14 => Row::OEO,
+        0x15 => Row::OXE,
+        0x16 => Row::OXX,
+        0x17 => Row::OXO,
+        0x18 => Row::OOE,
+        0x19 => Row::OOX,
+        0x1A => Row::OOO,
+        _ => panic!("internal error"),
+    }
+}
+
 // Returns a row when given an array of three slots.
-fn slot_row(slots: [Slot; 3]) -> Row {
+fn slots_as_row(slots: [Slot; 3]) -> Row {
     const E: Slot = Slot::Empty;
     const X: Slot = Slot::Taken(Player::X);
     const O: Slot = Slot::Taken(Player::O);
@@ -177,7 +245,7 @@ fn slot_row(slots: [Slot; 3]) -> Row {
 // -- functions: -> slot -------------------------------------------------------
 
 // Returns an array of three slots for a given row.
-fn row_slots(row: Row) -> [Slot; 3] {
+fn row_as_slots(row: Row) -> [Slot; 3] {
     const E: Slot = Slot::Empty;
     const X: Slot = Slot::Taken(Player::X);
     const O: Slot = Slot::Taken(Player::O);
@@ -232,6 +300,41 @@ fn sboard_slot(sb: SBoard) -> Slot {
 #[allow(unused_variables)]
 fn game_last_player(game: Game) -> Option<Player> {
     unimplemented!();
+}
+
+// -- functions: -> u8 ---------------------------------------------------------
+
+#[allow(dead_code)]
+fn row_as_u8(row: Row) -> u8 {
+    match row {
+        Row::EEE => 0x00,
+        Row::EEX => 0x01,
+        Row::EEO => 0x02,
+        Row::EXE => 0x03,
+        Row::EXX => 0x04,
+        Row::EXO => 0x05,
+        Row::EOE => 0x06,
+        Row::EOX => 0x07,
+        Row::EOO => 0x08,
+        Row::XEE => 0x09,
+        Row::XEX => 0x0A,
+        Row::XEO => 0x0B,
+        Row::XXE => 0x0C,
+        Row::XXX => 0x0D,
+        Row::XXO => 0x0E,
+        Row::XOE => 0x0F,
+        Row::XOX => 0x10,
+        Row::XOO => 0x11,
+        Row::OEE => 0x12,
+        Row::OEX => 0x13,
+        Row::OEO => 0x14,
+        Row::OXE => 0x15,
+        Row::OXX => 0x16,
+        Row::OXO => 0x17,
+        Row::OOE => 0x18,
+        Row::OOX => 0x19,
+        Row::OOO => 0x1A,
+    }
 }
 
 // -- functions: -> bool -------------------------------------------------------
@@ -314,11 +417,11 @@ fn print_SPlay() {
         player: Player::X });
 }
 
-// TODO: look at this again
+// TODO: Loc(0) needs improvement
 #[allow(non_snake_case)]
 fn print_Play() {
     heading("Play");
-    println!("{:?}", Play { loc: Loc::empty(), player: Player::X });
+    println!("{:?}", Play { loc: Loc(0), player: Player::X });
 }
 
 #[allow(non_snake_case)]
@@ -395,7 +498,7 @@ fn main() {
 
     // data: board
     heading("sboard_slot");
-    println!("{:?}", sboard_slot(SBoard::empty()));
+    println!("{:?}", sboard_slot(empty_sboard()));
 
     // data: game
     heading("init_game");
@@ -404,9 +507,12 @@ fn main() {
     // functions: -> bool
     heading("is_valid_play()");
     println!("{:?}", is_valid_play(
-        SBoard::empty(),
+        empty_sboard(),
         SPlay{ loc: SLoc { row: SRI::R1, col: SCI::C1 },
                player: Player::X}));
+
+    // functions: -> u8
+    // TODO
 
     // functions: -> players
     // TODO
@@ -415,8 +521,8 @@ fn main() {
     // TODO
 
     // functions: -> slot
-    heading("row_slots()");
-    println!("{:?}", row_slots(Row::EXO));
+    heading("row_as_slots()");
+    println!("{:?}", row_as_slots(Row::EXO));
 
     // functions: -> sub-board location
     // TODO
@@ -431,19 +537,19 @@ fn main() {
     // TODO
 
     // functions: -> row
-    heading("slot_row");
-    println!("{:?}", slot_row(
+    heading("slots_as_row");
+    println!("{:?}", slots_as_row(
         [Slot::Empty, Slot::Taken(Player::X), Slot::Taken(Player::O)]));
 
     // functions: -> sub-board
-    // TODO
+    heading("rows_as_sboard");
+    println!("{:?}", rows_as_sboard([Row::XOO, Row::XEE, Row::XEO]));
 
     // functions: -> board
     heading("sboard_slot");
-    println!("{:?}", sboard_slot(SBoard::empty()));
+    println!("{:?}", sboard_slot(empty_sboard()));
 
     // functions: -> game
     heading("init_game");
     println!("{:?}", init_game());
-
 }

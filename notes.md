@@ -29,3 +29,10 @@ enum Option<T> { None, Some(T) }
 ```
 
 [wot]: https://en.wikipedia.org/wiki/Option_type
+
+## Conversion Traits
+
+Using the traits from [std::convert] may be preferable to creating functions
+named `x_to_y`:
+
+[std::convert]: https://doc.rust-lang.org/std/convert/

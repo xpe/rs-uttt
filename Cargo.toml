@@ -4,4 +4,3 @@ version = "0.1.0"
 authors = ["David James <davidcjames+xpe@gmail.com>"]
 
 [dependencies]
-bitflags = "0.7"
