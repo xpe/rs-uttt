@@ -1,4 +1,8 @@
-use data::{Board, SBoard, Row, Slot, RI, CI, SRI, SCI};
+/// Conversion functions. This module does not include game logic or data
+/// structure definitions or conversions.
+
+use data::{Game, Board, SBoard, Row};
+use data::{Loc, SLoc, Slot, RI, CI, SRI, SCI, Player};
 use constants::{SE, SX, SO};
 
 // -- -> game ------------------------------------------------------------------
@@ -130,7 +134,7 @@ impl Row {
             Row::XOX => [SX, SO, SX],
             Row::XXE => [SX, SX, SE],
             Row::XXO => [SX, SX, SO],
-            Row::XXX => [SX, SX, SX]
+            Row::XXX => [SX, SX, SX],
         }
     }
 }
@@ -163,9 +167,60 @@ impl Row {
 
 // -- -> board indexes ---------------------------------------------------------
 
+impl Loc {
+    /// Returns the row index for a board location.
+    #[allow(unused_variables)]
+    pub fn row(self) -> RI {
+        unimplemented!(); // TODO
+    }
+
+    /// Returns the row index for a board location.
+    #[allow(unused_variables)]
+    pub fn col(self) -> CI {
+        unimplemented!(); // TODO
+    }
+}
+
 // -- -> sub-board indexes -----------------------------------------------------
 
+impl SLoc {
+    /// Returns the row index for a sub-board location.
+    #[allow(unused_variables)]
+    pub fn row(self) -> SRI {
+        unimplemented!(); // TODO
+    }
+
+    /// Returns the row index for a sub-board location.
+    #[allow(unused_variables)]
+    pub fn col(self) -> SCI {
+        unimplemented!(); // TODO
+    }
+}
+
 // -- -> player ----------------------------------------------------------------
+
+impl Game {
+    /// Returns the last player in a game.
+    pub fn last_player(self) -> Option<Player> {
+        match self.last_loc {
+            None => None,
+            Some(loc) => self.board.player_at_loc(loc),
+        }
+    }
+}
+
+impl Board {
+    /// Returns the player at a location, if present.
+    pub fn player_at_loc(self, loc: Loc) -> Option<Player> {
+        self.player_at_row_col(loc.row(), loc.col())
+    }
+
+    /// Returns the player at a row + col, if present.
+    #[allow(unused_variables)]
+    pub fn player_at_row_col(self, row: RI, col: CI) -> Option<Player> {
+        unimplemented!(); // TODO
+    }
+}
 
 // -- -> u16 -------------------------------------------------------------------
 
@@ -201,7 +256,7 @@ impl Row {
             Row::OXO => 0x17,
             Row::OOE => 0x18,
             Row::OOX => 0x19,
-            Row::OOO => 0x1A
+            Row::OOO => 0x1A,
         }
     }
 }

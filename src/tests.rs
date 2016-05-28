@@ -12,6 +12,18 @@ fn test_empty_game() {
     assert!(EMPTY_GAME.last_loc == None);
 }
 
+#[test]
+fn test_game_play() {
+    // TODO: test Game::play()
+    assert!(3 == 3);
+}
+
+#[test]
+fn test_game_last_player() {
+    assert!(EMPTY_GAME.last_player() == None);
+    // TODO: test an example game
+}
+
 // == board ====================================================================
 
 #[test]
