@@ -73,18 +73,16 @@ fn test_empty_sboard() {
 
 #[test]
 fn test_sboard_from_slots() {
-    let slots_1 = [
+    assert!(SBoard::from_slots([
         SE, SE, SX,
         SO, SX, SE,
         SE, SE, SE,
-    ];
-    assert!(SBoard::from_slots(slots_1) == SBoard(0b0000001010100001));
-    let slots_2 = [
+    ]) == SBoard(0b0000001010100001));
+    assert!(SBoard::from_slots([
         SE, SE, SE,
         SE, SE, SX,
         SO, SX, SE,
-    ];
-    assert!(SBoard::from_slots(slots_2) == SBoard(0b0101010000100000));
+    ]) == SBoard(0b0101010000100000));
 }
 
 // == rows =====================================================================
