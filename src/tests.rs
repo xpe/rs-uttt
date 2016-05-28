@@ -7,16 +7,17 @@ use constants::{SE, SX, SO};
 // TODO: think about this / currently, this is just a placeholder
 #[test]
 fn test_empty_game() {
-    let eg = EMPTY_GAME;
-    assert!(eg == eg);
+    assert!(EMPTY_GAME == EMPTY_GAME);
+    assert!(EMPTY_GAME.board == EMPTY_BOARD);
+    assert!(EMPTY_GAME.last_loc == None);
 }
 
 // == board ====================================================================
 
-// TODO: think about this / currently, this is just a placeholder
 #[test]
 fn test_empty_board() {
     assert!(EMPTY_BOARD == EMPTY_BOARD);
+    assert!(EMPTY_BOARD.0 == EMPTY_BOARD.sboards());
     assert!(EMPTY_BOARD.sboards() == [
         EMPTY_SBOARD, EMPTY_SBOARD, EMPTY_SBOARD,
         EMPTY_SBOARD, EMPTY_SBOARD, EMPTY_SBOARD,
