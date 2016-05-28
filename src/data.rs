@@ -88,7 +88,7 @@ pub struct SLoc {
 // -- data: slot ---------------------------------------------------------------
 
 /// A slot is either taken by a player or empty.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Slot {
     Taken(Player),
@@ -122,6 +122,6 @@ pub enum SCI { C0, C1, C2 }
 // -- data: player -------------------------------------------------------------
 
 /// A player. Either X or O.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Player { X, O }

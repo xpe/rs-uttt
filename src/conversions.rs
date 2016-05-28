@@ -7,11 +7,21 @@ use constants::{SE, SX, SO};
 
 // -- -> sub-board -------------------------------------------------------------
 
+impl Board {
+    /// Returns an array of 9 sub-boards for a given board.
+    pub fn sboards(self) -> [SBoard; 9] {
+        self.0
+    }
+}
+
 // -- -> rows ------------------------------------------------------------------
 
 impl SBoard {
     pub fn rows(self) -> [Row; 3] {
-        unimplemented!(); // TODO
+        let x0: u8 = (self.0 & 0b11111) as u8;
+        let x1: u8 = (self.0 >> 5 & 0b11111) as u8;
+        let x2: u8 = (self.0 >> 10 & 0b011111) as u8;
+        [Row::from_u8(x0), Row::from_u8(x1), Row::from_u8(x2)]
     }
 }
 
@@ -34,10 +44,66 @@ impl SBoard {
 
 // -- -> slots -----------------------------------------------------------------
 
+impl Board {
+    /// Returns an array of 81 slots for a given board.
+    pub fn slots(self) -> [Slot; 81] {
+        let sbs: [SBoard; 9] = self.0;
+	let mut a = [SE; 81];
+	a[ 0 ..  9].copy_from_slice(&sbs[0].slots());
+	a[ 9 .. 18].copy_from_slice(&sbs[1].slots());
+	a[18 .. 27].copy_from_slice(&sbs[2].slots());
+	a[27 .. 36].copy_from_slice(&sbs[3].slots());
+	a[36 .. 45].copy_from_slice(&sbs[4].slots());
+	a[45 .. 54].copy_from_slice(&sbs[5].slots());
+	a[54 .. 63].copy_from_slice(&sbs[6].slots());
+	a[63 .. 72].copy_from_slice(&sbs[7].slots());
+	a[72 .. 81].copy_from_slice(&sbs[8].slots());
+	a
+    }
+
+    /// Returns a two dimensional array (9x9) of slots for a given board.
+    pub fn slots_9x9(self) -> [[Slot; 9]; 9] {
+        let sbs: [SBoard; 9] = self.0;
+        [
+            sbs[0].slots(),
+            sbs[1].slots(),
+            sbs[2].slots(),
+            sbs[3].slots(),
+            sbs[4].slots(),
+            sbs[5].slots(),
+            sbs[6].slots(),
+            sbs[7].slots(),
+            sbs[8].slots(),
+        ]
+    }
+}
+
+impl SBoard {
+    /// Returns an array of 9 slots for a given sub-board.
+    pub fn slots(self) -> [Slot; 9] {
+        let rs: [Row; 3] = self.rows();
+	let mut a = [SE; 9];
+	a[0 .. 3].copy_from_slice(&Row::slots(rs[0]));
+	a[3 .. 6].copy_from_slice(&Row::slots(rs[1]));
+	a[6 .. 9].copy_from_slice(&Row::slots(rs[2]));
+	a
+    }
+
+    /// Returns a two dimensional array (3x3) of slots for a given sub-board.
+    pub fn slots_3x3(self) -> [[Slot; 3]; 3] {
+        let rs: [Row; 3] = self.rows();
+        [
+            Row::slots(rs[0]),
+            Row::slots(rs[1]),
+            Row::slots(rs[2]),
+        ]
+    }
+}
+
 impl Row {
-    /// Returns an array of three slots for a given row.
-    pub fn as_slots(row: Row) -> [Slot; 3] {
-        match row {
+    /// Returns an array of 3 slots for a given row.
+    pub fn slots(self) -> [Slot; 3] {
+        match self {
             Row::EEE => [SE, SE, SE],
             Row::EEO => [SE, SE, SO],
             Row::EEX => [SE, SE, SX],
@@ -101,12 +167,14 @@ impl Row {
 
 // -- -> player ----------------------------------------------------------------
 
+// -- -> u16 -------------------------------------------------------------------
+
 // -- -> u8 --------------------------------------------------------------------
 
 impl Row {
     /// Convert a Row into a u8 value.
-    pub fn as_u8(row: Row) -> u8 {
-        match row {
+    pub fn as_u8(self) -> u8 {
+        match self {
             Row::EEE => 0x00,
             Row::EEX => 0x01,
             Row::EEO => 0x02,

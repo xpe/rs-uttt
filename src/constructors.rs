@@ -29,9 +29,9 @@ impl SBoard {
 
     /// Return a sub-board from 3 u8's.
     fn from_u8s(x0: u8, x1: u8, x2: u8) -> SBoard {
-        let v0: u16 = ((x0 & 0b11111) as u16) << 10;
+        let v2: u16 = ((x2 & 0b11111) as u16) << 10;
         let v1: u16 = ((x1 & 0b11111) as u16) << 5;
-        let v2: u16 = (x2 & 0b11111) as u16;
+        let v0: u16 = (x0 & 0b11111) as u16;
         SBoard(v2 | v1 | v0)
     }
 }
