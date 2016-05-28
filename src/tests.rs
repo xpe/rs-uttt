@@ -1,4 +1,4 @@
-use data::{SBoard, Slot, SRI};
+use data::{SBoard, SRI};
 use constants::{EMPTY_GAME, EMPTY_BOARD, EMPTY_SBOARD, EMPTY_ROW};
 use constants::{SE, SX, SO};
 
@@ -22,11 +22,10 @@ fn test_empty_board() {
         EMPTY_SBOARD, EMPTY_SBOARD, EMPTY_SBOARD,
         EMPTY_SBOARD, EMPTY_SBOARD, EMPTY_SBOARD,
     ]);
-    // Note: compare slices as a work-around, since Rust does not currently
-    // allow direct comparison of arrays bigger than 32 elements:
+    // Note: comparing slices (below) is a work-around, since Rust does not
+    // currently allow direct comparison of arrays bigger than 32 elements:
     // https://github.com/rust-lang/rfcs/issues/1038
-    let slots: [Slot; 81] = EMPTY_BOARD.slots();
-    let slots_81 = [
+    assert!(&EMPTY_BOARD.slots()[..] == &[
         SE, SE, SE, SE, SE, SE, SE, SE, SE,
         SE, SE, SE, SE, SE, SE, SE, SE, SE,
         SE, SE, SE, SE, SE, SE, SE, SE, SE,
@@ -36,8 +35,7 @@ fn test_empty_board() {
         SE, SE, SE, SE, SE, SE, SE, SE, SE,
         SE, SE, SE, SE, SE, SE, SE, SE, SE,
         SE, SE, SE, SE, SE, SE, SE, SE, SE,
-    ];
-    assert!(&slots[..] == &slots_81[..]);
+    ][..]);
     assert!(EMPTY_BOARD.slots_9x9() == [
         [SE, SE, SE, SE, SE, SE, SE, SE, SE],
         [SE, SE, SE, SE, SE, SE, SE, SE, SE],
