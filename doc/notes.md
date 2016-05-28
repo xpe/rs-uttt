@@ -36,3 +36,11 @@ Using the traits from [std::convert] may be preferable to creating functions
 named `x_to_y`:
 
 [std::convert]: https://doc.rust-lang.org/std/convert/
+
+## Naming Conventions
+
+Conversion Functions:
+
+* `to_` : ?
+* `as_` : inexpensive conversion
+* `into_` : ?
