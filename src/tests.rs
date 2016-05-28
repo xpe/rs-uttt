@@ -1,5 +1,8 @@
-use data::{Slot, SRI};
-use constants::{EMPTY_GAME, EMPTY_BOARD, EMPTY_SBOARD, EMPTY_ROW, SE};
+use data::{SBoard, Slot, SRI};
+use constants::{EMPTY_GAME, EMPTY_BOARD, EMPTY_SBOARD, EMPTY_ROW};
+use constants::{SE, SX, SO};
+
+// == game =====================================================================
 
 // TODO: think about this / currently, this is just a placeholder
 #[test]
@@ -7,6 +10,8 @@ fn test_empty_game() {
     let eg = EMPTY_GAME;
     assert!(eg == eg);
 }
+
+// == board ====================================================================
 
 // TODO: think about this / currently, this is just a placeholder
 #[test]
@@ -46,6 +51,8 @@ fn test_empty_board() {
     ]);
 }
 
+// == sub-board ================================================================
+
 #[test]
 fn test_empty_sboard() {
     let sb = EMPTY_SBOARD;
@@ -66,7 +73,49 @@ fn test_empty_sboard() {
 }
 
 #[test]
+fn test_sboard_from_slots() {
+    let slots_1 = [
+        SE, SE, SX,
+        SO, SX, SE,
+        SE, SE, SE,
+    ];
+    assert!(SBoard::from_slots(slots_1) == SBoard(0b0000001010100001));
+    let slots_2 = [
+        SE, SE, SE,
+        SE, SE, SX,
+        SO, SX, SE,
+    ];
+    assert!(SBoard::from_slots(slots_2) == SBoard(0b0101010000100000));
+}
+
+// == rows =====================================================================
+
+// == row ======================================================================
+
+#[test]
 fn test_empty_row() {
     let er = EMPTY_ROW;
     assert!(er.slots() == [SE, SE, SE]);
 }
+
+// == board play ===============================================================
+
+// == sub-board play ===========================================================
+
+// == board location ===========================================================
+
+// == sub-board location =======================================================
+
+// == slots ====================================================================
+
+// == slot =====================================================================
+
+// == board indexes ============================================================
+
+// == sub-board indexes ========================================================
+
+// == player ===================================================================
+
+// == u8 =======================================================================
+
+// == bool =====================================================================

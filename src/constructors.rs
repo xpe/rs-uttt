@@ -30,13 +30,10 @@ impl SBoard {
         s0.copy_from_slice(&slots[0 .. 3]);
         s1.copy_from_slice(&slots[3 .. 6]);
         s2.copy_from_slice(&slots[6 .. 9]);
-        let r0 = Row::from_slots(s0);
-        let r1 = Row::from_slots(s1);
-        let r2 = Row::from_slots(s2);
         SBoard::from_u8s(
-            Row::as_u8(r0),
-            Row::as_u8(r1),
-            Row::as_u8(r2),
+            Row::as_u8(Row::from_slots(s0)),
+            Row::as_u8(Row::from_slots(s1)),
+            Row::as_u8(Row::from_slots(s2)),
         )
     }
 
