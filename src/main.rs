@@ -1,3 +1,5 @@
+extern crate uttt;
+
 fn main() {
-    println!("UTTT");
+    println!("{:?}", uttt::constants::EMPTY_BOARD);
 }

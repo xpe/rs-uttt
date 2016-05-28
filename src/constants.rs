@@ -1,3 +1,5 @@
+// Constants
+
 use data::{Game, Board, SBoard, Row, Slot, Player};
 
 // -- game ---------------------------------------------------------------------
@@ -13,7 +15,9 @@ pub const EMPTY_BOARD: Board = Board([EMPTY_SBOARD; 9]);
 
 // -- sub-board ----------------------------------------------------------------
 
-pub const EMPTY_SBOARD: SBoard = SBoard(0); // TODO: FIX
+/// A constant for an empty sub-board, constructed by assuming that 0
+/// corresponds to three empty rows.
+pub const EMPTY_SBOARD: SBoard = SBoard(0);
 
 // -- row ----------------------------------------------------------------------
 

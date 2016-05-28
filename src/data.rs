@@ -1,10 +1,10 @@
-/// Data Structures for Ultimate Tic-Tac-Toe
+// Data Structures
 
 // -- data: game ---------------------------------------------------------------
 
 /// A `Game` is the combination of a `Board` and an optional last location of
 /// play. (A last location is only None for an empty board.)
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Game {
     pub board: Board,
     pub last_loc: Option<Loc>
@@ -17,7 +17,7 @@ pub struct Game {
 /// * row 0 : `0 1 2`
 /// * row 1 : `3 4 5`
 /// * row 2 : `6 7 8`
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Board(pub [SBoard; 9]);
 
 // -- data: sub-board ----------------------------------------------------------
@@ -28,7 +28,7 @@ pub struct Board(pub [SBoard; 9]);
 /// * row 0 : `0b0000000000011111`
 /// * row 1 : `0b0000001111100000`
 /// * row 2 : `0b0111110000000000`
-#[derive(Debug, Copy, Clone)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct SBoard(pub u16);
 
 // -- data: row ----------------------------------------------------------------
@@ -41,7 +41,7 @@ pub struct SBoard(pub u16);
 ///
 /// Note: I'd prefer to only use 5 bits but Rust prefers to align data
 /// structures on byte boundaries.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 #[repr(u8)]
 pub enum Row {
     EEE, EEO, EEX, EOE, EOO, EOX, EXE, EXO, EXX,
@@ -73,7 +73,7 @@ pub struct SPlay {
 ///
 /// * row: `0b11110000` (upper nibble)
 /// * col: `0b00001111` (lower nibble)
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Loc(pub u8);
 
 // -- data: sub-board location -------------------------------------------------
@@ -88,7 +88,7 @@ pub struct SLoc {
 // -- data: slot ---------------------------------------------------------------
 
 /// A slot is either taken by a player or empty.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Slot {
     Taken(Player),
@@ -122,6 +122,6 @@ pub enum SCI { C0, C1, C2 }
 // -- data: player -------------------------------------------------------------
 
 /// A player. Either X or O.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Eq, PartialEq)]
 #[repr(u8)]
 pub enum Player { X, O }
