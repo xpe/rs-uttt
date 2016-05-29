@@ -25,7 +25,6 @@ impl SBoard {
     }
 
     /// Return a sub-board from 9 slots.
-    #[allow(unused_variables)]
     pub fn from_slots(slots: [Slot; 9]) -> SBoard {
         let mut s0 = [SE; 3];
         let mut s1 = [SE; 3];
@@ -115,7 +114,7 @@ impl Row {
             0x18 => Row::OOE,
             0x19 => Row::OOX,
             0x1A => Row::OOO,
-            _ => panic!("internal error")
+            _ => panic!("internal error"),
         }
     }
 }
@@ -132,9 +131,8 @@ impl Row {
 
 impl Loc {
     /// Returns a location based on row and column indexes.
-    #[allow(unused_variables)]
     pub fn new(row: RI, col: CI) -> Loc {
-        Loc(0x00) // TODO: FIX
+        Loc(row.as_u8() << 4 | col.as_u8())
     }
 }
 

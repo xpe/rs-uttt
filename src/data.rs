@@ -108,6 +108,15 @@ pub enum RI { R0, R1, R2, R3, R4, R5, R6, R7, R8 }
 #[repr(u8)]
 pub enum CI { C0, C1, C2, C3, C4, C5, C6, C7, C8 }
 
+/// A board index, ranging from 0 to 8, inclusive.
+///
+/// * row 0 : `B0 B1 B2`
+/// * row 1 : `B3 B4 B5`
+/// * row 2 : `B6 B7 B8`
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[repr(u8)]
+pub enum BI { I0, I1, I2, I3, I4, I5, I6, I7, I8 }
+
 // -- data: sub-board indexes --------------------------------------------------
 
 /// A sub-board row index: 0, 1, or 2.
@@ -119,6 +128,15 @@ pub enum SRI { R0, R1, R2 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
 pub enum SCI { C0, C1, C2 }
+
+/// A sub-board index, ranging from 0 to 8, inclusive.
+///
+/// * row 0 : `I0 I1 I2`
+/// * row 1 : `I3 I4 I5`
+/// * row 2 : `I6 I7 I8`
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[repr(u8)]
+pub enum SBI { I0, I1, I2, I3, I4, I5, I6, I7, I8 }
 
 // -- data: player -------------------------------------------------------------
 

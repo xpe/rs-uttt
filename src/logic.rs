@@ -1,7 +1,8 @@
 /// Game logic; e.g. rules of the game. This module does not include accessors,
 /// constants, constructors, or data structure definitions.
 
-use data::{Game, Board, SBoard, Play, Loc, SLoc};
+use data::{Game, Board, SBoard, Play, Loc, SLoc, Player};
+use constants::{FIRST_PLAYER};
 
 // -> game ---------------------------------------------------------------------
 
@@ -15,22 +16,20 @@ impl Game {
         }
     }
 
-    /// Is the play valid for the given board?
+    /// Is the play valid for the given game?
     pub fn is_valid_play(self, p: Play) -> bool {
-        if self.last_loc == None {
-            self.board.is_location_taken(p.loc)
-        } else if self.last_player() == Some(p.player) {
-            false
+        if self.next_player() == Some(p.player) {
+            self.board.is_location_empty(p.loc)
         } else {
-            self.board.is_location_taken(p.loc)
+            false
         }
     }
 
     /// Makes the play (without validation) and returns the 'updated' game.
     #[allow(unused_variables)]
     fn play_sans_validate(self, play: Play) -> Game {
-        // TODO: implement
-        unimplemented!(); // TODO
+        println!("play_sans_validate : unimplemented");
+        unimplemented!(); // TODO: implement
     }
 }
 
@@ -60,24 +59,48 @@ impl Game {
 
 // -> player -------------------------------------------------------------------
 
+impl Game {
+    /// Returns the next player in the game, if there is one. Returns None if
+    /// the game is finished.
+    pub fn next_player(self) -> Option<Player> {
+        if self.is_complete() {
+            None
+        } else {
+            Some(match self.last_player() {
+                None => FIRST_PLAYER,
+                Some(Player::X) => Player::O,
+                Some(Player::O) => Player::X,
+            })
+        }
+    }
+}
+
 // -> bool ---------------------------------------------------------------------
 
+impl Game {
+    /// Returns true if the game is complete; i.e. a player won or there is a
+    /// tie.
+    pub fn is_complete(self) -> bool {
+        false // TODO: implement
+    }
+}
+
 impl Board {
-    /// Is the board location taken?
-    pub fn is_location_taken(self, loc: Loc) -> bool {
+    /// Is the board location empty?
+    pub fn is_location_empty(self, loc: Loc) -> bool {
         match self.player_at_loc(loc) {
-            None => false,
-            Some(_) => true,
+            None => true,
+            Some(_) => false,
         }
     }
 }
 
 impl SBoard {
-    /// Is the sub-board location taken?
-    pub fn is_location_taken(self, loc: SLoc) -> bool {
+    /// Is the sub-board location empty?
+    pub fn is_location_empty(self, loc: SLoc) -> bool {
         match self.player_at_loc(loc) {
-            None => false,
-            Some(_) => true,
+            None => true,
+            Some(_) => false,
         }
     }
 }

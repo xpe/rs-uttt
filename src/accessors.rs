@@ -2,20 +2,34 @@
 /// functions. This module does not include constants, constructors, data
 /// structure definitions, or game logic.
 
-use data::{Game, Board, SBoard, Row};
-use data::{Loc, SLoc, Slot, RI, CI, SRI, SCI, Player};
+use data::{Game, Board, SBoard, Row, Loc, SLoc};
+use data::{Slot, RI, CI, BI, SRI, SCI, SBI, Player};
 use constants::{SE, SX, SO};
 
 // -- -> game ------------------------------------------------------------------
 
 // -- -> board -----------------------------------------------------------------
 
-// -- -> sub-board -------------------------------------------------------------
+// -- -> sub-boards ------------------------------------------------------------
 
 impl Board {
     /// Returns an array of 9 sub-boards for a given board.
     pub fn sboards(self) -> [SBoard; 9] {
         self.0
+    }
+}
+
+// -- -> sub-board -------------------------------------------------------------
+
+impl Board {
+    /// Returns the sub-board at a given board row and col.
+    pub fn sboard_at_row_col(self, row: RI, col: CI) -> SBoard {
+        self.sboard_at_idx(BI::from_row_col(row, col))
+    }
+
+    /// Returns the sub-board at a given board index.
+    pub fn sboard_at_idx(self, idx: BI) -> SBoard {
+        (self.0)[idx.as_u8() as usize]
     }
 }
 
@@ -33,7 +47,7 @@ impl SBoard {
 // -- -> row -------------------------------------------------------------------
 
 impl SBoard {
-    pub fn row(self, ri: SRI) -> Row {
+    pub fn row_at(self, ri: SRI) -> Row {
         let s = match ri { SRI::R0 => 0, SRI::R1 => 5, SRI::R2 => 10 };
         Row::from_u8((self.0 >> s & 0b11111) as u8)
     }
@@ -144,25 +158,39 @@ impl Row {
 
 impl Board {
     /// Returns the Slot at a particular row and column in a board.
-    #[allow(unused_variables)]
-    pub fn slot(self, row: RI, col: CI) -> Slot {
-        unimplemented!(); // TODO
+    pub fn slot_at_loc(self, loc: Loc) -> Slot {
+        self.slot_at_row_col(loc.row(), loc.col())
+    }
+
+    /// Returns the Slot at a particular row and column in a board.
+    pub fn slot_at_row_col(self, row: RI, col: CI) -> Slot {
+        let sb: SBoard = self.sboard_at_row_col(row, col);
+        sb.slot_at_idx(SBI::from_row_col(row, col))
     }
 }
 
 impl SBoard {
     /// Returns the Slot at a particular row and column in a sub-board.
-    #[allow(unused_variables)]
-    pub fn slot(self, row: SRI, col: SCI) -> Slot {
-        unimplemented!(); // TODO
+    pub fn slot_at_row_col(self, ri: SRI, ci: SCI) -> Slot {
+        self.row_at(ri).slot_at(ci)
+    }
+
+    /// Returns the Slot at a particular sub-board index in a sub-board.
+    pub fn slot_at_idx(self, idx: SBI) -> Slot {
+        let (ri, ci) = idx.as_row_col();
+        self.slot_at_row_col(ri, ci)
     }
 }
 
 impl Row {
     /// Returns the Slot for a particular column index for a given Row.
-    #[allow(unused_variables)]
-    pub fn slot(self, col: SCI) -> Slot {
-        unimplemented!(); // TODO
+    pub fn slot_at(self, col: SCI) -> Slot {
+        let slots: [Slot; 3] = self.slots();
+        match col {
+            SCI::C0 => slots[0],
+            SCI::C1 => slots[1],
+            SCI::C2 => slots[2],
+        }
     }
 }
 
@@ -170,31 +198,278 @@ impl Row {
 
 impl Loc {
     /// Returns the row index for a board location.
-    #[allow(unused_variables)]
     pub fn row(self) -> RI {
-        unimplemented!(); // TODO
+        RI::from_u8(self.0 >> 4)
     }
 
     /// Returns the row index for a board location.
-    #[allow(unused_variables)]
     pub fn col(self) -> CI {
-        unimplemented!(); // TODO
+        CI::from_u8(self.0 & 0b00001111)
+    }
+}
+
+impl RI {
+    /// Convert a u8 value to a row index.
+    pub fn from_u8(x: u8) -> RI {
+        match x {
+            0 => RI::R0,
+            1 => RI::R1,
+            2 => RI::R2,
+            3 => RI::R3,
+            4 => RI::R4,
+            5 => RI::R5,
+            6 => RI::R6,
+            7 => RI::R7,
+            8 => RI::R8,
+            _ => panic!("internal error"),
+        }
+    }
+}
+
+impl CI {
+    /// Convert a u8 value to a column index.
+    pub fn from_u8(x: u8) -> CI {
+        match x {
+            0 => CI::C0,
+            1 => CI::C1,
+            2 => CI::C2,
+            3 => CI::C3,
+            4 => CI::C4,
+            5 => CI::C5,
+            6 => CI::C6,
+            7 => CI::C7,
+            8 => CI::C8,
+            _ => panic!("internal error"),
+        }
+    }
+}
+
+impl BI {
+    /// Returns a board index for a given board row and col.
+    pub fn from_row_col(row: RI, col: CI) -> BI {
+        match (row, col) {
+            (RI::R0, CI::C0) => BI::I0, //
+            (RI::R0, CI::C1) => BI::I0,
+            (RI::R0, CI::C2) => BI::I0,
+            (RI::R0, CI::C3) => BI::I1,
+            (RI::R0, CI::C4) => BI::I1,
+            (RI::R0, CI::C5) => BI::I1,
+            (RI::R0, CI::C6) => BI::I2,
+            (RI::R0, CI::C7) => BI::I2,
+            (RI::R0, CI::C8) => BI::I2,
+            (RI::R1, CI::C0) => BI::I0,
+            (RI::R1, CI::C1) => BI::I0,
+            (RI::R1, CI::C2) => BI::I0,
+            (RI::R1, CI::C3) => BI::I1,
+            (RI::R1, CI::C4) => BI::I1,
+            (RI::R1, CI::C5) => BI::I1,
+            (RI::R1, CI::C6) => BI::I2,
+            (RI::R1, CI::C7) => BI::I2,
+            (RI::R1, CI::C8) => BI::I2,
+            (RI::R2, CI::C0) => BI::I0,
+            (RI::R2, CI::C1) => BI::I0,
+            (RI::R2, CI::C2) => BI::I0,
+            (RI::R2, CI::C3) => BI::I1,
+            (RI::R2, CI::C4) => BI::I1,
+            (RI::R2, CI::C5) => BI::I1,
+            (RI::R2, CI::C6) => BI::I2,
+            (RI::R2, CI::C7) => BI::I2,
+            (RI::R2, CI::C8) => BI::I2,
+            (RI::R3, CI::C0) => BI::I3, //
+            (RI::R3, CI::C1) => BI::I3,
+            (RI::R3, CI::C2) => BI::I3,
+            (RI::R3, CI::C3) => BI::I4,
+            (RI::R3, CI::C4) => BI::I4,
+            (RI::R3, CI::C5) => BI::I4,
+            (RI::R3, CI::C6) => BI::I5,
+            (RI::R3, CI::C7) => BI::I5,
+            (RI::R3, CI::C8) => BI::I5,
+            (RI::R4, CI::C0) => BI::I3,
+            (RI::R4, CI::C1) => BI::I3,
+            (RI::R4, CI::C2) => BI::I3,
+            (RI::R4, CI::C3) => BI::I4,
+            (RI::R4, CI::C4) => BI::I4,
+            (RI::R4, CI::C5) => BI::I4,
+            (RI::R4, CI::C6) => BI::I5,
+            (RI::R4, CI::C7) => BI::I5,
+            (RI::R4, CI::C8) => BI::I5,
+            (RI::R5, CI::C0) => BI::I3,
+            (RI::R5, CI::C1) => BI::I3,
+            (RI::R5, CI::C2) => BI::I3,
+            (RI::R5, CI::C3) => BI::I4,
+            (RI::R5, CI::C4) => BI::I4,
+            (RI::R5, CI::C5) => BI::I4,
+            (RI::R5, CI::C6) => BI::I5,
+            (RI::R5, CI::C7) => BI::I5,
+            (RI::R5, CI::C8) => BI::I5,
+            (RI::R6, CI::C0) => BI::I6, //
+            (RI::R6, CI::C1) => BI::I6,
+            (RI::R6, CI::C2) => BI::I6,
+            (RI::R6, CI::C3) => BI::I7,
+            (RI::R6, CI::C4) => BI::I7,
+            (RI::R6, CI::C5) => BI::I7,
+            (RI::R6, CI::C6) => BI::I8,
+            (RI::R6, CI::C7) => BI::I8,
+            (RI::R6, CI::C8) => BI::I8,
+            (RI::R7, CI::C0) => BI::I6,
+            (RI::R7, CI::C1) => BI::I6,
+            (RI::R7, CI::C2) => BI::I6,
+            (RI::R7, CI::C3) => BI::I7,
+            (RI::R7, CI::C4) => BI::I7,
+            (RI::R7, CI::C5) => BI::I7,
+            (RI::R7, CI::C6) => BI::I8,
+            (RI::R7, CI::C7) => BI::I8,
+            (RI::R7, CI::C8) => BI::I8,
+            (RI::R8, CI::C0) => BI::I6,
+            (RI::R8, CI::C1) => BI::I6,
+            (RI::R8, CI::C2) => BI::I6,
+            (RI::R8, CI::C3) => BI::I7,
+            (RI::R8, CI::C4) => BI::I7,
+            (RI::R8, CI::C5) => BI::I7,
+            (RI::R8, CI::C6) => BI::I8,
+            (RI::R8, CI::C7) => BI::I8,
+            (RI::R8, CI::C8) => BI::I8,
+        }
+    }
+
+    /// Convert a u8 value to a row index.
+    pub fn from_u8(x: u8) -> BI {
+        match x {
+            0 => BI::I0,
+            1 => BI::I1,
+            2 => BI::I2,
+            3 => BI::I3,
+            4 => BI::I4,
+            5 => BI::I5,
+            6 => BI::I6,
+            7 => BI::I7,
+            8 => BI::I8,
+            _ => panic!("internal error"),
+        }
     }
 }
 
 // -- -> sub-board indexes -----------------------------------------------------
 
-impl SLoc {
-    /// Returns the row index for a sub-board location.
-    #[allow(unused_variables)]
-    pub fn row(self) -> SRI {
-        unimplemented!(); // TODO
+// Note: see also struct accessors: `SLoc::row` and `SLoc::col`.
+
+impl SBI {
+    /// Returns a (row idx, col idx) tuple for a given sub-board index.
+    pub fn as_row_col(self) -> (SRI, SCI) {
+        match self {
+            SBI::I0 => (SRI::R0, SCI::C0),
+            SBI::I1 => (SRI::R0, SCI::C1),
+            SBI::I2 => (SRI::R0, SCI::C2),
+            SBI::I3 => (SRI::R1, SCI::C0),
+            SBI::I4 => (SRI::R1, SCI::C1),
+            SBI::I5 => (SRI::R1, SCI::C2),
+            SBI::I6 => (SRI::R2, SCI::C0),
+            SBI::I7 => (SRI::R2, SCI::C1),
+            SBI::I8 => (SRI::R2, SCI::C2),
+        }
     }
 
-    /// Returns the row index for a sub-board location.
-    #[allow(unused_variables)]
-    pub fn col(self) -> SCI {
-        unimplemented!(); // TODO
+    /// Returns a sub-board index for a given board row and col.
+    pub fn from_row_col(row: RI, col: CI) -> SBI {
+        match (row, col) {
+            (RI::R0, CI::C0) => SBI::I0, //
+            (RI::R0, CI::C1) => SBI::I1,
+            (RI::R0, CI::C2) => SBI::I2,
+            (RI::R0, CI::C3) => SBI::I3,
+            (RI::R0, CI::C4) => SBI::I4,
+            (RI::R0, CI::C5) => SBI::I5,
+            (RI::R0, CI::C6) => SBI::I6,
+            (RI::R0, CI::C7) => SBI::I7,
+            (RI::R0, CI::C8) => SBI::I8,
+            (RI::R1, CI::C0) => SBI::I0,
+            (RI::R1, CI::C1) => SBI::I1,
+            (RI::R1, CI::C2) => SBI::I2,
+            (RI::R1, CI::C3) => SBI::I3,
+            (RI::R1, CI::C4) => SBI::I4,
+            (RI::R1, CI::C5) => SBI::I5,
+            (RI::R1, CI::C6) => SBI::I6,
+            (RI::R1, CI::C7) => SBI::I7,
+            (RI::R1, CI::C8) => SBI::I8,
+            (RI::R2, CI::C0) => SBI::I0,
+            (RI::R2, CI::C1) => SBI::I1,
+            (RI::R2, CI::C2) => SBI::I2,
+            (RI::R2, CI::C3) => SBI::I3,
+            (RI::R2, CI::C4) => SBI::I4,
+            (RI::R2, CI::C5) => SBI::I5,
+            (RI::R2, CI::C6) => SBI::I6,
+            (RI::R2, CI::C7) => SBI::I7,
+            (RI::R2, CI::C8) => SBI::I8,
+            (RI::R3, CI::C0) => SBI::I0, //
+            (RI::R3, CI::C1) => SBI::I1,
+            (RI::R3, CI::C2) => SBI::I2,
+            (RI::R3, CI::C3) => SBI::I3,
+            (RI::R3, CI::C4) => SBI::I4,
+            (RI::R3, CI::C5) => SBI::I5,
+            (RI::R3, CI::C6) => SBI::I6,
+            (RI::R3, CI::C7) => SBI::I7,
+            (RI::R3, CI::C8) => SBI::I8,
+            (RI::R4, CI::C0) => SBI::I0,
+            (RI::R4, CI::C1) => SBI::I1,
+            (RI::R4, CI::C2) => SBI::I2,
+            (RI::R4, CI::C3) => SBI::I3,
+            (RI::R4, CI::C4) => SBI::I4,
+            (RI::R4, CI::C5) => SBI::I5,
+            (RI::R4, CI::C6) => SBI::I6,
+            (RI::R4, CI::C7) => SBI::I7,
+            (RI::R4, CI::C8) => SBI::I8,
+            (RI::R5, CI::C0) => SBI::I0,
+            (RI::R5, CI::C1) => SBI::I1,
+            (RI::R5, CI::C2) => SBI::I2,
+            (RI::R5, CI::C3) => SBI::I3,
+            (RI::R5, CI::C4) => SBI::I4,
+            (RI::R5, CI::C5) => SBI::I5,
+            (RI::R5, CI::C6) => SBI::I6,
+            (RI::R5, CI::C7) => SBI::I7,
+            (RI::R5, CI::C8) => SBI::I8,
+            (RI::R6, CI::C0) => SBI::I0, //
+            (RI::R6, CI::C1) => SBI::I1,
+            (RI::R6, CI::C2) => SBI::I2,
+            (RI::R6, CI::C3) => SBI::I3,
+            (RI::R6, CI::C4) => SBI::I4,
+            (RI::R6, CI::C5) => SBI::I5,
+            (RI::R6, CI::C6) => SBI::I6,
+            (RI::R6, CI::C7) => SBI::I7,
+            (RI::R6, CI::C8) => SBI::I8,
+            (RI::R7, CI::C0) => SBI::I0,
+            (RI::R7, CI::C1) => SBI::I1,
+            (RI::R7, CI::C2) => SBI::I2,
+            (RI::R7, CI::C3) => SBI::I3,
+            (RI::R7, CI::C4) => SBI::I4,
+            (RI::R7, CI::C5) => SBI::I5,
+            (RI::R7, CI::C6) => SBI::I6,
+            (RI::R7, CI::C7) => SBI::I7,
+            (RI::R7, CI::C8) => SBI::I8,
+            (RI::R8, CI::C0) => SBI::I0,
+            (RI::R8, CI::C1) => SBI::I1,
+            (RI::R8, CI::C2) => SBI::I2,
+            (RI::R8, CI::C3) => SBI::I3,
+            (RI::R8, CI::C4) => SBI::I4,
+            (RI::R8, CI::C5) => SBI::I5,
+            (RI::R8, CI::C6) => SBI::I6,
+            (RI::R8, CI::C7) => SBI::I7,
+            (RI::R8, CI::C8) => SBI::I8,
+        }
+    }
+
+    /// Convert a u8 value to a row index.
+    pub fn from_u8(x: u8) -> SBI {
+        match x {
+            0 => SBI::I0,
+            1 => SBI::I1,
+            2 => SBI::I2,
+            3 => SBI::I3,
+            4 => SBI::I4,
+            5 => SBI::I5,
+            6 => SBI::I6,
+            7 => SBI::I7,
+            8 => SBI::I8,
+            _ => panic!("internal error"),
+        }
     }
 }
 
@@ -217,22 +492,26 @@ impl Board {
     }
 
     /// Returns the player at a row + col, if present.
-    #[allow(unused_variables)]
     pub fn player_at_row_col(self, row: RI, col: CI) -> Option<Player> {
-        unimplemented!(); // TODO
+        match self.slot_at_row_col(row, col) {
+            Slot::Empty => None,
+            Slot::Taken(player) => Some(player),
+        }
     }
 }
 
 impl SBoard {
     /// Returns the player at a sub-board location, if present.
     pub fn player_at_loc(self, loc: SLoc) -> Option<Player> {
-        self.player_at_row_col(loc.row(), loc.col())
+        self.player_at_row_col(loc.row, loc.col)
     }
 
     /// Returns the player at a row + col, if present.
-    #[allow(unused_variables)]
     pub fn player_at_row_col(self, row: SRI, col: SCI) -> Option<Player> {
-        unimplemented!(); // TODO
+        match self.slot_at_row_col(row, col) {
+            Slot::Empty => None,
+            Slot::Taken(player) => Some(player),
+        }
     }
 }
 
@@ -271,6 +550,57 @@ impl Row {
             Row::OOE => 0x18,
             Row::OOX => 0x19,
             Row::OOO => 0x1A,
+        }
+    }
+}
+
+impl RI {
+    /// Convert a row index into a u8 value.
+    pub fn as_u8(self) -> u8 {
+        match self {
+            RI::R0 => 0,
+            RI::R1 => 1,
+            RI::R2 => 2,
+            RI::R3 => 3,
+            RI::R4 => 4,
+            RI::R5 => 5,
+            RI::R6 => 6,
+            RI::R7 => 7,
+            RI::R8 => 8,
+        }
+    }
+}
+
+impl CI {
+    /// Convert a column index into a u8 value.
+    pub fn as_u8(self) -> u8 {
+        match self {
+            CI::C0 => 0,
+            CI::C1 => 1,
+            CI::C2 => 2,
+            CI::C3 => 3,
+            CI::C4 => 4,
+            CI::C5 => 5,
+            CI::C6 => 6,
+            CI::C7 => 7,
+            CI::C8 => 8,
+        }
+    }
+}
+
+impl BI {
+    /// Convert a board index into a u8 value.
+    pub fn as_u8(self) -> u8 {
+        match self {
+            BI::I0 => 0,
+            BI::I1 => 1,
+            BI::I2 => 2,
+            BI::I3 => 3,
+            BI::I4 => 4,
+            BI::I5 => 5,
+            BI::I6 => 6,
+            BI::I7 => 7,
+            BI::I8 => 8,
         }
     }
 }

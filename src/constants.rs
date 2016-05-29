@@ -56,4 +56,4 @@ pub const SO: Slot = Slot::Taken(Player::O);
 
 // -- player -------------------------------------------------------------------
 
-// Note: no player constants needed.
+pub const FIRST_PLAYER: Player = Player::X;
