@@ -1,4 +1,5 @@
-// Constants
+/// Constants. This module does not include accessors, constructors, data
+/// structure definitions, or game logic.
 
 use data::{Game, Board, SBoard, Row, Slot, Player};
 

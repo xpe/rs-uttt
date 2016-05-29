@@ -1,9 +1,9 @@
 #![feature(slice_patterns)]
 
-pub mod data;
+pub mod accessors;
 pub mod constants;
-pub mod conversions;
 pub mod constructors;
+pub mod data;
 pub mod logic;
 
 #[cfg(test)]

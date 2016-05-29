@@ -1,5 +1,6 @@
-/// Conversion functions. This module does not include game logic or data
-/// structure definitions or conversions.
+/// Accessor functions, some of which might be considered 'conversion'
+/// functions. This module does not include constants, constructors, data
+/// structure definitions, or game logic.
 
 use data::{Game, Board, SBoard, Row};
 use data::{Loc, SLoc, Slot, RI, CI, SRI, SCI, Player};
@@ -200,7 +201,7 @@ impl SLoc {
 // -- -> player ----------------------------------------------------------------
 
 impl Game {
-    /// Returns the last player in a game.
+    /// Returns the last (previous) player in a game, if present.
     pub fn last_player(self) -> Option<Player> {
         match self.last_loc {
             None => None,
@@ -260,3 +261,5 @@ impl Row {
         }
     }
 }
+
+// -- -> bool ------------------------------------------------------------------

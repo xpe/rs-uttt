@@ -1,5 +1,5 @@
-/// Data structure definitions. Does not include additional constants,
-/// constructors, conversion functions, or game logic.
+/// Data structure definitions. This module does not include accessors,
+/// constants, constructors, or game logic.
 
 // -- data: game ---------------------------------------------------------------
 
