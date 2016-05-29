@@ -245,6 +245,11 @@ impl CI {
 }
 
 impl BI {
+    /// Returns a board index for a given board location.
+    pub fn from_loc(loc: Loc) -> BI {
+        BI::from_row_col(loc.row(), loc.col())
+    }
+
     /// Returns a board index for a given board row and col.
     pub fn from_row_col(row: RI, col: CI) -> BI {
         match (row, col) {
@@ -353,6 +358,40 @@ impl BI {
 
 // Note: see also struct accessors: `SLoc::row` and `SLoc::col`.
 
+impl SRI {
+    /// Convert a sub-board index to a sub-board row index.
+    pub fn from_idx(sbi: SBI) -> SRI {
+        match sbi {
+            SBI::I0 => SRI::R0,
+            SBI::I1 => SRI::R0,
+            SBI::I2 => SRI::R0,
+            SBI::I3 => SRI::R1,
+            SBI::I4 => SRI::R1,
+            SBI::I5 => SRI::R1,
+            SBI::I6 => SRI::R2,
+            SBI::I7 => SRI::R2,
+            SBI::I8 => SRI::R2,
+        }
+    }
+}
+
+impl SCI {
+    /// Convert a sub-board index to a sub-board column index.
+    pub fn from_idx(sbi: SBI) -> SCI {
+        match sbi {
+            SBI::I0 => SCI::C0,
+            SBI::I1 => SCI::C1,
+            SBI::I2 => SCI::C2,
+            SBI::I3 => SCI::C0,
+            SBI::I4 => SCI::C1,
+            SBI::I5 => SCI::C2,
+            SBI::I6 => SCI::C0,
+            SBI::I7 => SCI::C1,
+            SBI::I8 => SCI::C2,
+        }
+    }
+}
+
 impl SBI {
     /// Returns a (row idx, col idx) tuple for a given sub-board index.
     pub fn as_row_col(self) -> (SRI, SCI) {
@@ -367,6 +406,11 @@ impl SBI {
             SBI::I7 => (SRI::R2, SCI::C1),
             SBI::I8 => (SRI::R2, SCI::C2),
         }
+    }
+
+    /// Returns a sub-board index for a given board location.
+    pub fn from_loc(loc: Loc) -> SBI {
+        SBI::from_row_col(loc.row(), loc.col())
     }
 
     /// Returns a sub-board index for a given board row and col.
