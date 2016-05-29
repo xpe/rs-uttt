@@ -29,7 +29,7 @@ impl Board {
 
     /// Returns the sub-board at a given board index.
     pub fn sboard_at_idx(self, idx: BI) -> SBoard {
-        (self.0)[idx.as_u8() as usize]
+        self.0[idx.as_u8() as usize]
     }
 }
 
