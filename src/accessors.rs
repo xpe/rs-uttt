@@ -211,7 +211,7 @@ impl Game {
 }
 
 impl Board {
-    /// Returns the player at a location, if present.
+    /// Returns the player at a board location, if present.
     pub fn player_at_loc(self, loc: Loc) -> Option<Player> {
         self.player_at_row_col(loc.row(), loc.col())
     }
@@ -219,6 +219,19 @@ impl Board {
     /// Returns the player at a row + col, if present.
     #[allow(unused_variables)]
     pub fn player_at_row_col(self, row: RI, col: CI) -> Option<Player> {
+        unimplemented!(); // TODO
+    }
+}
+
+impl SBoard {
+    /// Returns the player at a sub-board location, if present.
+    pub fn player_at_loc(self, loc: SLoc) -> Option<Player> {
+        self.player_at_row_col(loc.row(), loc.col())
+    }
+
+    /// Returns the player at a row + col, if present.
+    #[allow(unused_variables)]
+    pub fn player_at_row_col(self, row: SRI, col: SCI) -> Option<Player> {
         unimplemented!(); // TODO
     }
 }

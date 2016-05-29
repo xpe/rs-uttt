@@ -1,7 +1,7 @@
 /// Game logic; e.g. rules of the game. This module does not include accessors,
 /// constants, constructors, or data structure definitions.
 
-use data::{Game, Board, SBoard, Play, SPlay, Loc, SLoc};
+use data::{Game, Board, SBoard, Play, Loc, SLoc};
 
 // -> game ---------------------------------------------------------------------
 
@@ -64,27 +64,20 @@ impl Game {
 
 impl Board {
     /// Is the board location taken?
-    #[allow(unused_variables)]
     pub fn is_location_taken(self, loc: Loc) -> bool {
-        // true
-        // TODO: implement
-        unimplemented!();
+        match self.player_at_loc(loc) {
+            None => false,
+            Some(_) => true,
+        }
     }
 }
 
 impl SBoard {
-    /// Is the play valid for the given sub-board?
-    #[allow(unused_variables)]
-    pub fn is_valid_play(self, sp: SPlay) -> bool {
-        // TODO: this implementation is incomplete and incorrect
-        SBoard::is_location_taken(self, sp.loc)
-    }
-
     /// Is the sub-board location taken?
-    #[allow(unused_variables)]
     pub fn is_location_taken(self, loc: SLoc) -> bool {
-        // true
-        // TODO: implement
-        unimplemented!();
+        match self.player_at_loc(loc) {
+            None => false,
+            Some(_) => true,
+        }
     }
 }
