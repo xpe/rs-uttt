@@ -48,8 +48,8 @@ impl SBoard {
 
 impl SBoard {
     pub fn row_at(self, ri: SRI) -> Row {
-        let s = match ri { SRI::R0 => 0, SRI::R1 => 5, SRI::R2 => 10 };
-        Row::from_u8((self.0 >> s & 0b11111) as u8)
+        let shift = match ri { SRI::R0 => 0, SRI::R1 => 5, SRI::R2 => 10 };
+        Row::from_u8((self.0 >> shift & 0b11111) as u8)
     }
 }
 
