@@ -6,3 +6,4 @@ repository = "https://github.com/bluemont/rs-uttt.git"
 homepage = "https://github.com/bluemont/rs-uttt.git"
 
 [dependencies]
+rand = "0.3"
