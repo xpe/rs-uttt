@@ -10,7 +10,16 @@ pub trait Show {
 
 impl Show for Game {
     fn show(&self) -> String {
-        self.board.show()
+        format!(
+            "{}{}",
+            self.board.show(),
+            if self.last_loc.is_none() {
+                "".to_string()
+            } else {
+                format!("\n              last play : {}              ",
+                        self.last_loc.unwrap().show())
+            }
+        )
     }
 }
 
@@ -19,14 +28,35 @@ impl Show for Game {
 impl Show for Board {
     fn show(&self) -> String {
         let s: [[Slot; 9]; 9] = reorder_slots(self.slots_9x9());
-        let hl = "───┼───┼───  ───┼───┼───  ───┼───┼───";
+        let cols = "     0   1   2    3   4   5    6   7   8     ";
+        let line = "    ───┼───┼───  ───┼───┼───  ───┼───┼───    ";
         format!(
-            "{}\n{}\n{}\n{}\n{}\n\n\
-             {}\n{}\n{}\n{}\n{}\n\n\
-             {}\n{}\n{}\n{}\n{}",
-            s[0].show(), hl, s[1].show(), hl, s[2].show(),
-            s[3].show(), hl, s[4].show(), hl, s[5].show(),
-            s[6].show(), hl, s[7].show(), hl, s[8].show()
+            "{}\n\
+             \n\
+             0   {}   0\n\
+             {}\n\
+             1   {}   1\n\
+             {}\n\
+             2   {}   2\n\
+             \n\
+             3   {}   3\n\
+             {}\n\
+             4   {}   4\n\
+             {}\n\
+             5   {}   5\n\
+             \n\
+             6   {}   6\n\
+             {}\n\
+             7   {}   7\n\
+             {}\n\
+             8   {}   8\n\
+             \n\
+             {}",
+            cols,
+            s[0].show(), line, s[1].show(), line, s[2].show(),
+            s[3].show(), line, s[4].show(), line, s[5].show(),
+            s[6].show(), line, s[7].show(), line, s[8].show(),
+            cols
         )
     }
 }
@@ -117,6 +147,12 @@ impl Show for Row {
 
 // -- board location -----------------------------------------------------------
 
+impl Show for Loc {
+    fn show(&self) -> String {
+        format!("R{} C{}", self.row().show(), self.col().show())
+    }
+}
+
 // -- sub-board location -------------------------------------------------------
 
 // -- slots --------------------------------------------------------------------
@@ -152,6 +188,18 @@ impl Show for Slot {
 }
 
 // -- board indexes ------------------------------------------------------------
+
+impl Show for RI {
+    fn show(&self) -> String {
+        format!("{}", self.as_u8())
+    }
+}
+
+impl Show for CI {
+    fn show(&self) -> String {
+        format!("{}", self.as_u8())
+    }
+}
 
 // -- sub-board indexes --------------------------------------------------------
 
