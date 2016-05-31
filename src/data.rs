@@ -10,6 +10,8 @@ pub struct Game {
     pub board: Board,
     pub last_loc: Option<Loc>
 }
+// TODO: I could squeeze in one more bit to cache if a game is in progress or is
+// ended. This would require some bit wrangling.
 
 // -- data: board --------------------------------------------------------------
 

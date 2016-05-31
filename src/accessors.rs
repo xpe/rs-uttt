@@ -354,6 +354,22 @@ impl BI {
     }
 }
 
+impl SBI {
+    pub fn as_bi(self) -> BI {
+        match self {
+            SBI::I0 => BI::I0,
+            SBI::I1 => BI::I1,
+            SBI::I2 => BI::I2,
+            SBI::I3 => BI::I3,
+            SBI::I4 => BI::I4,
+            SBI::I5 => BI::I5,
+            SBI::I6 => BI::I6,
+            SBI::I7 => BI::I7,
+            SBI::I8 => BI::I8,
+        }
+    }
+}
+
 // -- -> sub-board indexes -----------------------------------------------------
 
 // Note: see also struct accessors: `SLoc::row` and `SLoc::col`.

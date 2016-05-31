@@ -17,15 +17,6 @@ impl Game {
         }
     }
 
-    /// Is the play valid for the given game?
-    pub fn is_valid_play(self, p: Play) -> bool {
-        if self.next_player() == Some(p.player) {
-            self.board.is_location_empty(p.loc)
-        } else {
-            false
-        }
-    }
-
     /// Makes the play (without validation) and returns the 'updated' game.
     fn play_sans_validate(self, play: Play) -> Game {
         Game {
@@ -294,6 +285,44 @@ impl Game {
     /// tie.
     pub fn is_complete(self) -> bool {
         false // TODO: implement
+    }
+
+    /// Is the play valid for the given game?
+    pub fn is_valid_play(self, p: Play) -> bool {
+        if self.is_complete() {
+            false
+        } else if self.next_player() == Some(p.player) {
+            self.is_valid_sboard(p) &&
+            self.board.is_location_empty(p.loc)
+        } else {
+            false
+        }
+    }
+
+    /// Is the play in a valid sub-board?
+    fn is_valid_sboard(self, play: Play) -> bool {
+        match self.last_loc {
+            // The first player can play anywhere
+            None => true,
+            // Subsequent plays are constrained
+            Some(last_loc) => {
+                let last_loc_sbi = SBI::from_loc(last_loc);
+                let last_loc_bi = last_loc_sbi.as_bi();
+                let play_bi = BI::from_loc(play.loc);
+                if self.is_sboard_open(last_loc_bi) {
+                    last_loc_bi == play_bi
+                } else {
+                    self.is_sboard_open(play_bi)
+                }
+            }
+        }
+    }
+
+    /// Is the sub-board open (i.e. not won or tied)?
+    #[allow(unused_variables)]
+    fn is_sboard_open(self, bi: BI) -> bool {
+        // TODO
+        true
     }
 }
 
