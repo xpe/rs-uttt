@@ -41,8 +41,7 @@ impl Board {
     fn update_with_play(&mut self, play: Play) {
         let bi: BI = BI::from_loc(play.loc);
         let sbi: SBI = SBI::from_loc(play.loc);
-        self.0[bi.as_u8() as usize].update_with(sbi, play.player);
-        // self.mut_sboard_at_idx(bi).update_with(sbi, play.player);
+        self.mut_sboard_at_idx(bi).update_with(sbi, play.player);
     }
 }
 

@@ -32,10 +32,10 @@ impl Board {
         self.0[idx.as_u8() as usize]
     }
 
-    // Returns a mutable reference to a sub-board at a given index.
-    // pub fn mut_sboard_at_idx(&self, idx: BI) -> &mut SBoard {
-    //     &mut self.0[idx.as_u8() as usize]
-    // }
+    /// Returns a mutable reference to a sub-board at a given index.
+    pub fn mut_sboard_at_idx(&mut self, idx: BI) -> &mut SBoard {
+        &mut self.0[idx.as_u8() as usize]
+    }
 }
 
 // -- -> rows ------------------------------------------------------------------
