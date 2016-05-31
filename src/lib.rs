@@ -8,6 +8,7 @@ pub mod examples;
 pub mod logic;
 pub mod random;
 pub mod show;
+pub mod utility;
 
 extern crate rand;
 
