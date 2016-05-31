@@ -305,8 +305,7 @@ impl Game {
             None => true,
             // Subsequent plays are constrained
             Some(last_loc) => {
-                let last_loc_sbi = SBI::from_loc(last_loc);
-                let last_loc_bi = last_loc_sbi.as_bi();
+                let last_loc_bi = SBI::from_loc(last_loc).as_bi();
                 let play_bi = BI::from_loc(play.loc);
                 if self.is_sboard_open(last_loc_bi) {
                     last_loc_bi == play_bi
