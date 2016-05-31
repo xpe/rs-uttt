@@ -3,6 +3,7 @@
 
 use data::{Game, Board, SBoard, Row, Play, Loc, SLoc, Slot};
 use data::{BI, SRI, SCI, SBI, Player};
+// use constants::{FIRST_PLAYER, BI_WINS};
 use constants::{FIRST_PLAYER};
 
 // -> game ---------------------------------------------------------------------
@@ -41,6 +42,7 @@ impl Board {
         let bi: BI = BI::from_loc(play.loc);
         let sbi: SBI = SBI::from_loc(play.loc);
         self.0[bi.as_u8() as usize].update_with(sbi, play.player);
+        // self.mut_sboard_at_idx(bi).update_with(sbi, play.player);
     }
 }
 
@@ -283,7 +285,7 @@ impl Game {
 impl Game {
     /// Is the game complete (by win or tie)?
     pub fn is_complete(self) -> bool {
-        false // TODO: implement
+        self.board.is_open()
     }
 
     /// Is the play valid for the given game?
@@ -304,26 +306,42 @@ impl Game {
             None => true,
             // Subsequent plays are constrained
             Some(last_loc) => {
-                let last_loc_bi = SBI::from_loc(last_loc).as_bi();
-                let play_bi = BI::from_loc(play.loc);
-                if self.is_sboard_open(last_loc_bi) {
+                let last_loc_bi: BI = SBI::from_loc(last_loc).as_bi();
+                let play_bi: BI = BI::from_loc(play.loc);
+                let board: Board = self.board;
+                if board.is_sboard_open(last_loc_bi) {
                     last_loc_bi == play_bi
                 } else {
-                    self.is_sboard_open(play_bi)
+                    board.is_sboard_open(play_bi)
                 }
             }
         }
     }
-
-    /// Is the sub-board open (i.e. not won or tied)?
-    #[allow(unused_variables)]
-    fn is_sboard_open(self, bi: BI) -> bool {
-        // TODO
-        true
-    }
 }
 
 impl Board {
+    /// Is the board open for more plays (i.e. not won or tied)?
+    #[allow(unused_variables)]
+    pub fn is_open(self) -> bool {
+        let sboards: [SBoard; 9] = self.sboards();
+        false // TODO
+    }
+
+    #[allow(unused_variables)]
+    pub fn is_won(self) -> bool {
+        unimplemented!(); // TODO
+    }
+
+    #[allow(unused_variables)]
+    pub fn is_tied(self) -> bool {
+        unimplemented!(); // TODO
+    }
+
+    /// Is the sub-board open (i.e. not won or tied)?
+    fn is_sboard_open(self, bi: BI) -> bool {
+        self.sboard_at_idx(bi).is_open()
+    }
+
     /// Is the board location empty?
     pub fn is_location_empty(self, loc: Loc) -> bool {
         match self.player_at_loc(loc) {
@@ -334,6 +352,25 @@ impl Board {
 }
 
 impl SBoard {
+    /// Is the sub-board open for more plays (i.e. not won or tied)?
+    #[allow(unused_variables)]
+    pub fn is_open(self) -> bool {
+        unimplemented!(); // TODO
+    }
+
+    /// Has a player won the sub-board?
+    #[allow(unused_variables)]
+    pub fn is_won(self) -> bool {
+        // BI_WINS.iter().all(|&x| x.is_open());
+        unimplemented!(); // TODO
+    }
+
+    /// Have the players tied the sub-board?
+    #[allow(unused_variables)]
+    pub fn is_tied(self) -> bool {
+        unimplemented!(); // TODO
+    }
+
     /// Is the sub-board location empty?
     pub fn is_location_empty(self, loc: SLoc) -> bool {
         match self.player_at_loc(loc) {

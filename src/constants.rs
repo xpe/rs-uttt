@@ -1,7 +1,7 @@
 /// Constants. This module does not include accessors, constructors, data
 /// structure definitions, or game logic.
 
-use data::{Game, Board, SBoard, Row, Slot, Player};
+use data::{Game, Board, SBoard, Row, Slot, BI, SBI, Player};
 
 // -- game ---------------------------------------------------------------------
 
@@ -48,11 +48,29 @@ pub const SO: Slot = Slot::Taken(Player::O);
 
 // -- board indexes ------------------------------------------------------------
 
-// Note: no board index constants needed.
+pub const BI_WINS: [[BI; 3]; 8] = [
+    [BI::I0, BI::I1, BI::I2],
+    [BI::I3, BI::I4, BI::I5],
+    [BI::I6, BI::I7, BI::I8],
+    [BI::I0, BI::I3, BI::I6],
+    [BI::I1, BI::I4, BI::I2],
+    [BI::I2, BI::I5, BI::I8],
+    [BI::I0, BI::I4, BI::I8],
+    [BI::I2, BI::I4, BI::I6],
+];
 
 // -- sub-board indexes --------------------------------------------------------
 
-// Note: no sub-board index constants needed.
+pub const SBI_WINS: [[SBI; 3]; 8] = [
+    [SBI::I0, SBI::I1, SBI::I2],
+    [SBI::I3, SBI::I4, SBI::I5],
+    [SBI::I6, SBI::I7, SBI::I8],
+    [SBI::I0, SBI::I3, SBI::I6],
+    [SBI::I1, SBI::I4, SBI::I2],
+    [SBI::I2, SBI::I5, SBI::I8],
+    [SBI::I0, SBI::I4, SBI::I8],
+    [SBI::I2, SBI::I4, SBI::I6],
+];
 
 // -- player -------------------------------------------------------------------
 
