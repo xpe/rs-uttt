@@ -281,8 +281,7 @@ impl Game {
 // -> bool ---------------------------------------------------------------------
 
 impl Game {
-    /// Returns true if the game is complete; i.e. a player won or there is a
-    /// tie.
+    /// Is the game complete (by win or tie)?
     pub fn is_complete(self) -> bool {
         false // TODO: implement
     }
