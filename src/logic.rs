@@ -292,8 +292,7 @@ impl Game {
         if self.is_complete() {
             false
         } else if self.next_player() == Some(p.player) {
-            self.is_valid_sboard(p) &&
-            self.board.is_location_empty(p.loc)
+            self.is_valid_sboard(p) && self.board.is_location_empty(p.loc)
         } else {
             false
         }
