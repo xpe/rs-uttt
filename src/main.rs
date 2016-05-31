@@ -7,7 +7,7 @@ fn main() {
     h(0, "Games");
     let games = random_game();
     for (i, game) in games.iter().enumerate() {
-        println!("Move #{}", i);
+        println!("Move #{}\n", i);
         p(game);
         println!("\n");
     }
