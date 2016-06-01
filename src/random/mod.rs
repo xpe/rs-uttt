@@ -70,8 +70,8 @@ pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
             loc: random_valid_loc(game, player, rng),
         }),
     };
-    println!("random_valid_play {:?} -> {:?}", game, x);
     println!("\n{}", game.show()); // debug
+    println!("random_valid_play {:?} -> {:?}", game, x);
     x
 }
 
