@@ -279,6 +279,33 @@ impl Game {
             })
         }
     }
+
+    /// Returns the winning player of a game.
+    pub fn winner(self) -> Option<Player> {
+        self.board.winner()
+    }
+}
+
+impl Board {
+    /// Returns the winning player of a board.
+    pub fn winner(self) -> Option<Player> {
+        let mut win = None;
+        for is in BI_WINS.iter() {
+            let w0 = self.sboard_at_idx(is[0]).winner();
+            let w1 = self.sboard_at_idx(is[1]).winner();
+            let w2 = self.sboard_at_idx(is[2]).winner();
+            match w0 {
+                Some(player) => if (w0 == w1) && (w1 == w2) {
+                    win = Some(player);
+                    break
+                } else {
+                    ()
+                },
+                None => (),
+            }
+        }
+        win
+    }
 }
 
 // -> bool ---------------------------------------------------------------------
@@ -340,8 +367,8 @@ impl Board {
             let w1 = self.sboard_at_idx(is[1]).winner();
             let w2 = self.sboard_at_idx(is[2]).winner();
             match w0 {
-                None => false,
                 Some(_) => (w0 == w1) && (w1 == w2),
+                None => false,
             }
         };
         BI_WINS.iter().any(is_a_win)
@@ -360,8 +387,8 @@ impl Board {
     /// Is the board location empty?
     pub fn is_location_empty(self, loc: Loc) -> bool {
         match self.player_at_loc(loc) {
-            None => true,
             Some(_) => false,
+            None => true,
         }
     }
 }

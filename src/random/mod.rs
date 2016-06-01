@@ -2,20 +2,14 @@
 
 use constants::*;
 use data::*;
-use rand::{Rand, Rng, SeedableRng, StdRng};
+use rand::{Rand, Rng};
 use std::collections::LinkedList;
-
-use std::time::Duration; // debug
-use show::Show; // debug
-use std::thread; // debug
 
 // -- games --------------------------------------------------------------------
 
 /// Plays a game randomly from start to finish. Returns a linked list of
 /// games (where each is a 'step').
-pub fn random_game() -> LinkedList<Game> {
-    let seed: &[_] = &[1, 2, 3, 10];
-    let mut rng: StdRng = SeedableRng::from_seed(seed);
+pub fn random_game<R: Rng>(rng: &mut R) -> LinkedList<Game> {
     let mut games: LinkedList<Game> = LinkedList::new();
     let mut game: Game = EMPTY_GAME;
     loop {
@@ -24,7 +18,7 @@ pub fn random_game() -> LinkedList<Game> {
             println!("\nGame is over.");
             break;
         } else {
-            match random_valid_play(game, &mut rng) {
+            match random_valid_play(game, rng) {
                 None => break,
                 Some(play) => game = game.play(play).unwrap(),
             }
@@ -63,19 +57,13 @@ impl Rand for Row {
 
 /// Returns a random play for a given game.
 pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
-    println!("\n");
-    println!("random_valid_play {:?}", game.last_loc);
-    println!("{}", game.show()); // debug
-    let x = match game.next_player() {
+    match game.next_player() {
         None => None,
         Some(player) => Some(Play {
             player: player,
             loc: random_valid_loc(game, player, rng),
         }),
-    };
-    // println!("next_player() : {:?}", game.next_player());
-    println!("random_valid_play {:?} -> {:?}", game.last_loc, x);
-    x
+    }
 }
 
 // -- sub-board play -----------------------------------------------------------
@@ -86,20 +74,9 @@ pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
 pub fn random_valid_loc<R: Rng>(game: Game, player: Player,
                                 rng: &mut R) -> Loc {
     let mut loc = random_loc(rng);
-    let mut i = 0;
     while !game.is_valid_play(Play {loc: loc, player: player}) {
-        i = i + 1;
-        if i < 10 || i > 200 {
-            println!("? {:?} {}", player, loc.show()); // debug
-        }
-        if i > 200 {
-            let x = i - 200;
-            let ms = x * 50 + (x * x);
-            thread::sleep(Duration::from_millis(ms));
-        }
         loc = random_loc(rng);
     }
-    println!("> {:?} {} <", player, loc.show()); // debug
     loc
 }
 
