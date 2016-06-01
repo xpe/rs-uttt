@@ -39,7 +39,6 @@ fn print_winner(winner: Option<Player>) {
         None => format!("-"),
     };
     println!("                 winner : {}", p);
-
 }
 
 #[allow(dead_code)]
