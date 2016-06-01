@@ -14,3 +14,6 @@ extern crate rand;
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+extern crate quickcheck;
