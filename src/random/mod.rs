@@ -2,7 +2,7 @@
 
 use constants::*;
 use data::*;
-use rand::{Rand, Rng, ThreadRng, thread_rng};
+use rand::{Rand, Rng, SeedableRng, StdRng};
 use std::collections::LinkedList;
 
 // -- games --------------------------------------------------------------------
@@ -10,7 +10,8 @@ use std::collections::LinkedList;
 /// Plays a game randomly from start to finish. Returns a linked list of
 /// games (where each is a 'step').
 pub fn random_game() -> LinkedList<Game> {
-    let rng: &mut ThreadRng = &mut thread_rng();
+    let seed: &[_] = &[1, 2, 3, 10];
+    let mut rng: StdRng = SeedableRng::from_seed(seed);
     let mut games: LinkedList<Game> = LinkedList::new();
     let mut game: Game = EMPTY_GAME;
     loop {
@@ -19,7 +20,7 @@ pub fn random_game() -> LinkedList<Game> {
             println!("\nGame is over.");
             break;
         } else {
-            match random_valid_play(game, rng) {
+            match random_valid_play(game, &mut rng) {
                 None => break,
                 Some(play) => game = game.play(play).unwrap(),
             }
@@ -57,7 +58,7 @@ impl Rand for Row {
 // -- board play ---------------------------------------------------------------
 
 /// Returns a random play for a given game.
-pub fn random_valid_play(game: Game, rng: &mut ThreadRng) -> Option<Play> {
+pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
     match game.next_player() {
         None => None,
         Some(player) => Some(Play {
@@ -72,8 +73,8 @@ pub fn random_valid_play(game: Game, rng: &mut ThreadRng) -> Option<Play> {
 // -- board location -----------------------------------------------------------
 
 /// Returns a random valid location for a play in a game.
-pub fn random_valid_loc(game: Game, player: Player,
-                        rng: &mut ThreadRng) -> Loc {
+pub fn random_valid_loc<R: Rng>(game: Game, player: Player,
+                                rng: &mut R) -> Loc {
     let mut loc = random_loc(rng);
     while !game.is_valid_play(Play {loc: loc, player: player}) {
         loc = random_loc(rng);
@@ -81,7 +82,7 @@ pub fn random_valid_loc(game: Game, player: Player,
     loc
 }
 
-pub fn random_loc(rng: &mut ThreadRng) -> Loc {
+pub fn random_loc<R: Rng>(rng: &mut R) -> Loc {
     Loc::new(rng.gen::<RI>(), rng.gen::<CI>())
 }
 

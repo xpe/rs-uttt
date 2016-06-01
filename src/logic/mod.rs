@@ -336,7 +336,7 @@ impl Board {
             let w0 = self.sboard_at_idx(is[0]).winner();
             let w1 = self.sboard_at_idx(is[1]).winner();
             let w2 = self.sboard_at_idx(is[2]).winner();
-            println!("is_a_win {:?} {:?} {:?}", w0, w1, w2);
+            // println!("is_a_win {:?} {:?} {:?}", w0, w1, w2);
             match w0 {
                 None => false,
                 Some(_) => (w0 == w1) && (w1 == w2),
