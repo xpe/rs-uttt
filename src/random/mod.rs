@@ -15,7 +15,6 @@ pub fn random_game<R: Rng>(rng: &mut R) -> LinkedList<Game> {
     loop {
         games.push_back(game);
         if Game::is_over(game) {
-            println!("\nGame is over.");
             break;
         } else {
             match random_valid_play(game, rng) {
