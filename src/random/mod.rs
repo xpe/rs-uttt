@@ -2,6 +2,7 @@
 
 use constants::*;
 use data::*;
+use show::Show;
 use rand::{Rand, Rng, SeedableRng, StdRng};
 use std::collections::LinkedList;
 
@@ -59,13 +60,16 @@ impl Rand for Row {
 
 /// Returns a random play for a given game.
 pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
-    match game.next_player() {
+    let x = match game.next_player() {
         None => None,
         Some(player) => Some(Play {
             player: player,
             loc: random_valid_loc(game, player, rng),
         }),
-    }
+    };
+    println!("random_valid_play {:?} -> {:?}", game, x);
+    println!("\n{}", game.show());
+    x
 }
 
 // -- sub-board play -----------------------------------------------------------
