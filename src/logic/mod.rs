@@ -1,10 +1,8 @@
 /// Game logic; e.g. rules of the game. This module does not include accessors,
 /// constants, constructors, or data structure definitions.
 
-use data::{Game, Board, SBoard, Row, Play, Loc, SLoc, Slot};
-use data::{BI, SRI, SCI, SBI, Player};
-// use constants::{FIRST_PLAYER, BI_WINS};
-use constants::{FIRST_PLAYER};
+use data::*;
+use constants::*;
 
 // -> game ---------------------------------------------------------------------
 
@@ -245,6 +243,7 @@ impl Row {
     }
 }
 
+
 // -> board play ---------------------------------------------------------------
 
 // -> sub-board play -----------------------------------------------------------
@@ -378,3 +377,6 @@ impl SBoard {
         }
     }
 }
+
+#[cfg(test)]
+mod tests;
