@@ -2,9 +2,12 @@
 
 use constants::*;
 use data::*;
-use show::Show;
 use rand::{Rand, Rng, SeedableRng, StdRng};
 use std::collections::LinkedList;
+
+use std::time::Duration; // debug
+use show::Show; // debug
+use std::thread; // debug
 
 // -- games --------------------------------------------------------------------
 
@@ -68,7 +71,7 @@ pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
         }),
     };
     println!("random_valid_play {:?} -> {:?}", game, x);
-    println!("\n{}", game.show());
+    println!("\n{}", game.show()); // debug
     x
 }
 
@@ -80,7 +83,24 @@ pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
 pub fn random_valid_loc<R: Rng>(game: Game, player: Player,
                                 rng: &mut R) -> Loc {
     let mut loc = random_loc(rng);
+    let mut i = 0;
     while !game.is_valid_play(Play {loc: loc, player: player}) {
+        i = i + 1;
+        if i > 200 {
+            println!("{:?} {}", player, loc.show()); // debug
+        }
+        if i > 210 {
+            thread::sleep(Duration::from_millis(150));
+        }
+        if i > 220 {
+            thread::sleep(Duration::from_millis(300));
+        }
+        if i > 230 {
+            thread::sleep(Duration::from_millis(600));
+        }
+        if i > 240 {
+            thread::sleep(Duration::from_millis(1200));
+        }
         loc = random_loc(rng);
     }
     loc
