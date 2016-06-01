@@ -1,8 +1,8 @@
 /// Game logic; e.g. rules of the game. This module does not include accessors,
 /// constants, constructors, or data structure definitions.
 
-use data::*;
 use constants::*;
+use data::*;
 
 #[cfg(test)]
 mod tests;
@@ -286,7 +286,7 @@ impl Game {
 impl Game {
     /// Is the game complete (by win or tie)?
     pub fn is_complete(self) -> bool {
-        self.board.is_open()
+        !self.board.is_open()
     }
 
     /// Is the play valid for the given game?
@@ -306,13 +306,17 @@ impl Game {
             // The first player can play anywhere
             None => true,
             // Subsequent plays are constrained
-            Some(last_loc) => {
-                let last_loc_bi: BI = SBI::from_loc(last_loc).as_bi();
+            Some(loc) => {
+                let loc_sbi: SBI = SBI::from_loc(loc);
+                let loc_bi: BI = loc_sbi.as_bi();
                 let play_bi: BI = BI::from_loc(play.loc);
                 let board: Board = self.board;
-                if board.is_sboard_open(last_loc_bi) {
-                    last_loc_bi == play_bi
+                if board.is_sboard_open(loc_bi) {
+                    // If the sub-board is open (not won or filled), then the
+                    // player must play in it.
+                    loc_bi == play_bi
                 } else {
+                    // Otherwise, the player may play in any open sub-board.
                     board.is_sboard_open(play_bi)
                 }
             }
@@ -321,21 +325,36 @@ impl Game {
 }
 
 impl Board {
-    /// Is the board open for more plays (i.e. not won or tied)?
-    #[allow(unused_variables)]
+    /// Is the board open for more plays (i.e. not won or filled)?
     pub fn is_open(self) -> bool {
-        let sboards: [SBoard; 9] = self.sboards();
-        false // TODO
+        !self.is_won() && !self.is_filled()
     }
 
-    #[allow(unused_variables)]
+    /// Is the board won by a player?
     pub fn is_won(self) -> bool {
-        unimplemented!(); // TODO
+        let is_a_win = |&is: &[BI; 3]| {
+            let w0 = self.sboard_at_idx(is[0]).winner();
+            let w1 = self.sboard_at_idx(is[1]).winner();
+            let w2 = self.sboard_at_idx(is[2]).winner();
+            println!("is_a_win {:?} {:?} {:?}", w0, w1, w2);
+            match w0 {
+                None => false,
+                Some(_) => (w0 == w1) && (w1 == w2),
+            }
+        };
+        BI_WINS.iter().any(is_a_win)
     }
 
-    #[allow(unused_variables)]
-    pub fn is_tied(self) -> bool {
-        unimplemented!(); // TODO
+    /// Is the board filled (i.e. no slots are empty)? Note: a filled board may
+    /// or may not be won by a player.
+    pub fn is_filled(self) -> bool {
+        let is_taken = |&slot: &Slot| {
+            match slot {
+                Slot::Taken(_) => true,
+                Slot::Empty => false,
+            }
+        };
+        self.slots().iter().all(is_taken)
     }
 
     /// Is the sub-board open (i.e. not won or tied)?
@@ -353,23 +372,55 @@ impl Board {
 }
 
 impl SBoard {
-    /// Is the sub-board open for more plays (i.e. not won or tied)?
-    #[allow(unused_variables)]
+    /// Is the sub-board open for more plays (i.e. not won or filled)?
     pub fn is_open(self) -> bool {
-        unimplemented!(); // TODO
+        !self.is_won() && !self.is_filled()
     }
 
     /// Has a player won the sub-board?
-    #[allow(unused_variables)]
     pub fn is_won(self) -> bool {
-        // BI_WINS.iter().all(|&x| x.is_open());
-        unimplemented!(); // TODO
+        let is_a_win = |&is: &[SBI; 3]| {
+            let s0 = self.slot_at_idx(is[0]);
+            let s1 = self.slot_at_idx(is[1]);
+            let s2 = self.slot_at_idx(is[2]);
+            match s0 {
+                Slot::Taken(_) => (s0 == s1) && (s1 == s2),
+                Slot::Empty => false,
+            }
+        };
+        SBI_WINS.iter().any(is_a_win)
     }
 
-    /// Have the players tied the sub-board?
-    #[allow(unused_variables)]
-    pub fn is_tied(self) -> bool {
-        unimplemented!(); // TODO
+    /// Returns the winning player of a sub-board.
+    pub fn winner(self) -> Option<Player> {
+        let mut win = None;
+        for is in SBI_WINS.iter() {
+            let s0 = self.slot_at_idx(is[0]);
+            let s1 = self.slot_at_idx(is[1]);
+            let s2 = self.slot_at_idx(is[2]);
+            match s0 {
+                Slot::Taken(player) => if (s0 == s1) && (s1 == s2) {
+                    win = Some(player);
+                    break
+                } else {
+                    ()
+                },
+                Slot::Empty => (),
+            }
+        }
+        win
+    }
+
+    /// Is the sub-board filled (i.e. no slots are open)? Note: a filled
+    /// sub-board may or may not be won by a player.
+    pub fn is_filled(self) -> bool {
+        let is_taken = |&slot: &Slot| {
+            match slot {
+                Slot::Taken(_) => true,
+                Slot::Empty => false,
+            }
+        };
+        self.slots().iter().all(is_taken)
     }
 
     /// Is the sub-board location empty?

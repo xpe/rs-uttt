@@ -19,11 +19,10 @@ pub fn random_game() -> LinkedList<Game> {
             println!("\nGame is over.");
             break;
         } else {
-            game = game.play(random_valid_play(game, rng)).unwrap();
-        }
-        let x = rng.gen::<u8>();
-        if x < 10 {
-            break;
+            match random_valid_play(game, rng) {
+                None => break,
+                Some(play) => game = game.play(play).unwrap(),
+            }
         }
     }
     games
@@ -58,10 +57,13 @@ impl Rand for Row {
 // -- board play ---------------------------------------------------------------
 
 /// Returns a random play for a given game.
-pub fn random_valid_play(game: Game, rng: &mut ThreadRng) -> Play {
-    Play {
-        loc: random_valid_loc(game, rng),
-        player: game.next_player().unwrap(),
+pub fn random_valid_play(game: Game, rng: &mut ThreadRng) -> Option<Play> {
+    match game.next_player() {
+        None => None,
+        Some(player) => Some(Play {
+            player: player,
+            loc: random_valid_loc(game, player, rng),
+        }),
     }
 }
 
@@ -70,12 +72,17 @@ pub fn random_valid_play(game: Game, rng: &mut ThreadRng) -> Play {
 // -- board location -----------------------------------------------------------
 
 /// Returns a random valid location for a play in a game.
-#[allow(unused_variables)]
-pub fn random_valid_loc(game: Game, rng: &mut ThreadRng) -> Loc {
-    // TODO: implement this correctly
-    let ri = rng.gen::<RI>();
-    let ci = rng.gen::<CI>();
-    Loc::new(ri, ci)
+pub fn random_valid_loc(game: Game, player: Player,
+                        rng: &mut ThreadRng) -> Loc {
+    let mut loc = random_loc(rng);
+    while !game.is_valid_play(Play {loc: loc, player: player}) {
+        loc = random_loc(rng);
+    }
+    loc
+}
+
+pub fn random_loc(rng: &mut ThreadRng) -> Loc {
+    Loc::new(rng.gen::<RI>(), rng.gen::<CI>())
 }
 
 // -- sub-board location -------------------------------------------------------
