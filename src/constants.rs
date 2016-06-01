@@ -49,27 +49,27 @@ pub const SO: Slot = Slot::Taken(Player::O);
 // -- board indexes ------------------------------------------------------------
 
 pub const BI_WINS: [[BI; 3]; 8] = [
-    [BI::I0, BI::I1, BI::I2],
-    [BI::I3, BI::I4, BI::I5],
-    [BI::I6, BI::I7, BI::I8],
-    [BI::I0, BI::I3, BI::I6],
-    [BI::I1, BI::I4, BI::I2],
-    [BI::I2, BI::I5, BI::I8],
-    [BI::I0, BI::I4, BI::I8],
-    [BI::I2, BI::I4, BI::I6],
+    [BI::I0, BI::I1, BI::I2], // row 0
+    [BI::I3, BI::I4, BI::I5], // row 1
+    [BI::I6, BI::I7, BI::I8], // row 2
+    [BI::I0, BI::I3, BI::I6], // col 0
+    [BI::I1, BI::I4, BI::I7], // col 1
+    [BI::I2, BI::I5, BI::I8], // col 2
+    [BI::I0, BI::I4, BI::I8], // \ diagonal
+    [BI::I2, BI::I4, BI::I6], // / diagonal
 ];
 
 // -- sub-board indexes --------------------------------------------------------
 
 pub const SBI_WINS: [[SBI; 3]; 8] = [
-    [SBI::I0, SBI::I1, SBI::I2],
-    [SBI::I3, SBI::I4, SBI::I5],
-    [SBI::I6, SBI::I7, SBI::I8],
-    [SBI::I0, SBI::I3, SBI::I6],
-    [SBI::I1, SBI::I4, SBI::I2],
-    [SBI::I2, SBI::I5, SBI::I8],
-    [SBI::I0, SBI::I4, SBI::I8],
-    [SBI::I2, SBI::I4, SBI::I6],
+    [SBI::I0, SBI::I1, SBI::I2], // row 0
+    [SBI::I3, SBI::I4, SBI::I5], // row 1
+    [SBI::I6, SBI::I7, SBI::I8], // row 2
+    [SBI::I0, SBI::I3, SBI::I6], // col 0
+    [SBI::I1, SBI::I4, SBI::I7], // col 1
+    [SBI::I2, SBI::I5, SBI::I8], // col 2
+    [SBI::I0, SBI::I4, SBI::I8], // \ diagonal
+    [SBI::I2, SBI::I4, SBI::I6], // / diagonal
 ];
 
 // -- player -------------------------------------------------------------------
