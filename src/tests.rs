@@ -1,6 +1,5 @@
-use data::{SBoard, Play, Loc, RI, CI, SRI, Player};
-use constants::{EMPTY_GAME, EMPTY_BOARD, EMPTY_SBOARD, EMPTY_ROW};
-use constants::{SE, SX, SO};
+use data::*;
+use constants::*;
 
 // == game =====================================================================
 
