@@ -1,8 +1,11 @@
 /// Constructor functions. This module does not include accessors,
 /// constants, data structure definitions, or game logic.
 
-use data::{SBoard, Row, Loc, Slot, RI, CI};
-use constants::{SE, SX, SO};
+use data::*;
+use constants::*;
+
+#[cfg(test)]
+mod tests;
 
 // -- game ---------------------------------------------------------------------
 

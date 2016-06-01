@@ -1,23 +1,6 @@
 use data::*;
-use quickcheck::{Arbitrary, Gen, QuickCheck};
-
-impl Arbitrary for Row {
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        g.gen::<Row>()
-    }
-}
-
-impl Arbitrary for SCI {
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        g.gen::<SCI>()
-    }
-}
-
-impl Arbitrary for Player {
-    fn arbitrary<G: Gen>(g: &mut G) -> Self {
-        g.gen::<Player>()
-    }
-}
+use quickcheck::{QuickCheck};
+use tests::arbitrary::*;
 
 #[test]
 fn test_play_at() {
