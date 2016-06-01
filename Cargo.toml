@@ -7,3 +7,6 @@ homepage = "https://github.com/bluemont/rs-uttt.git"
 
 [dependencies]
 rand = "0.3"
+
+[dev-dependencies]
+quickcheck = "0.2"
