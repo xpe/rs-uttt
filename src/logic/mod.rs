@@ -236,7 +236,7 @@ impl Row {
     }
 
     /// Returns an 'updated' row by putting the player at the specified column.
-    /// This may be considered to be a 'reference implementation'.
+    /// This is reference implementation for `play_at`.
     #[allow(dead_code)]
     fn play_at_2(self, sci: SCI, player: Player) -> Row {
         let mut slots = self.slots();
