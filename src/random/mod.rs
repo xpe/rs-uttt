@@ -63,6 +63,9 @@ impl Rand for Row {
 
 /// Returns a random play for a given game.
 pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
+    println!("\n");
+    println!("random_valid_play {:?}", game.last_loc);
+    println!("{}", game.show()); // debug
     let x = match game.next_player() {
         None => None,
         Some(player) => Some(Play {
@@ -70,8 +73,8 @@ pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
             loc: random_valid_loc(game, player, rng),
         }),
     };
-    println!("\n{}", game.show()); // debug
-    println!("random_valid_play {:?} -> {:?}", game, x);
+    // println!("next_player() : {:?}", game.next_player());
+    println!("random_valid_play {:?} -> {:?}", game.last_loc, x);
     x
 }
 
@@ -86,23 +89,17 @@ pub fn random_valid_loc<R: Rng>(game: Game, player: Player,
     let mut i = 0;
     while !game.is_valid_play(Play {loc: loc, player: player}) {
         i = i + 1;
+        if i < 10 || i > 200 {
+            println!("? {:?} {}", player, loc.show()); // debug
+        }
         if i > 200 {
-            println!("{:?} {}", player, loc.show()); // debug
-        }
-        if i > 210 {
-            thread::sleep(Duration::from_millis(150));
-        }
-        if i > 220 {
-            thread::sleep(Duration::from_millis(300));
-        }
-        if i > 230 {
-            thread::sleep(Duration::from_millis(600));
-        }
-        if i > 240 {
-            thread::sleep(Duration::from_millis(1200));
+            let x = i - 200;
+            let ms = x * 50 + (x * x);
+            thread::sleep(Duration::from_millis(ms));
         }
         loc = random_loc(rng);
     }
+    println!("> {:?} {} <", player, loc.show()); // debug
     loc
 }
 
