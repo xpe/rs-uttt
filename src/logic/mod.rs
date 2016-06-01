@@ -4,6 +4,9 @@
 use data::*;
 use constants::*;
 
+#[cfg(test)]
+mod tests;
+
 // -> game ---------------------------------------------------------------------
 
 impl Game {
@@ -377,6 +380,3 @@ impl SBoard {
         }
     }
 }
-
-#[cfg(test)]
-mod tests;
