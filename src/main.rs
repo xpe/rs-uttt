@@ -10,15 +10,17 @@ fn main() {
     h(0, "Ended Games");
     let seed: &[_] = &[1, 2, 4, 12];
     let mut rng: StdRng = SeedableRng::from_seed(seed);
-    for i in 0 .. 100 {
-        h(1, format!("Game #{}", i).as_str());
+    for i in 0 .. 1000 {
+        // h(1, format!("Game #{}", i).as_str());
         let games = random_game(&mut rng);
         let game = games.iter().last().unwrap();
-        p(game);
-        print_winner(game.winner());
+        // p(game);
+        // print_winner(game.winner());
+        println!("{:04} {:?}", i, game.winner());
     }
 }
 
+#[allow(dead_code)]
 fn print_winner(winner: Option<Player>) {
     let p = match winner {
         Some(player) => format!("{:?}", player),
