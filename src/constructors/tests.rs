@@ -1,6 +1,5 @@
 use data::*;
 use quickcheck::{QuickCheck};
-use tests::arbitrary::*;
 
 // -- board --------------------------------------------------------------------
 

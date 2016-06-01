@@ -1,6 +1,5 @@
 use data::*;
 use quickcheck::{QuickCheck};
-use tests::arbitrary::*;
 
 #[test]
 fn test_play_at() {
