@@ -269,7 +269,7 @@ impl Game {
     /// Returns the next player in the game, if there is one. Returns None if
     /// the game is finished.
     pub fn next_player(self) -> Option<Player> {
-        if self.is_complete() {
+        if self.is_over() {
             None
         } else {
             Some(match self.last_player() {
@@ -284,18 +284,21 @@ impl Game {
 // -> bool ---------------------------------------------------------------------
 
 impl Game {
-    /// Is the game complete (by win or tie)?
-    pub fn is_complete(self) -> bool {
+    /// Is the game over (by win or tie)?
+    pub fn is_over(self) -> bool {
         !self.board.is_open()
     }
 
     /// Is the play valid for the given game?
     pub fn is_valid_play(self, p: Play) -> bool {
-        if self.is_complete() {
+        if self.is_over() {
+            // The game is over; no more plays are allowed.
             false
         } else if self.next_player() == Some(p.player) {
+            // The play may or may not be valid.
             self.is_valid_sboard(p) && self.board.is_location_empty(p.loc)
         } else {
+            // The player is out of turn.
             false
         }
     }

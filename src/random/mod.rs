@@ -20,7 +20,7 @@ pub fn random_game() -> LinkedList<Game> {
     let mut game: Game = EMPTY_GAME;
     loop {
         games.push_back(game);
-        if Game::is_complete(game) {
+        if Game::is_over(game) {
             println!("\nGame is over.");
             break;
         } else {
