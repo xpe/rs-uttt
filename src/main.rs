@@ -13,7 +13,7 @@ fn main() {
     let mut xs = 0;
     let mut os = 0;
     let mut ties = 0;
-    for i in 0 .. 1000 {
+    for _i in 0 .. 1000 {
         // h(1, format!("Game #{}", i).as_str());
         let games = random_game(&mut rng);
         let game = games.iter().last().unwrap();
