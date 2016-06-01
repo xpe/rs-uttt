@@ -330,7 +330,7 @@ impl Game {
 impl Board {
     /// Is the board open for more plays (i.e. not won or filled)?
     pub fn is_open(self) -> bool {
-        !self.is_won() && !self.is_filled()
+        !self.is_won() && self.has_open_sboard()
     }
 
     /// Is the board won by a player?
@@ -339,7 +339,6 @@ impl Board {
             let w0 = self.sboard_at_idx(is[0]).winner();
             let w1 = self.sboard_at_idx(is[1]).winner();
             let w2 = self.sboard_at_idx(is[2]).winner();
-            // println!("is_a_win {:?} {:?} {:?}", w0, w1, w2);
             match w0 {
                 None => false,
                 Some(_) => (w0 == w1) && (w1 == w2),
@@ -348,16 +347,9 @@ impl Board {
         BI_WINS.iter().any(is_a_win)
     }
 
-    /// Is the board filled (i.e. no slots are empty)? Note: a filled board may
-    /// or may not be won by a player.
-    pub fn is_filled(self) -> bool {
-        let is_taken = |&slot: &Slot| {
-            match slot {
-                Slot::Taken(_) => true,
-                Slot::Empty => false,
-            }
-        };
-        self.slots().iter().all(is_taken)
+    /// Does the board have an open sub-board?
+    fn has_open_sboard(self) -> bool {
+        self.sboards().iter().any(|&sb| sb.is_open())
     }
 
     /// Is the sub-board open (i.e. not won or tied)?
