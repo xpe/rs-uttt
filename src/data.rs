@@ -8,7 +8,7 @@
 ///
 /// Note: It might be useful to cache if a game is in progress or ended. This
 /// would require only one bit and possibly could be combined with `board.`
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Game {
     pub board: Board,
     pub last_loc: Option<Loc>
@@ -21,7 +21,7 @@ pub struct Game {
 /// * row 0 : `0 1 2`
 /// * row 1 : `3 4 5`
 /// * row 2 : `6 7 8`
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Board {
     pub sboards: [SBoard; 9],
 }
@@ -37,7 +37,7 @@ pub struct Board {
 ///
 /// Note: It might be useful to cache if a sub-board is in progress or
 /// ended. This would require one bit, which is available.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct SBoard {
     pub encoding: u16,
 }
@@ -84,7 +84,7 @@ pub struct SPlay {
 ///
 /// * row: `0b11110000` (upper nibble)
 /// * col: `0b00001111` (lower nibble)
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Loc {
     pub encoding: u8,
 }
