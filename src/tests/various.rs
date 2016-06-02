@@ -11,6 +11,11 @@ fn test_empty_game() {
     assert!(EMPTY_GAME.board == EMPTY_BOARD);
     assert!(EMPTY_GAME.last_loc == None);
     assert!(EMPTY_GAME.last_player() == None);
+    assert!(EMPTY_GAME.state() == GameState::Ongoing);
+    assert!(EMPTY_GAME.is_over() == false);
+    assert!(EMPTY_GAME.winner() == None);
+    assert!(EMPTY_GAME.board.is_won() == false);
+    assert!(EMPTY_GAME.board.is_open() == true);
 }
 
 #[test]
@@ -20,7 +25,16 @@ fn test_game_play() {
         player: Player::X,
     });
     assert!(opt_game != None);
-    assert!(opt_game != Some(EMPTY_GAME));
+    if let Some(game) = opt_game {
+        assert!(game != EMPTY_GAME);
+        assert!(game.last_loc == Some(Loc::new(RI::R6, CI::C3)));
+        assert!(game.state() == GameState::Ongoing);
+        assert!(game.is_over() == false);
+        assert!(game.winner() == None);
+        assert!(game.board != EMPTY_BOARD);
+        assert!(game.board.is_won() == false);
+        assert!(game.board.is_open() == true);
+    }
 }
 
 #[test]
