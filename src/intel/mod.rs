@@ -29,6 +29,9 @@ impl Game {
                 Some(Player::O) => Some(Outcome::WinO(0)),
             },
             1 => {
+                let outcomes = self.valid_plays().iter()
+                    .map(|&play| self.play(play).unwrap().outcome(0))
+                    .collect::<Vec<Option<Outcome>>>();
                 unimplemented!()
             },
             _ => {
