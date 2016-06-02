@@ -49,28 +49,6 @@ impl Board {
 // -> sub-boards ---------------------------------------------------------------
 
 impl Game {
-    /// Returns the valid sub-boards for the next play.
-    ///
-    /// Unfortunately, this function probably will not be useful.
-    ///
-    /// See also `Game::valid_sboard_indexes` and `Game::is_valid_sboard`.
-    #[allow(dead_code)]
-    fn valid_sboards(self) -> Vec<SBoard> {
-        match self.last_loc {
-            None => self.board.sboards.to_vec(),
-            Some(loc) => {
-                let loc_bi = SBI::from_loc(loc).as_bi();
-                let sboard = self.board.sboard_at_idx(loc_bi);
-                if sboard.is_open() {
-                    vec![sboard]
-                } else {
-                    self.board.sboards.iter().filter(|sb| sb.is_open())
-                        .cloned().collect::<Vec<SBoard>>()
-                }
-            },
-        }
-    }
-
     /// Returns the valid sub-board indexes for the next play. Here are the
     /// rules:
     ///
