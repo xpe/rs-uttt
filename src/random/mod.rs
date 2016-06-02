@@ -58,10 +58,12 @@ impl Rand for Row {
 pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
     match game.next_player() {
         None => None,
-        Some(player) => Some(Play {
-            player: player,
-            loc: random_valid_loc(game, player, rng),
-        }),
+        Some(_) => {
+            let plays: Vec<Play> = game.valid_plays();
+            let ps: &[Play] = &plays[..];
+            let play: &Play = rng.choose(ps).unwrap();
+            Some(play.clone())
+        },
     }
 }
 
@@ -69,16 +71,6 @@ pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
 
 // -- board location -----------------------------------------------------------
 
-/// Returns a random valid location for a play in a game.
-pub fn random_valid_loc<R: Rng>(game: Game, player: Player,
-                                rng: &mut R) -> Loc {
-    // TODO: Choose a random position more intelligently.
-    let mut loc = random_loc(rng);
-    while !game.is_valid_play(Play {loc: loc, player: player}) {
-        loc = random_loc(rng);
-    }
-    loc
-}
 /// Returns a random location. By design, this function does not look for valid
 /// locations efficiently.
 pub fn random_loc<R: Rng>(rng: &mut R) -> Loc {
