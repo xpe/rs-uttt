@@ -4,53 +4,42 @@ extern crate uttt;
 use rand::{SeedableRng, StdRng};
 use uttt::data::*;
 use uttt::random::*;
-use uttt::utility::{h, p};
+use uttt::utility::*;
 
 fn main() {
     h(0, "Ended Games");
     let seed: &[_] = &[219, 9990005, 22004, 23];
     let mut rng: StdRng = SeedableRng::from_seed(seed);
-    let mut xs = 0;
-    let mut os = 0;
+    let mut x_wins = 0;
+    let mut o_wins = 0;
     let mut ties = 0;
-    for i in 0 .. 1000 {
-        // h(1, format!("Game #{}", i).as_str());
-        let games = random_game(&mut rng);
+    let mut games_len = 0;
+    let trials = 1000;
+    for i in 0 .. trials {
+        let games = random_games(&mut rng);
+        let game_len = games.len();
         let game = games.iter().last().unwrap();
-        // p(game);
-        // print_winner(game.winner());
         let winner = game.winner();
-        println!("{:04} {:?}", i, winner);
+        println!("Game #{:4}: {} in {}", i, result_str(winner), game_len);
+        games_len += game_len;
         match winner {
-            None => ties = ties + 1,
-            Some(Player::X) => xs = xs + 1,
-            Some(Player::O) => os = os + 1,
+            None => ties += 1,
+            Some(Player::X) => x_wins += 1,
+            Some(Player::O) => o_wins += 1,
         }
     }
-    println!("\n");
-    println!("X wins: {:4}", xs);
-    println!("O wins: {:4}", os);
+    println!("");
+    println!("X wins: {:4}", x_wins);
+    println!("O wins: {:4}", o_wins);
     println!("  ties: {:4}", ties);
+    println!("");
+    println!("average game length: {}", games_len / trials);
 }
 
-#[allow(dead_code)]
-fn print_winner(winner: Option<Player>) {
-    let p = match winner {
-        Some(player) => format!("{:?}", player),
-        None => format!("-"),
-    };
-    println!("                 winner : {}", p);
-}
-
-#[allow(dead_code)]
-fn main_2() {
-    h(0, "Games");
-    let seed: &[_] = &[1, 2, 4, 12];
-    let mut rng: StdRng = SeedableRng::from_seed(seed);
-    let games = random_game(&mut rng);
-    for (i, game) in games.iter().enumerate() {
-         println!("Move #{}\n", i);
-         p(game);
-         println!("                 winner : {:?}", game.winner());
+fn result_str(op: Option<Player>) -> &'static str {
+    match op {
+        Some(Player::X) => "X wins",
+        Some(Player::O) => "O wins",
+        None => "  tie ",
     }
 }

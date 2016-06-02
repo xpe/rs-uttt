@@ -9,7 +9,7 @@ use std::collections::LinkedList;
 
 /// Plays a game randomly from start to finish. Returns a doubly linked list of
 /// games (where each is a 'step').
-pub fn random_game<R: Rng>(rng: &mut R) -> LinkedList<Game> {
+pub fn random_games<R: Rng>(rng: &mut R) -> LinkedList<Game> {
     let mut games: LinkedList<Game> = LinkedList::new();
     let mut game: Game = EMPTY_GAME;
     loop {
