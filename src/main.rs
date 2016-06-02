@@ -1,15 +1,15 @@
 extern crate rand;
 extern crate uttt;
 
-use rand::{SeedableRng, StdRng};
 use uttt::data::*;
 use uttt::random::*;
 use uttt::utility::*;
 
 fn main() {
     h(0, "Ended Games");
-    let seed: &[_] = &[222, 9990005, 22004, 23];
-    let mut rng: StdRng = SeedableRng::from_seed(seed);
+    // let seed: &[_] = &[235, 9990005, 22004, 23];
+    // let mut rng: rand::StdRng = rand::SeedableRng::from_seed(seed);
+    let mut rng = rand::thread_rng();
     let mut x_wins = 0;
     let mut o_wins = 0;
     let mut ties = 0;
