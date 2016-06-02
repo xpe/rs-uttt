@@ -8,12 +8,12 @@ use uttt::utility::{h, p};
 
 fn main() {
     h(0, "Ended Games");
-    let seed: &[_] = &[219, 9990002, 22004, 23];
+    let seed: &[_] = &[219, 9990004, 22004, 23];
     let mut rng: StdRng = SeedableRng::from_seed(seed);
     let mut xs = 0;
     let mut os = 0;
     let mut ties = 0;
-    for i in 0 .. 10 {
+    for i in 0 .. 1000 {
         // h(1, format!("Game #{}", i).as_str());
         let games = random_game(&mut rng);
         let game = games.iter().last().unwrap();

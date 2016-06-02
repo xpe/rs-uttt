@@ -66,3 +66,44 @@ O wins:  345
   ties:  227
 cargo run  81.43s user 0.25s system 99% cpu 1:22.10 total
 ```
+
+### Set C
+
+This is with reasonable (much better than the 'throwing darts' approach) random
+move generation:
+
+`let seed: &[_] = &[219, 9990002, 22004, 23];`
+
+
+```
+X wins:  393
+O wins:  392
+  ties:  215
+cargo run  13.56s user 0.19s system 98% cpu 13.930 total
+```
+
+```
+X wins:  393
+O wins:  392
+  ties:  215
+cargo run  13.37s user 0.06s system 99% cpu 13.455 total
+```
+
+`let seed: &[_] = &[219, 9990003, 22004, 23];`
+
+
+```
+X wins:  417
+O wins:  367
+  ties:  216
+cargo run  13.59s user 0.16s system 98% cpu 13.895 total
+```
+
+`let seed: &[_] = &[219, 9990004, 22004, 23];`
+
+```
+X wins:  414
+O wins:  347
+  ties:  239
+cargo run  14.19s user 0.21s system 98% cpu 14.603 total
+```
