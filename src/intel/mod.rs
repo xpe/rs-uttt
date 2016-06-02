@@ -24,7 +24,8 @@ impl Game {
     pub fn outcome_for(self, depth: u8) -> Option<Outcome> {
         match depth {
             0 => match self.winner() {
-                None => None,
+                // TODO: differentiate between a tie and more plays remaining
+                // ? => Some(Outcome::Tie(0))
                 None => None, // outcome unknown for depth=0
                 Some(Player::X) => Some(Outcome::WinX(0)),
                 Some(Player::O) => Some(Outcome::WinO(0)),
