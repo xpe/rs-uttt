@@ -21,7 +21,7 @@ pub fn outcome_cache(capacity: usize) -> LruCache<Game, Outcome> {
 
 impl Game {
     /// Returns the outcome of a game for up to `depth` moves.
-    pub fn outcome(self, depth: u8) -> Option<Outcome> {
+    pub fn outcome_for(self, depth: u8) -> Option<Outcome> {
         match depth {
             0 => match self.winner() {
                 None => None,
@@ -30,7 +30,7 @@ impl Game {
             },
             1 => {
                 let outcomes = self.valid_plays().iter()
-                    .map(|&play| self.play(play).unwrap().outcome(0))
+                    .map(|&play| self.play(play).unwrap().outcome_for(0))
                     .collect::<Vec<Option<Outcome>>>();
                 if outcomes.is_empty() {
                     None
