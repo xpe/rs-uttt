@@ -7,6 +7,22 @@ use data::*;
 #[cfg(test)]
 mod tests;
 
+// -> game state ---------------------------------------------------------------
+
+impl Game {
+    /// Returns the game state. Note: it is more efficient to call this function
+    /// instead of calling `Game::winner()` and `Game::is_over()` separately.
+    pub fn state(self) -> GameState {
+        if let Some(player) = self.board.winner() {
+            GameState::Won(player)
+        } else if self.board.has_open_sboard() {
+            GameState::Ongoing
+        } else {
+            GameState::Tied
+        }
+    }
+}
+
 // -> game ---------------------------------------------------------------------
 
 impl Game {

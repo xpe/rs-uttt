@@ -1,6 +1,11 @@
 /// Data structure definitions. This module does not include accessors,
 /// constants, constructors, or game logic.
 
+// -- data: game state ---------------------------------------------------------
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum GameState { Won(Player), Tied, Ongoing }
+
 // -- data: game ---------------------------------------------------------------
 
 /// A `Game` is the combination of a `Board` and an optional last location of
