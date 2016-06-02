@@ -32,7 +32,11 @@ impl Game {
                 let outcomes = self.valid_plays().iter()
                     .map(|&play| self.play(play).unwrap().outcome(0))
                     .collect::<Vec<Option<Outcome>>>();
-                unimplemented!()
+                if outcomes.is_empty() {
+                    None
+                } else {
+                    unimplemented!()
+                }
             },
             _ => {
                 unimplemented!()
