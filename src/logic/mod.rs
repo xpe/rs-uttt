@@ -59,7 +59,6 @@ impl Game {
     ///    B. Otherwise, the player may play in any open sub-board.
     ///
     /// See also `Game::is_valid_sboard`.
-    #[allow(dead_code)]
     fn valid_sboard_indexes(self) -> Vec<BI> {
         match self.last_loc {
             None => ALL_BI.to_vec(),
