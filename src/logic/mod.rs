@@ -366,14 +366,14 @@ impl Game {
         }
     }
 
-    /// Returns the winning player of a game.
+    /// Returns the winning player of a game, if there is one.
     pub fn winner(self) -> Option<Player> {
         self.board.winner()
     }
 }
 
 impl Board {
-    /// Returns the winning player of a board.
+    /// Returns the winning player of a board, if there is one.
     pub fn winner(self) -> Option<Player> {
         let mut win = None;
         for is in BI_WINS.iter() {
