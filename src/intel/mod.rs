@@ -25,6 +25,7 @@ impl Game {
         match depth {
             0 => match self.winner() {
                 None => None,
+                None => None, // outcome unknown for depth=0
                 Some(Player::X) => Some(Outcome::WinX(0)),
                 Some(Player::O) => Some(Outcome::WinO(0)),
             },
