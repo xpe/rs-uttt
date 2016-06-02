@@ -5,13 +5,14 @@
 
 /// A `Game` is the combination of a `Board` and an optional last location of
 /// play. (A last location is only None for an empty board.)
+///
+/// Note: It might be useful to cache if a game is in progress or ended. This
+/// would require only one bit and possibly could be combined with `board.`
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Game {
     pub board: Board,
     pub last_loc: Option<Loc>
 }
-// TODO: I could squeeze in one more bit to cache if a game is in progress or is
-// ended. This would require some bit wrangling.
 
 // -- data: board --------------------------------------------------------------
 
@@ -21,7 +22,9 @@ pub struct Game {
 /// * row 1 : `3 4 5`
 /// * row 2 : `6 7 8`
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct Board(pub [SBoard; 9]);
+pub struct Board {
+    pub sboards: [SBoard; 9],
+}
 
 // -- data: sub-board ----------------------------------------------------------
 
@@ -31,8 +34,13 @@ pub struct Board(pub [SBoard; 9]);
 /// * row 0 : `0b0000000000011111`
 /// * row 1 : `0b0000001111100000`
 /// * row 2 : `0b0111110000000000`
+///
+/// Note: It might be useful to cache if a sub-board is in progress or
+/// ended. This would require one bit, which is available.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct SBoard(pub u16);
+pub struct SBoard {
+    pub encoding: u16,
+}
 
 // -- data: row ----------------------------------------------------------------
 
@@ -77,7 +85,9 @@ pub struct SPlay {
 /// * row: `0b11110000` (upper nibble)
 /// * col: `0b00001111` (lower nibble)
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct Loc(pub u8);
+pub struct Loc {
+    pub encoding: u8,
+}
 
 // -- data: sub-board location -------------------------------------------------
 

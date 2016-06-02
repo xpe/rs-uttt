@@ -34,8 +34,7 @@ fn test_game_last_player() {
 #[test]
 fn test_empty_board() {
     assert!(EMPTY_BOARD == EMPTY_BOARD);
-    assert!(EMPTY_BOARD.0 == EMPTY_BOARD.sboards());
-    assert!(EMPTY_BOARD.sboards() == [
+    assert!(EMPTY_BOARD.sboards == [
         EMPTY_SBOARD, EMPTY_SBOARD, EMPTY_SBOARD,
         EMPTY_SBOARD, EMPTY_SBOARD, EMPTY_SBOARD,
         EMPTY_SBOARD, EMPTY_SBOARD, EMPTY_SBOARD,
@@ -94,12 +93,12 @@ fn test_sboard_from_slots() {
         SE, SE, SX,
         SO, SX, SE,
         SE, SE, SE,
-    ]) == SBoard(0b0000001010100001));
+    ]) == SBoard { encoding: 0b0000001010100001 });
     assert!(SBoard::from_slots([
         SE, SE, SE,
         SE, SE, SX,
         SO, SX, SE,
-    ]) == SBoard(0b0101010000100000));
+    ]) == SBoard { encoding: 0b0101010000100000 });
 }
 
 // == rows =====================================================================

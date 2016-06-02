@@ -12,13 +12,6 @@ use constants::{SE, SX, SO};
 
 // -- -> sub-boards ------------------------------------------------------------
 
-impl Board {
-    /// Returns an array of 9 sub-boards for a given board.
-    pub fn sboards(self) -> [SBoard; 9] {
-        self.0
-    }
-}
-
 // -- -> sub-board -------------------------------------------------------------
 
 impl Board {
@@ -29,22 +22,23 @@ impl Board {
 
     /// Returns the sub-board at a given board index.
     pub fn sboard_at_idx(self, idx: BI) -> SBoard {
-        self.0[idx.as_u8() as usize]
+        self.sboards[idx.as_u8() as usize]
     }
 
     /// Returns a mutable reference to a sub-board at a given index.
     pub fn mut_sboard_at_idx(&mut self, idx: BI) -> &mut SBoard {
-        &mut self.0[idx.as_u8() as usize]
+        &mut self.sboards[idx.as_u8() as usize]
     }
 }
 
 // -- -> rows ------------------------------------------------------------------
 
 impl SBoard {
+    /// Returns the rows for a given sub-board.
     pub fn rows(self) -> [Row; 3] {
-        let x0: u8 = (self.0 & 0b11111) as u8;
-        let x1: u8 = (self.0 >> 5 & 0b11111) as u8;
-        let x2: u8 = (self.0 >> 10 & 0b011111) as u8;
+        let x0: u8 = (self.encoding & 0b11111) as u8;
+        let x1: u8 = (self.encoding >> 5 & 0b11111) as u8;
+        let x2: u8 = (self.encoding >> 10 & 0b011111) as u8;
         [Row::from_u8(x0), Row::from_u8(x1), Row::from_u8(x2)]
     }
 }
@@ -52,9 +46,14 @@ impl SBoard {
 // -- -> row -------------------------------------------------------------------
 
 impl SBoard {
+    /// Returns the row for a given sub-board row index.
     pub fn row_at(self, ri: SRI) -> Row {
-        let shift = match ri { SRI::R0 => 0, SRI::R1 => 5, SRI::R2 => 10 };
-        Row::from_u8((self.0 >> shift & 0b11111) as u8)
+        let shift = match ri {
+            SRI::R0 => 0,
+            SRI::R1 => 5,
+            SRI::R2 => 10,
+        };
+        Row::from_u8((self.encoding >> shift & 0b11111) as u8)
     }
 }
 
@@ -71,33 +70,31 @@ impl SBoard {
 impl Board {
     /// Returns an array of 81 slots for a given board.
     pub fn slots(self) -> [Slot; 81] {
-        let sbs: [SBoard; 9] = self.0;
 	let mut a = [SE; 81];
-	a[ 0 ..  9].copy_from_slice(&sbs[0].slots());
-	a[ 9 .. 18].copy_from_slice(&sbs[1].slots());
-	a[18 .. 27].copy_from_slice(&sbs[2].slots());
-	a[27 .. 36].copy_from_slice(&sbs[3].slots());
-	a[36 .. 45].copy_from_slice(&sbs[4].slots());
-	a[45 .. 54].copy_from_slice(&sbs[5].slots());
-	a[54 .. 63].copy_from_slice(&sbs[6].slots());
-	a[63 .. 72].copy_from_slice(&sbs[7].slots());
-	a[72 .. 81].copy_from_slice(&sbs[8].slots());
+	a[ 0 ..  9].copy_from_slice(&self.sboards[0].slots());
+	a[ 9 .. 18].copy_from_slice(&self.sboards[1].slots());
+	a[18 .. 27].copy_from_slice(&self.sboards[2].slots());
+	a[27 .. 36].copy_from_slice(&self.sboards[3].slots());
+	a[36 .. 45].copy_from_slice(&self.sboards[4].slots());
+	a[45 .. 54].copy_from_slice(&self.sboards[5].slots());
+	a[54 .. 63].copy_from_slice(&self.sboards[6].slots());
+	a[63 .. 72].copy_from_slice(&self.sboards[7].slots());
+	a[72 .. 81].copy_from_slice(&self.sboards[8].slots());
 	a
     }
 
     /// Returns a two dimensional array (9x9) of slots for a given board.
     pub fn slots_9x9(self) -> [[Slot; 9]; 9] {
-        let sbs: [SBoard; 9] = self.0;
         [
-            sbs[0].slots(),
-            sbs[1].slots(),
-            sbs[2].slots(),
-            sbs[3].slots(),
-            sbs[4].slots(),
-            sbs[5].slots(),
-            sbs[6].slots(),
-            sbs[7].slots(),
-            sbs[8].slots(),
+            self.sboards[0].slots(),
+            self.sboards[1].slots(),
+            self.sboards[2].slots(),
+            self.sboards[3].slots(),
+            self.sboards[4].slots(),
+            self.sboards[5].slots(),
+            self.sboards[6].slots(),
+            self.sboards[7].slots(),
+            self.sboards[8].slots(),
         ]
     }
 }
@@ -204,12 +201,12 @@ impl Row {
 impl Loc {
     /// Returns the row index for a board location.
     pub fn row(self) -> RI {
-        RI::from_u8(self.0 >> 4)
+        RI::from_u8(self.encoding >> 4)
     }
 
     /// Returns the row index for a board location.
     pub fn col(self) -> CI {
-        CI::from_u8(self.0 & 0b00001111)
+        CI::from_u8(self.encoding & 0b00001111)
     }
 }
 
@@ -250,11 +247,13 @@ impl CI {
 }
 
 impl BI {
+    // TODO: Perhaps better to move this to "constructors/mod.rs"?
     /// Returns a board index for a given board location.
     pub fn from_loc(loc: Loc) -> BI {
         BI::from_row_col(loc.row(), loc.col())
     }
 
+    // TODO: Perhaps better to move this to "constructors/mod.rs"?
     /// Returns a board index for a given board row and col.
     pub fn from_row_col(row: RI, col: CI) -> BI {
         match (row, col) {
@@ -432,6 +431,21 @@ impl SBI {
     /// Returns a sub-board index for a given board location.
     pub fn from_loc(loc: Loc) -> SBI {
         SBI::from_row_col(loc.row(), loc.col())
+    }
+
+    /// Returns a sub-board index for a given sub-board location.
+    pub fn from_sloc(sloc: SLoc) -> SBI {
+        match sloc {
+            SLoc { row: SRI::R0, col: SCI::C0 } => SBI::I0,
+            SLoc { row: SRI::R0, col: SCI::C1 } => SBI::I1,
+            SLoc { row: SRI::R0, col: SCI::C2 } => SBI::I2,
+            SLoc { row: SRI::R1, col: SCI::C0 } => SBI::I3,
+            SLoc { row: SRI::R1, col: SCI::C1 } => SBI::I4,
+            SLoc { row: SRI::R1, col: SCI::C2 } => SBI::I5,
+            SLoc { row: SRI::R2, col: SCI::C0 } => SBI::I6,
+            SLoc { row: SRI::R2, col: SCI::C1 } => SBI::I7,
+            SLoc { row: SRI::R2, col: SCI::C2 } => SBI::I8,
+        }
     }
 
     /// Returns a sub-board index for a given board row and col.

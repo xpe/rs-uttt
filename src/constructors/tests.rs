@@ -8,9 +8,9 @@ use quickcheck::{QuickCheck};
 #[test]
 fn test_sboard_from_rows() {
     assert!(SBoard::from_rows([Row::EEE, Row::EEE, Row::EEE]) ==
-            SBoard(0b0000000000000000));
+            SBoard { encoding: 0b0000000000000000 });
     assert!(SBoard::from_rows([Row::OEX, Row::OEX, Row::EEX]) ==
-            SBoard(0b0000011001110011));
+            SBoard { encoding: 0b0000011001110011 });
 }
 
 // -- row ----------------------------------------------------------------------
@@ -23,8 +23,8 @@ fn test_sboard_from_rows() {
 
 #[test]
 fn test_loc_new() {
-    assert!(Loc::new(RI::R7, CI::C4) == Loc(0b01110100));
-    assert!(Loc::new(RI::R8, CI::C5) == Loc(0b10000101));
+    assert!(Loc::new(RI::R7, CI::C4) == Loc { encoding: 0b01110100 });
+    assert!(Loc::new(RI::R8, CI::C5) == Loc { encoding: 0b10000101 });
 }
 
 #[test]

@@ -13,20 +13,21 @@ fn main() {
     let mut xs = 0;
     let mut os = 0;
     let mut ties = 0;
-    for _i in 0 .. 1000 {
+    for i in 0 .. 10 {
         // h(1, format!("Game #{}", i).as_str());
         let games = random_game(&mut rng);
         let game = games.iter().last().unwrap();
         // p(game);
         // print_winner(game.winner());
         let winner = game.winner();
-        // println!("{:04} {:?}", i, winner);
+        println!("{:04} {:?}", i, winner);
         match winner {
             None => ties = ties + 1,
             Some(Player::X) => xs = xs + 1,
             Some(Player::O) => os = os + 1,
         }
     }
+    println!("\n");
     println!("X wins: {:4}", xs);
     println!("O wins: {:4}", os);
     println!("  ties: {:4}", ties);

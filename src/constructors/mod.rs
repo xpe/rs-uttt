@@ -47,7 +47,7 @@ impl SBoard {
         let v2: u16 = ((x2 & 0b11111) as u16) << 10;
         let v1: u16 = ((x1 & 0b11111) as u16) << 5;
         let v0: u16 = (x0 & 0b11111) as u16;
-        SBoard(v2 | v1 | v0)
+        SBoard { encoding: v2 | v1 | v0 }
     }
 }
 
@@ -135,7 +135,98 @@ impl Row {
 impl Loc {
     /// Returns a location based on row and column indexes.
     pub fn new(row: RI, col: CI) -> Loc {
-        Loc(row.as_u8() << 4 | col.as_u8())
+        Loc { encoding: row.as_u8() << 4 | col.as_u8() }
+    }
+
+    /// Returns a location from a board index and a sub-board index.
+    ///
+    /// TODO: I think I need a better name for "indexes".
+    ///
+    /// TODO: Validate the correctness with quickcheck testing.
+    pub fn from_indexes(bi: BI, sbi: SBI) -> Loc {
+        match (bi, sbi) {
+            (BI::I0, SBI::I0) => Loc::new(RI::R0, CI::C0),
+            (BI::I0, SBI::I1) => Loc::new(RI::R0, CI::C1),
+            (BI::I0, SBI::I2) => Loc::new(RI::R0, CI::C2),
+            (BI::I0, SBI::I3) => Loc::new(RI::R1, CI::C0),
+            (BI::I0, SBI::I4) => Loc::new(RI::R1, CI::C1),
+            (BI::I0, SBI::I5) => Loc::new(RI::R1, CI::C2),
+            (BI::I0, SBI::I6) => Loc::new(RI::R2, CI::C0),
+            (BI::I0, SBI::I7) => Loc::new(RI::R2, CI::C1),
+            (BI::I0, SBI::I8) => Loc::new(RI::R2, CI::C2),
+            (BI::I1, SBI::I0) => Loc::new(RI::R0, CI::C3),
+            (BI::I1, SBI::I1) => Loc::new(RI::R0, CI::C4),
+            (BI::I1, SBI::I2) => Loc::new(RI::R0, CI::C5),
+            (BI::I1, SBI::I3) => Loc::new(RI::R1, CI::C3),
+            (BI::I1, SBI::I4) => Loc::new(RI::R1, CI::C4),
+            (BI::I1, SBI::I5) => Loc::new(RI::R1, CI::C5),
+            (BI::I1, SBI::I6) => Loc::new(RI::R2, CI::C3),
+            (BI::I1, SBI::I7) => Loc::new(RI::R2, CI::C4),
+            (BI::I1, SBI::I8) => Loc::new(RI::R2, CI::C5),
+            (BI::I2, SBI::I0) => Loc::new(RI::R0, CI::C6),
+            (BI::I2, SBI::I1) => Loc::new(RI::R0, CI::C7),
+            (BI::I2, SBI::I2) => Loc::new(RI::R0, CI::C8),
+            (BI::I2, SBI::I3) => Loc::new(RI::R1, CI::C6),
+            (BI::I2, SBI::I4) => Loc::new(RI::R1, CI::C7),
+            (BI::I2, SBI::I5) => Loc::new(RI::R1, CI::C8),
+            (BI::I2, SBI::I6) => Loc::new(RI::R2, CI::C6),
+            (BI::I2, SBI::I7) => Loc::new(RI::R2, CI::C7),
+            (BI::I2, SBI::I8) => Loc::new(RI::R2, CI::C8),
+            (BI::I3, SBI::I0) => Loc::new(RI::R3, CI::C0),
+            (BI::I3, SBI::I1) => Loc::new(RI::R3, CI::C1),
+            (BI::I3, SBI::I2) => Loc::new(RI::R3, CI::C2),
+            (BI::I3, SBI::I3) => Loc::new(RI::R4, CI::C0),
+            (BI::I3, SBI::I4) => Loc::new(RI::R4, CI::C1),
+            (BI::I3, SBI::I5) => Loc::new(RI::R4, CI::C2),
+            (BI::I3, SBI::I6) => Loc::new(RI::R5, CI::C0),
+            (BI::I3, SBI::I7) => Loc::new(RI::R5, CI::C1),
+            (BI::I3, SBI::I8) => Loc::new(RI::R5, CI::C2),
+            (BI::I4, SBI::I0) => Loc::new(RI::R3, CI::C3),
+            (BI::I4, SBI::I1) => Loc::new(RI::R3, CI::C4),
+            (BI::I4, SBI::I2) => Loc::new(RI::R3, CI::C5),
+            (BI::I4, SBI::I3) => Loc::new(RI::R4, CI::C3),
+            (BI::I4, SBI::I4) => Loc::new(RI::R4, CI::C4),
+            (BI::I4, SBI::I5) => Loc::new(RI::R4, CI::C5),
+            (BI::I4, SBI::I6) => Loc::new(RI::R5, CI::C3),
+            (BI::I4, SBI::I7) => Loc::new(RI::R5, CI::C4),
+            (BI::I4, SBI::I8) => Loc::new(RI::R5, CI::C5),
+            (BI::I5, SBI::I0) => Loc::new(RI::R3, CI::C6),
+            (BI::I5, SBI::I1) => Loc::new(RI::R3, CI::C7),
+            (BI::I5, SBI::I2) => Loc::new(RI::R3, CI::C8),
+            (BI::I5, SBI::I3) => Loc::new(RI::R4, CI::C6),
+            (BI::I5, SBI::I4) => Loc::new(RI::R4, CI::C7),
+            (BI::I5, SBI::I5) => Loc::new(RI::R4, CI::C8),
+            (BI::I5, SBI::I6) => Loc::new(RI::R5, CI::C6),
+            (BI::I5, SBI::I7) => Loc::new(RI::R5, CI::C7),
+            (BI::I5, SBI::I8) => Loc::new(RI::R5, CI::C8),
+            (BI::I6, SBI::I0) => Loc::new(RI::R6, CI::C0),
+            (BI::I6, SBI::I1) => Loc::new(RI::R6, CI::C1),
+            (BI::I6, SBI::I2) => Loc::new(RI::R6, CI::C2),
+            (BI::I6, SBI::I3) => Loc::new(RI::R7, CI::C0),
+            (BI::I6, SBI::I4) => Loc::new(RI::R7, CI::C1),
+            (BI::I6, SBI::I5) => Loc::new(RI::R7, CI::C2),
+            (BI::I6, SBI::I6) => Loc::new(RI::R8, CI::C0),
+            (BI::I6, SBI::I7) => Loc::new(RI::R8, CI::C1),
+            (BI::I6, SBI::I8) => Loc::new(RI::R8, CI::C2),
+            (BI::I7, SBI::I0) => Loc::new(RI::R6, CI::C3),
+            (BI::I7, SBI::I1) => Loc::new(RI::R6, CI::C4),
+            (BI::I7, SBI::I2) => Loc::new(RI::R6, CI::C5),
+            (BI::I7, SBI::I3) => Loc::new(RI::R7, CI::C3),
+            (BI::I7, SBI::I4) => Loc::new(RI::R7, CI::C4),
+            (BI::I7, SBI::I5) => Loc::new(RI::R7, CI::C5),
+            (BI::I7, SBI::I6) => Loc::new(RI::R8, CI::C3),
+            (BI::I7, SBI::I7) => Loc::new(RI::R8, CI::C4),
+            (BI::I7, SBI::I8) => Loc::new(RI::R8, CI::C5),
+            (BI::I8, SBI::I0) => Loc::new(RI::R6, CI::C6),
+            (BI::I8, SBI::I1) => Loc::new(RI::R6, CI::C7),
+            (BI::I8, SBI::I2) => Loc::new(RI::R6, CI::C8),
+            (BI::I8, SBI::I3) => Loc::new(RI::R7, CI::C6),
+            (BI::I8, SBI::I4) => Loc::new(RI::R7, CI::C7),
+            (BI::I8, SBI::I5) => Loc::new(RI::R7, CI::C8),
+            (BI::I8, SBI::I6) => Loc::new(RI::R8, CI::C6),
+            (BI::I8, SBI::I7) => Loc::new(RI::R8, CI::C7),
+            (BI::I8, SBI::I8) => Loc::new(RI::R8, CI::C8),
+        }
     }
 }
 

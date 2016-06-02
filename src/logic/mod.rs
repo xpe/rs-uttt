@@ -46,6 +46,60 @@ impl Board {
     }
 }
 
+// -> sub-boards ---------------------------------------------------------------
+
+impl Game {
+    /// Returns the valid sub-boards for the next play.
+    ///
+    /// Unfortunately, this function probably will not be useful.
+    ///
+    /// See also `Game::valid_sboard_indexes` and `Game::is_valid_sboard`.
+    #[allow(dead_code)]
+    fn valid_sboards(self) -> Vec<SBoard> {
+        match self.last_loc {
+            None => self.board.sboards.to_vec(),
+            Some(loc) => {
+                let loc_bi = SBI::from_loc(loc).as_bi();
+                let sboard = self.board.sboard_at_idx(loc_bi);
+                if sboard.is_open() {
+                    vec![sboard]
+                } else {
+                    self.board.sboards.iter().filter(|sb| sb.is_open())
+                        .cloned().collect::<Vec<SBoard>>()
+                }
+            },
+        }
+    }
+
+    /// Returns the valid sub-board indexes for the next play. Here are the
+    /// rules:
+    ///
+    /// 1. The first player can play anywhere.
+    /// 2. For subsequent plays:
+    ///    A. If the sub-board is open (not won or filled), then the
+    ///       player must play in it.
+    ///    B. Otherwise, the player may play in any open sub-board.
+    ///
+    /// See also `Game::is_valid_sboard`.
+    #[allow(dead_code)]
+    fn valid_sboard_indexes(self) -> Vec<BI> {
+        match self.last_loc {
+            None => ALL_BI.to_vec(),
+            Some(loc) => {
+                let loc_bi = SBI::from_loc(loc).as_bi();
+                if self.board.sboard_at_idx(loc_bi).is_open() {
+                    vec![loc_bi]
+                } else {
+                    ALL_BI.iter()
+                        .filter(|&bi| self.board.sboard_at_idx(*bi).is_open())
+                        .cloned()
+                        .collect::<Vec<BI>>()
+                }
+            },
+        }
+    }
+}
+
 // -> sub-board ----------------------------------------------------------------
 
 impl SBoard {
@@ -58,7 +112,8 @@ impl SBoard {
             SRI::R2 => (0b0000001111111111, 10),
         };
         let row = self.row_at(sri).play_at(SCI::from_idx(sbi), player);
-        self.0 = (self.0 & mask) | ((Row::as_u8(row) as u16) << shift);
+        self.encoding =
+            (self.encoding & mask) | ((Row::as_u8(row) as u16) << shift);
     }
 }
 
@@ -246,10 +301,53 @@ impl Row {
     }
 }
 
+// -> board plays --------------------------------------------------------------
+
+impl Game {
+    /// Returns a vector of valid board plays. For a play to be valid, these
+    /// conditions must all be true:
+    ///
+    /// 1. The game is not over.
+    /// 2. The player is playing in turn.
+    /// 3. The play is in a valid sub-board.
+    /// 4. The play is in an empty location.
+    ///
+    /// See also `Game::is_valid_play()`.
+    pub fn valid_plays(self) -> Vec<Play> {
+        match self.next_player() {
+            None => vec![],
+            Some(player) => {
+                self.board.valid_locs(self.valid_sboard_indexes()).iter()
+                    .map(|&loc| Play { player: player, loc: loc })
+                    .collect::<Vec<Play>>()
+            },
+        }
+    }
+}
 
 // -> board play ---------------------------------------------------------------
 
 // -> sub-board play -----------------------------------------------------------
+
+// -> board locations ----------------------------------------------------------
+
+impl Board {
+    /// Returns a vector of valid locations for board plays for a given vector
+    /// of board indexes.
+    fn valid_locs(self, bis: Vec<BI>) -> Vec<Loc> {
+        bis.iter().flat_map(|&bi| self.valid_locs_for(bi))
+            .collect::<Vec<Loc>>()
+    }
+
+    /// Returns a vector of valid locations for board plays for a given board
+    /// index (that points to a particular sub-board).
+    fn valid_locs_for(self, bi: BI) -> Vec<Loc> {
+        // TODO: combine the lines below (style)
+        let sbis: Vec<SBI> = self.sboard_at_idx(bi).valid_indexes();
+        sbis.iter().map(|&sbi| Loc::from_indexes(bi, sbi))
+            .collect::<Vec<Loc>>()
+    }
+}
 
 // -> board location -----------------------------------------------------------
 
@@ -262,6 +360,17 @@ impl Row {
 // -> board indexes ------------------------------------------------------------
 
 // -> sub-board indexes --------------------------------------------------------
+
+impl SBoard {
+    /// Returns a vector of valid sub-board indexes, assuming the sub-board is
+    /// open. Do not call this function on a won sub-board.
+    fn valid_indexes(self) -> Vec<SBI> {
+        ALL_SLOC.iter()
+            .filter(|&sloc| self.is_location_empty(*sloc))
+            .map(|&sloc| SBI::from_sloc(sloc))
+            .collect::<Vec<SBI>>()
+    }
+}
 
 // -> player -------------------------------------------------------------------
 
@@ -316,38 +425,41 @@ impl Game {
         !self.board.is_open()
     }
 
-    /// Is the play valid for the given game?
+    /// Is the play valid for the given game? For a play to be valid, these
+    /// conditions must all be true:
+    ///
+    /// 1. The game is not over.
+    /// 2. The player is playing in turn.
+    /// 3. The play is in a valid sub-board.
+    /// 4. The play is in an empty location.
+    ///
+    /// See also: `Game::valid_plays()`.
     pub fn is_valid_play(self, p: Play) -> bool {
-        if self.is_over() {
-            // The game is over; no more plays are allowed.
-            false
-        } else if self.next_player() == Some(p.player) {
-            // The play may or may not be valid.
-            self.is_valid_sboard(p) && self.board.is_location_empty(p.loc)
-        } else {
-            // The player is out of turn.
-            false
-        }
+        !self.is_over() &&
+            self.next_player() == Some(p.player) &&
+            self.is_valid_sboard(p) &&
+            self.board.is_location_empty(p.loc)
     }
 
-    /// Is the play in a valid sub-board?
+    /// Is the play in a valid sub-board? Here are the rules:
+    ///
+    /// 1. The first player can play anywhere.
+    /// 2. For subsequent plays:
+    ///    A. If the sub-board is open (not won or filled), then the
+    ///       player must play in it.
+    ///    B. Otherwise, the player may play in any open sub-board.
+    ///
+    /// See also `Game::next_play_valid_sboards`.
     fn is_valid_sboard(self, play: Play) -> bool {
         match self.last_loc {
-            // The first player can play anywhere
             None => true,
-            // Subsequent plays are constrained
             Some(loc) => {
-                let loc_sbi: SBI = SBI::from_loc(loc);
-                let loc_bi: BI = loc_sbi.as_bi();
-                let play_bi: BI = BI::from_loc(play.loc);
-                let board: Board = self.board;
-                if board.is_sboard_open(loc_bi) {
-                    // If the sub-board is open (not won or filled), then the
-                    // player must play in it.
+                let loc_bi = SBI::from_loc(loc).as_bi();
+                let play_bi = BI::from_loc(play.loc);
+                if self.board.is_sboard_open(loc_bi) {
                     loc_bi == play_bi
                 } else {
-                    // Otherwise, the player may play in any open sub-board.
-                    board.is_sboard_open(play_bi)
+                    self.board.is_sboard_open(play_bi)
                 }
             }
         }
@@ -376,7 +488,8 @@ impl Board {
 
     /// Does the board have an open sub-board?
     fn has_open_sboard(self) -> bool {
-        self.sboards().iter().any(|&sb| sb.is_open())
+        // TODO: Do I need |&sb| instead?
+        self.sboards.iter().any(|sb| sb.is_open())
     }
 
     /// Is the sub-board open (i.e. not won or tied)?
