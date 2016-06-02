@@ -8,7 +8,7 @@ use uttt::utility::*;
 
 fn main() {
     h(0, "Ended Games");
-    let seed: &[_] = &[219, 9990005, 22004, 23];
+    let seed: &[_] = &[222, 9990005, 22004, 23];
     let mut rng: StdRng = SeedableRng::from_seed(seed);
     let mut x_wins = 0;
     let mut o_wins = 0;
@@ -33,7 +33,8 @@ fn main() {
     println!("O wins: {:4}", o_wins);
     println!("  ties: {:4}", ties);
     println!("");
-    println!("average game length: {}", games_len / trials);
+    println!("average game length: {}",
+             (games_len as f64) / (trials as f64));
 }
 
 fn result_str(op: Option<Player>) -> &'static str {
