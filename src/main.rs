@@ -6,7 +6,7 @@ use uttt::data::*;
 use uttt::random::*;
 use uttt::show::*;
 use uttt::solver::*;
-use uttt::utility::{p, h};
+use uttt::utility::{h, p, pln};
 
 const VERBOSE: bool = true;
 
@@ -74,13 +74,13 @@ fn run_solve_1<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N"); }
             let game_n = games_iter.next_back().unwrap();
-            if VERBOSE { p_game_and_winner(game_n); }
+            if VERBOSE { pln(game_n); }
             let solution_n = game_n.solve_for(0);
             if VERBOSE { p_solution("N", 0, &solution_n); }
 
             if VERBOSE { h(1, "Game N-1"); }
             let game_n_1 = games_iter.next_back().unwrap();
-            if VERBOSE { p_game_and_winner(game_n_1); }
+            if VERBOSE { pln(game_n_1); }
             let solution_n_1 = game_n_1.solve_for(1);
             if VERBOSE { p_solution("N-1", 1, &solution_n_1); }
         }
@@ -100,10 +100,10 @@ fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
             let game_n_2 = games_iter.next_back().unwrap();
 
             if VERBOSE { h(1, "Game N"); }
-            if VERBOSE { p_game_and_winner(game_n); }
+            if VERBOSE { pln(game_n); }
 
             if VERBOSE { h(1, "Game N-2"); }
-            if VERBOSE { p_game_and_winner(game_n_2); }
+            if VERBOSE { pln(game_n_2); }
             let solution_n_2_1 = game_n_2.solve_for(1);
             if VERBOSE { p_solution("N-2", 1, &solution_n_2_1); }
             let solution_n_2_2 = game_n_2.solve_for(2);
@@ -116,20 +116,6 @@ fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
 
 fn p_solution(k: &str, d: Count, solution: &Solution) {
     println!("{} solution (depth={}): {}\n", k, d, solution.show());
-}
-
-fn p_game_and_winner(game: &Game) {
-    p(game);
-    p_winner(game.winner());
-    println!("");
-}
-
-fn p_winner(winner: Option<Player>) {
-    let winner = match winner {
-        Some(player) => format!("{:?}", player),
-        None => format!("-"),
-    };
-    println!("               winner : {}", winner);
 }
 
 // -- str functions ------------------------------------------------------------

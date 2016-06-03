@@ -30,15 +30,14 @@ impl Show for Outcome {
 impl Show for Game {
     fn show(&self) -> String {
         format!(
-            "{}{}{}",
+            "{}\n{}",
             self.board.show(),
-            format!("\n                turns : {}", self.board.play_count()),
-            if self.last_loc.is_none() {
-                "".to_string()
-            } else {
-                format!("\n            last play : {}",
-                        self.last_loc.unwrap().show())
-            }
+            format!("     n={:2}      last={}@{}      win={}",
+                    self.board.play_count(),
+                    self.last_player().show(),
+                    self.last_loc.show(),
+                    self.winner().show()
+            )
         )
     }
 }
@@ -188,6 +187,15 @@ impl Show for SPlay {
 
 // -- board location -----------------------------------------------------------
 
+impl Show for Option<Loc> {
+    fn show(&self) -> String {
+        match *self {
+            None => "❨--,--❩".to_string(),
+            Some(loc) => loc.show(),
+        }
+    }
+}
+
 impl Show for Loc {
     fn show(&self) -> String {
         format!("❨{},{}❩", self.row().show(), self.col().show())
@@ -267,7 +275,7 @@ impl Show for SCI {
 impl Show for Option<Player> {
     fn show(&self) -> String {
         match *self {
-            None => "None".to_string(),
+            None => "-".to_string(),
             Some(player) => player.show(),
         }
     }

@@ -17,3 +17,8 @@ pub fn h(level: u8, title: &str) {
 pub fn p<T: Show>(x: &T) {
     println!("{}", x.show());
 }
+
+/// Prints (with newline) a reference that has the Show trait.
+pub fn pln<T: Show>(x: &T) {
+    println!("{}\n", x.show());
+}
