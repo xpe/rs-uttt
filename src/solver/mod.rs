@@ -17,10 +17,8 @@ pub enum Outcome {
 
 pub type Count = u8;
 
-/// A solution to a game state, containing:
-///
-///   A. the optimal next play (optional)
-///   B. the resulting outcome
+/// A solution to a game state, containing (a) the optimal next play (optional)
+/// and (b) the resulting outcome.
 ///
 /// For example, if the outcome is a 'win in N plays', this means that the
 /// current player will beat an optimal opponent in N plays. However, the
@@ -34,7 +32,7 @@ pub type Count = u8;
 ///    of situation (ie.e X is next to move and will guarantee victory in K
 ///    turns), K is always odd.
 ///
-/// ```
+/// ```text
 ///       last                     next
 /// turn  player  winner  outcome  player
 /// ----  ------  ------  -------  ------
@@ -66,13 +64,15 @@ pub type Count = u8;
 ///    will be `None` and the outcome will be 'unknown for depth 10'.
 #[derive(Clone, Copy, Debug)]
 pub struct Solution {
+    /// The optimal next play (optional)
     pub opt_play: Option<Play>,
+    /// The resulting outcome
     pub outcome: Outcome,
 }
 
 impl Game {
     /// Returns the solution for depth == 0.
-    fn solution_0(self) -> Solution {
+    fn solve_0(self) -> Solution {
         match self.state() {
             GameState::Won(player) => Solution {
                 opt_play: None,
@@ -91,14 +91,14 @@ impl Game {
 
     /// Returns the solution for depth == 1.
     #[allow(unused_variables)]
-    fn solution_1(self) -> Solution {
-        let solution = self.solution_0();
+    fn solve_1(self) -> Solution {
+        let solution = self.solve_0();
         match solution.outcome {
             Outcome::Win { .. } => solution,
             Outcome::Tie { .. } => solution,
             Outcome::Unknown { .. } => {
                 let solutions = self.valid_plays().iter()
-                    .map(|&play| self.play(play).unwrap().solution_0())
+                    .map(|&play| self.play(play).unwrap().solve_0())
                     .collect::<Vec<Solution>>();
                 if solutions.is_empty() {
                     panic!("Internal Error. The solutions vector is empty.");
@@ -117,10 +117,10 @@ impl Game {
     /// ahead for a number of moves (specified by `depth`). If there are no
     /// valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
-    pub fn solution_for(self, depth: Count) -> Solution {
+    pub fn solve_for(self, depth: Count) -> Solution {
         match depth {
-            0 => self.solution_0(),
-            1 => self.solution_1(),
+            0 => self.solve_0(),
+            1 => self.solve_1(),
             2 => unimplemented!(),
             _ => unimplemented!(),
         }
