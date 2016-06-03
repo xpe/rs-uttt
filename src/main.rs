@@ -13,7 +13,8 @@ const VERBOSE: bool = true;
 // -- main ---------------------------------------------------------------------
 
 fn main() {
-    let seed = random_seed();
+    // let seed = random_seed();
+    let seed = [3294465295, 97182992, 4241695563, 163574426];
     let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
     run_random_games(&mut rng, 0); // 100
     run_random_game(&mut rng, 0); // 5
@@ -79,10 +80,10 @@ fn run_solve_1<R: Rng>(rng: &mut R, trials: u16) {
             if VERBOSE { p_solution("N", 0, &solution_n); }
 
             if VERBOSE { h(1, "Game N-1"); }
-            let game_n_1 = games_iter.next_back().unwrap();
-            if VERBOSE { pln(game_n_1); }
-            let solution_n_1 = game_n_1.solve_for(1);
-            if VERBOSE { p_solution("N-1", 1, &solution_n_1); }
+            let game_nm1 = games_iter.next_back().unwrap();
+            if VERBOSE { pln(game_nm1); }
+            let sol_nm1_d1 = game_nm1.solve_for(1);
+            if VERBOSE { p_solution("N-1", 1, &sol_nm1_d1); }
         }
     }
 }
@@ -104,10 +105,17 @@ fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N-2"); }
             if VERBOSE { pln(game_n_2); }
-            let solution_n_2_1 = game_n_2.solve_for(1);
-            if VERBOSE { p_solution("N-2", 1, &solution_n_2_1); }
-            let solution_n_2_2 = game_n_2.solve_for(2);
-            if VERBOSE { p_solution("N-2", 2, &solution_n_2_2); }
+            let sol_nm2_d1 = game_n_2.solve_for(1);
+            if VERBOSE { p_solution("N-2", 1, &sol_nm2_d1); }
+            let sol_nm2_d2 = game_n_2.solve_for(2);
+            if VERBOSE { p_solution("N-2", 2, &sol_nm2_d2); }
+
+            if VERBOSE { h(2, "Game N-2+1"); }
+            let play = sol_nm2_d2.opt_play.unwrap();
+            let game_nm2p1 = game_n_2.play(play).unwrap();
+            if VERBOSE { pln(&game_nm2p1); }
+            let sol_nm2p1_d2 = game_nm2p1.solve_for(2);
+            if VERBOSE { p_solution("N-2+1", 2, &sol_nm2p1_d2); }
         }
     }
 }
