@@ -9,8 +9,22 @@ use uttt::utility::{p, h};
 fn main() {
     let seed = random_seed();
     let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
-    run_random_game(&mut rng, 5);
-    run_random_games(&mut rng, 100);
+    // run_random_game(&mut rng, 5);
+    // run_random_games(&mut rng, 100);
+    run_solve_1(&mut rng);
+}
+
+fn run_solve_1<R: Rng>(rng: &mut R) {
+    h(0, "Solve 1");
+    let games = random_games(rng);
+    let mut games_iter = games.iter();
+    h(1, "Game at Turn N");
+    let game_n = games_iter.next_back().unwrap();
+    p_game(game_n);
+    h(1, "Game at Turn N - 1");
+    let game_n_1 = games_iter.next_back().unwrap();
+    p_game(game_n_1);
+    // game.solve_1();
 }
 
 /// Returns a random seed, intended for XorShiftRng.
@@ -26,16 +40,23 @@ fn random_seed() -> [u32; 4] {
     seed
 }
 
+#[allow(dead_code)]
 fn run_random_game<R: Rng>(rng: &mut R, trials: u16) {
     h(0, "random_game()");
     for i in 0 .. trials {
         h(1, &format!("Game #{}", i));
         let game = random_game(rng);
-        p(&game);
-        println!("");
+        p_game(&game);
     }
 }
 
+#[allow(dead_code)]
+fn p_game(game: &Game) {
+    p(game);
+    println!("");
+}
+
+#[allow(dead_code)]
 fn run_random_games<R: Rng>(rng: &mut R, trials: u16) {
     h(0, "random_games()");
     let mut x_wins = 0;
@@ -63,6 +84,7 @@ fn run_random_games<R: Rng>(rng: &mut R, trials: u16) {
     println!("average game length: {}", (games_len as f64) / (trials as f64));
 }
 
+#[allow(dead_code)]
 fn result_str(op: Option<Player>) -> &'static str {
     match op {
         Some(Player::X) => "X wins",
