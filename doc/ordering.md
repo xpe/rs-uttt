@@ -2,6 +2,8 @@
 
 ## Ordering of Objects
 
+* game state
+  * GameState
 * game
   * Game
 * board
