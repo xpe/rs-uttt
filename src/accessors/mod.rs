@@ -2,9 +2,8 @@
 /// functions. This module does not include constants, constructors, data
 /// structure definitions, or game logic.
 
-use data::{Game, Board, SBoard, Row, Loc, SLoc};
-use data::{Slot, RI, CI, BI, SRI, SCI, SBI, Player};
-use constants::{SE, SX, SO};
+use data::*;
+use constants::*;
 
 // -- -> game ------------------------------------------------------------------
 
@@ -690,6 +689,64 @@ impl BI {
             BI::I6 => 6,
             BI::I7 => 7,
             BI::I8 => 8,
+        }
+    }
+}
+
+// -- -> Count -----------------------------------------------------------------
+
+impl Board {
+    pub fn play_count(self) -> Count {
+        let s = self.sboards;
+        s[0].play_count() +
+            s[1].play_count() +
+            s[2].play_count() +
+            s[3].play_count() +
+            s[4].play_count() +
+            s[5].play_count() +
+            s[6].play_count() +
+            s[7].play_count() +
+            s[8].play_count()
+    }
+}
+
+impl SBoard {
+    pub fn play_count(self) -> Count {
+        let r = self.rows();
+        r[0].play_count() + r[1].play_count() + r[2].play_count()
+    }
+}
+
+impl Row {
+    pub fn play_count(self) -> Count {
+        match self {
+            Row::EEE => 0,
+            Row::EEX => 1,
+            Row::EEO => 1,
+            Row::EXE => 1,
+            Row::EXX => 2,
+            Row::EXO => 2,
+            Row::EOE => 1,
+            Row::EOX => 2,
+            Row::EOO => 2,
+            Row::XEE => 1,
+            Row::XEX => 2,
+            Row::XEO => 2,
+            Row::XXE => 2,
+            Row::XXX => 3,
+            Row::XXO => 3,
+            Row::XOE => 2,
+            Row::XOX => 3,
+            Row::XOO => 3,
+            Row::OEE => 1,
+            Row::OEX => 2,
+            Row::OEO => 2,
+            Row::OXE => 2,
+            Row::OXX => 3,
+            Row::OXO => 3,
+            Row::OOE => 2,
+            Row::OOX => 3,
+            Row::OOO => 3,
         }
     }
 }

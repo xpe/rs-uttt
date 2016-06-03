@@ -30,8 +30,9 @@ impl Show for Outcome {
 impl Show for Game {
     fn show(&self) -> String {
         format!(
-            "{}{}",
+            "{}{}{}",
             self.board.show(),
+            format!("\n                turns : {}", self.board.play_count()),
             if self.last_loc.is_none() {
                 "".to_string()
             } else {

@@ -71,8 +71,6 @@ pub enum Outcome {
     Unknown { depth: Count },
 }
 
-pub type Count = u8;
-
 // == solving functions ========================================================
 
 impl Game {

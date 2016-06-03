@@ -43,6 +43,8 @@ I also use this sometimes to order functions by their return value.
   * `data::SBI`
 * player
   * `data::Player`
+* play count (i.e. number of plays)
+  * `data::PlayCount`
 * u8 *
 * bool *
 
