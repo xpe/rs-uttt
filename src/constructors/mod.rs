@@ -141,8 +141,6 @@ impl Loc {
     /// Returns a location from a board index and a sub-board index.
     ///
     /// TODO: I think I need a better name for "indexes".
-    ///
-    /// TODO: Validate the correctness with quickcheck testing.
     pub fn from_indexes(bi: BI, sbi: SBI) -> Loc {
         match (bi, sbi) {
             (BI::I0, SBI::I0) => Loc::new(RI::R0, CI::C0),

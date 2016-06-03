@@ -21,6 +21,18 @@ impl Arbitrary for CI {
     }
 }
 
+impl Arbitrary for BI {
+    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+        g.gen::<BI>()
+    }
+}
+
+impl Arbitrary for SBI {
+    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+        g.gen::<SBI>()
+    }
+}
+
 impl Arbitrary for SRI {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         g.gen::<SRI>()

@@ -10,3 +10,14 @@ fn test_play_at() {
         prop as fn(Row, SCI, Player) -> bool
     );
 }
+
+#[test]
+fn test_loc_from_indexes() {
+    fn prop(bi: BI, sbi: SBI) -> bool {
+        let loc = Loc::from_indexes(bi, sbi);
+        (bi == BI::from_loc(loc)) && (sbi == SBI::from_loc(loc))
+    }
+    QuickCheck::new().tests(1000).quickcheck(
+        prop as fn(BI, SBI) -> bool
+    );
+}

@@ -121,8 +121,25 @@ impl Rand for CI {
     }
 }
 
-// -- sub-board indexes --------------------------------------------------------
+impl Rand for BI {
+    /// Returns a random board index.
+    fn rand<R: Rng>(rng: &mut R) -> Self {
+        const CHOICES: [BI; 9] = [
+            BI::I0,
+            BI::I1,
+            BI::I2,
+            BI::I3,
+            BI::I4,
+            BI::I5,
+            BI::I6,
+            BI::I7,
+            BI::I8,
+        ];
+        rng.choose(&CHOICES).unwrap().clone()
+    }
+}
 
+// -- sub-board indexes --------------------------------------------------------
 
 impl Rand for SRI {
     /// Returns a random sub-board row index.
@@ -136,6 +153,24 @@ impl Rand for SCI {
     /// Returns a random sub-board column index.
     fn rand<R: Rng>(rng: &mut R) -> Self {
         const CHOICES: [SCI; 3] = [SCI::C0, SCI::C1, SCI::C2];
+        rng.choose(&CHOICES).unwrap().clone()
+    }
+}
+
+impl Rand for SBI {
+    /// Returns a random sub-board index.
+    fn rand<R: Rng>(rng: &mut R) -> Self {
+        const CHOICES: [SBI; 9] = [
+            SBI::I0,
+            SBI::I1,
+            SBI::I2,
+            SBI::I3,
+            SBI::I4,
+            SBI::I5,
+            SBI::I6,
+            SBI::I7,
+            SBI::I8,
+        ];
         rng.choose(&CHOICES).unwrap().clone()
     }
 }
