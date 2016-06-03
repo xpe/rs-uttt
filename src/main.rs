@@ -72,19 +72,19 @@ fn run_solve_1<R: Rng>(rng: &mut R, trials: u16) {
             let games = random_games(rng);
             let mut games_iter = games.iter();
 
-            if VERBOSE { h(1, "Game at Turn N"); }
+            if VERBOSE { h(1, "Game N"); }
             let game_n = games_iter.next_back().unwrap();
             if VERBOSE { p_game_and_winner(game_n); }
 
-            if VERBOSE { h(1, "Solving Game at Turn N"); }
+            if VERBOSE { h(1, "Solve Game N depth=0"); }
             let solution_n = game_n.solve_for(0);
             if VERBOSE { p_solution(&solution_n); }
 
-            if VERBOSE { h(1, "Game at Turn N - 1"); }
+            if VERBOSE { h(1, "Game N-1"); }
             let game_n_1 = games_iter.next_back().unwrap();
             if VERBOSE { p_game_and_winner(game_n_1); }
 
-            if VERBOSE { h(1, "Solving Game at Turn N - 1"); }
+            if VERBOSE { h(1, "Solve Game N-1 depth=1"); }
             let solution_n_1 = game_n_1.solve_for(1);
             if VERBOSE { p_solution(&solution_n_1); }
         }
@@ -100,18 +100,22 @@ fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
             let games = random_games(rng);
             let mut games_iter = games.iter();
             let game_n = games_iter.next_back().unwrap();
-            games_iter.next_back(); // Game at N - 1
+            games_iter.next_back().unwrap(); // game_n_1
             let game_n_2 = games_iter.next_back().unwrap();
 
             if VERBOSE { h(1, "Game at Turn N"); }
             if VERBOSE { p_game_and_winner(game_n); }
 
-            if VERBOSE { h(1, "Game at Turn N - 2"); }
+            if VERBOSE { h(1, "Game at Turn N-2"); }
             if VERBOSE { p_game_and_winner(game_n_2); }
 
-            if VERBOSE { h(1, "Solving Game at Turn N - 2"); }
-            let solution_n_2 = game_n_2.solve_for(2);
-            if VERBOSE { p_solution(&solution_n_2); }
+            if VERBOSE { h(1, "Solve Game N-2 depth=1"); }
+            let solution_n_2_1 = game_n_2.solve_for(1);
+            if VERBOSE { p_solution(&solution_n_2_1); }
+
+            if VERBOSE { h(1, "Solve Game N-2 depth=2"); }
+            let solution_n_2_2 = game_n_2.solve_for(2);
+            if VERBOSE { p_solution(&solution_n_2_2); }
         }
     }
 }
