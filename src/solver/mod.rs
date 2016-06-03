@@ -139,7 +139,6 @@ fn best_solution_1(p: Player, solutions: Vec<Solution>) -> Solution {
 
 impl Outcome {
     /// Compare two outcomes from the point of view of the given player.
-    #[allow(dead_code)]
     fn compare(p: Player, a: &Outcome, b: &Outcome) -> Ordering {
         let o = p.opponent();
         match (*a, *b) {
@@ -183,10 +182,8 @@ impl Outcome {
 
 impl Solution {
     /// Compare two solutions.
-    #[allow(unused_variables)]
-    fn compare(player: Player, a: &Solution, b: &Solution) -> Ordering {
-        let o = player.opponent();
-        Ordering::Equal
+    fn compare(p: Player, a: &Solution, b: &Solution) -> Ordering {
+        Outcome::compare(p, &a.outcome, &b.outcome)
     }
 }
 
