@@ -17,8 +17,8 @@ fn main() {
     let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
     run_random_games(&mut rng, 0); // 100
     run_random_game(&mut rng, 0); // 5
-    run_solve_1(&mut rng, 1); // 100
-    run_solve_2(&mut rng, 0); // 100
+    run_solve_1(&mut rng, 0); // 100
+    run_solve_2(&mut rng, 1); // 100
 }
 
 // -- main sub-functions -------------------------------------------------------
