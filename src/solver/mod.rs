@@ -112,43 +112,81 @@ impl Game {
             Outcome::Win { .. } => solution,
             Outcome::Tie { .. } => solution,
             Outcome::Unknown { .. } => {
-                let solutions = self.valid_plays().iter().map(|&play| {
-                    self.play(play).unwrap().solve_0().time_shift(play)
-                }).collect::<Vec<Solution>>();
-                if solutions.is_empty() {
-                    panic!("Internal Error. The solutions vector is empty.");
-                }
                 let player = self.next_player().unwrap();
-                best_solution_1(player, solutions)
+                solve_only_1(self, player, solution)
             },
         }
     }
 
     /// Returns the solution for depth == 2.
-    #[allow (unused_variables)]
-    fn solve_2(self) -> Solution {
+    fn solve_2(self) -> Solution { // WIP
         let solution = self.solve_1();
+        let player = self.next_player().unwrap();
         match solution.outcome {
-            Outcome::Win { player: p, turns: t } => {
-                if t == 0 {
-                    unimplemented!();
+            Outcome::Win { player: p, turns: _ } => {
+                if p == player {
+                    solution
                 } else {
-                    unimplemented!();
+                    solve_only_2(self, player, solution)
                 }
             },
-            Outcome::Tie { turns: t } => {
-                unimplemented!();
+            Outcome::Tie { .. } => {
+                solve_only_2(self, player, solution)
             },
-            Outcome::Unknown { depth: d } => {
-                unimplemented!();
+            Outcome::Unknown { .. } => {
+                solve_only_2(self, player, solution)
             },
         }
     }
 }
 
-/// Returns the best solution for depth == 1.
-fn best_solution_1(p: Player, solutions: Vec<Solution>) -> Solution {
+// -- solve_only_? -------------------------------------------------------------
+
+/// Returns the solution for depth == 1, but not lower depths.
+fn solve_only_1(game: Game, player: Player, sol_0: Solution) -> Solution {
+    let solutions_1 = candidate_solutions_1(game);
+    best_solution(player, sol_0, solutions_1)
+}
+
+/// Returns the solution for depth == 2, but not lower depths.
+fn solve_only_2(game: Game, player: Player, sol_1: Solution) -> Solution {
+    let solutions_2 = candidate_solutions_2(game);
+    best_solution(player, sol_1, solutions_2)
+}
+
+// -- candidate_solutions_? ----------------------------------------------------
+
+/// Returns candidate solutions (i.e. possible solutions) at depth == 1. Does
+/// not consider lower depths.
+fn candidate_solutions_1(game: Game) -> Vec<Solution> {
+    let solutions = game.valid_plays().iter().map(|&play| {
+        game.play(play).unwrap().solve_0().time_shift(play)
+    }).collect::<Vec<Solution>>();
+    if solutions.is_empty() {
+        panic!("Internal Error: `solutions` is empty");
+    }
+    solutions
+}
+
+/// Returns candidate solutions (i.e. possible solutions) at depth == 2. Does
+/// not consider lower depths.
+fn candidate_solutions_2(game: Game) -> Vec<Solution> {
+    let solutions = game.valid_plays().iter().map(|&play| {
+        game.play(play).unwrap().solve_1().time_shift(play)
+    }).collect::<Vec<Solution>>();
+    if solutions.is_empty() {
+        panic!("Internal Error: `solutions` is empty");
+    }
+    solutions
+}
+
+// -- best_solution ------------------------------------------------------------
+
+/// Returns the best solution.
+fn best_solution(p: Player, solution: Solution,
+                 solutions: Vec<Solution>) -> Solution {
     let mut ss = solutions;
+    ss.push(solution);
     ss.sort_by(|a, b| Solution::compare(p, a, b));
     ss.last().unwrap().clone()
 }
