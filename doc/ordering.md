@@ -1,42 +1,48 @@
 # Ordering
 
-## Ordering of Objects
+## Ordering of data structures
 
+I also use this sometimes to order functions by their return value.
+
+* solution
+  * `solver::Solution`
+* outcome
+  * `solver::Outcome`
 * game state
-  * GameState
+  * `data::GameState`
 * game
-  * Game
+  * `data::Game`
 * board
-  * Board
+  * `data::Board`
 * sub-board
-  * SBoard
+  * `data::SBoard`
 * rows *
-  * [Row; 3]
+  * `[data::Row; 3]`
 * row
-  * Row
+  * `data::Row`
 * board play
-  * Play
+  * `data::Play`
 * sub-board play
-  * SPlay
+  * `data::SPlay`
 * board location
-  * Loc
+  * `data::Loc`
 * sub-board location
-  * SLoc
+  * `data::SLoc`
 * slots *
-  * [Slot; 9]
-  * [Slot; 3]
+  * `[data::Slot; 9]`
+  * `[data::Slot; 3]`
 * slot
-  * Slot
+  * `data::Slot`
 * board indexes
-  * RI
-  * CI
-  * BI
+  * `data::RI`
+  * `data::CI`
+  * `data::BI`
 * sub-board indexes
-  * SRI
-  * SCI
-  * SBI
+  * `data::SRI`
+  * `data::SCI`
+  * `data::SBI`
 * player
-  * Player
+  * `data::Player`
 * u8 *
 * bool *
 

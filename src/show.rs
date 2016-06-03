@@ -1,9 +1,28 @@
 /// Show (text output) functions.
 
 use data::*;
+use solver::*;
 
 pub trait Show {
     fn show(&self) -> String;
+}
+
+// -- solution -----------------------------------------------------------------
+
+impl Show for Solution {
+    fn show(&self) -> String {
+        format!("❨Play:{} Outcome:{}❩",
+                self.opt_play.show(), self.outcome.show())
+    }
+}
+
+// -- outcome ------------------------------------------------------------------
+
+impl Show for Outcome {
+    fn show(&self) -> String {
+        format!("❨{:?}❩", self)
+
+    }
 }
 
 // -- game ---------------------------------------------------------------------
@@ -16,7 +35,7 @@ impl Show for Game {
             if self.last_loc.is_none() {
                 "".to_string()
             } else {
-                format!("\n              last play : {}              ",
+                format!("\n            last play : {}",
                         self.last_loc.unwrap().show())
             }
         )
@@ -143,13 +162,28 @@ impl Show for Row {
 
 // -- board play ---------------------------------------------------------------
 
+impl Show for Option<Play> {
+    fn show(&self) -> String {
+        match *self {
+            None => "None".to_string(),
+            Some(play) => play.show(),
+        }
+    }
+}
+
+impl Show for Play {
+    fn show(&self) -> String {
+        format!("❨{} {}❩", self.player.show(), self.loc.show())
+    }
+}
+
 // -- sub-board play -----------------------------------------------------------
 
 // -- board location -----------------------------------------------------------
 
 impl Show for Loc {
     fn show(&self) -> String {
-        format!("R{} C{}", self.row().show(), self.col().show())
+        format!("❨R{},C{}❩", self.row().show(), self.col().show())
     }
 }
 
@@ -204,3 +238,21 @@ impl Show for CI {
 // -- sub-board indexes --------------------------------------------------------
 
 // -- player -------------------------------------------------------------------
+
+impl Show for Option<Player> {
+    fn show(&self) -> String {
+        match *self {
+            None => "None".to_string(),
+            Some(player) => player.show(),
+        }
+    }
+}
+
+impl Show for Player {
+    fn show(&self) -> String {
+        match *self {
+            Player::X => "X",
+            Player::O => "O",
+        }.to_string()
+    }
+}

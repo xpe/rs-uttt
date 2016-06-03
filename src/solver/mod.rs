@@ -6,20 +6,6 @@ use std::cmp::Ordering;
 
 // == data structures ==========================================================
 
-/// The computed outcome of a game; either:
-/// 1. A win for player X in some number of plays
-/// 2. A win for player O in some number of plays
-/// 3. A tie in some number of turns
-/// 4. Not one of the above, so unknown.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub enum Outcome {
-    Win { player: Player, turns: Count },
-    Tie { turns: Count },
-    Unknown { depth: Count },
-}
-
-pub type Count = u8;
-
 /// A solution to a game state, containing (a) the optimal next play (optional)
 /// and (b) the resulting outcome.
 ///
@@ -73,9 +59,36 @@ pub struct Solution {
     pub outcome: Outcome,
 }
 
-// == solvers ==================================================================
+/// The computed outcome of a game; either:
+/// 1. A win for player X in some number of plays
+/// 2. A win for player O in some number of plays
+/// 3. A tie in some number of turns
+/// 4. Not one of the above, so unknown.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub enum Outcome {
+    Win { player: Player, turns: Count },
+    Tie { turns: Count },
+    Unknown { depth: Count },
+}
+
+pub type Count = u8;
+
+// == solving functions ========================================================
 
 impl Game {
+    /// Returns the solution for a given depth and game. This function looks
+    /// ahead for a number of moves (specified by `depth`). If there are no
+    /// valid moves, returns a solution where the optional play is `None` and
+    /// the outcome is either a win or a tie.
+    pub fn solve_for(self, depth: Count) -> Solution {
+        match depth {
+            0 => self.solve_0(),
+            1 => self.solve_1(),
+            2 => unimplemented!(),
+            _ => unimplemented!(),
+        }
+    }
+
     /// Returns the solution for depth == 0.
     fn solve_0(self) -> Solution {
         match self.state() {
@@ -95,35 +108,21 @@ impl Game {
     }
 
     /// Returns the solution for depth == 1.
-    #[allow(unused_variables)]
     fn solve_1(self) -> Solution {
         let solution = self.solve_0();
         match solution.outcome {
             Outcome::Win { .. } => solution,
             Outcome::Tie { .. } => solution,
             Outcome::Unknown { .. } => {
-                let solutions = self.valid_plays().iter()
-                    .map(|&play| self.play(play).unwrap().solve_0())
-                    .collect::<Vec<Solution>>();
+                let solutions = self.valid_plays().iter().map(|&play| {
+                    self.play(play).unwrap().solve_0().time_shift(play)
+                }).collect::<Vec<Solution>>();
                 if solutions.is_empty() {
                     panic!("Internal Error. The solutions vector is empty.");
                 }
                 let player = self.next_player().unwrap();
                 best_solution_1(player, solutions)
             },
-        }
-    }
-
-    /// Returns the solution for a given depth and game. This function looks
-    /// ahead for a number of moves (specified by `depth`). If there are no
-    /// valid moves, returns a solution where the optional play is `None` and
-    /// the outcome is either a win or a tie.
-    pub fn solve_for(self, depth: Count) -> Solution {
-        match depth {
-            0 => self.solve_0(),
-            1 => self.solve_1(),
-            2 => unimplemented!(),
-            _ => unimplemented!(),
         }
     }
 }
@@ -135,7 +134,42 @@ fn best_solution_1(p: Player, solutions: Vec<Solution>) -> Solution {
     ss.first().unwrap().clone()
 }
 
+// == 'modifiers' ==============================================================
+
+impl Solution {
+    /// Returns an 'update' time-shifted solution by setting the play field and
+    /// incrementing the associated count on the outcome field.
+    fn time_shift(self, play: Play) -> Solution {
+        Solution {
+            opt_play: Some(play),
+            outcome: self.outcome.inc_count(),
+        }
+    }
+}
+
+impl Outcome {
+    /// Returns an 'updated' outcome by incrementing the 'turns' or 'depth' (as
+    /// appropriate) for the given outcome.
+    fn inc_count(self) -> Outcome {
+        match self {
+            Outcome::Win { player: p, turns: k } =>
+                Outcome::Win { player: p, turns: k + 1 },
+            Outcome::Tie { turns: k } =>
+                Outcome::Tie { turns: k + 1 },
+            Outcome::Unknown { depth: k } =>
+                Outcome::Unknown { depth: k + 1 },
+        }
+    }
+}
+
 // == comparators ==============================================================
+
+impl Solution {
+    /// Compare two solutions.
+    fn compare(p: Player, a: &Solution, b: &Solution) -> Ordering {
+        Outcome::compare(p, &a.outcome, &b.outcome)
+    }
+}
 
 impl Outcome {
     /// Compare two outcomes from the point of view of the given player.
@@ -177,13 +211,6 @@ impl Outcome {
             (Outcome::Unknown { .. },
              Outcome::Unknown { .. }) => Ordering::Equal
         }
-    }
-}
-
-impl Solution {
-    /// Compare two solutions.
-    fn compare(p: Player, a: &Solution, b: &Solution) -> Ordering {
-        Outcome::compare(p, &a.outcome, &b.outcome)
     }
 }
 
