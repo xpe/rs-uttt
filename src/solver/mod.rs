@@ -265,8 +265,8 @@ impl Outcome {
              Outcome::Unknown { depth: _ }) => Ordering::Less,
             (Outcome::Unknown { depth: _ },
              Outcome::Tie { turns: _ }) => Ordering::Greater,
-            (Outcome::Unknown { .. },
-             Outcome::Unknown { .. }) => Ordering::Equal
+            (Outcome::Unknown { depth: d1 },
+             Outcome::Unknown { depth: d2 }) => d1.cmp(&d2),
         }
     }
 }
