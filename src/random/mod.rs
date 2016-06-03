@@ -2,7 +2,7 @@
 
 use constants::*;
 use data::*;
-use rand::{Rand, Rng};
+use rand::{Rand, Rng, thread_rng};
 use std::collections::LinkedList;
 
 // -- games --------------------------------------------------------------------
@@ -34,8 +34,8 @@ pub fn random_games<R: Rng>(rng: &mut R) -> LinkedList<Game> {
 /// Note: in order to uniformly sample across the game space, it would be
 /// necessary to pick randomly from `random_games`, which returns a game
 /// progression from start to completion. Such an approach would be slower. The
-/// approach here is much faster, although it biases the results towards
-/// completed games (which is not necessarily undesirable).
+/// approach here is much faster than that, although it biases the results
+/// towards completed games (which is not necessarily undesirable).
 pub fn random_game<R: Rng>(rng: &mut R) -> Game {
     let mut i: u8 = 0;
     let mut game = EMPTY_GAME;
@@ -214,4 +214,19 @@ impl Rand for Player {
         const CHOICES: [Player; 2] = [Player::X, Player::O];
         rng.choose(&CHOICES).unwrap().clone()
     }
+}
+
+// -- [u32; 4] -----------------------------------------------------------------
+
+/// Returns a random seed, intended for XorShiftRng.
+pub fn random_seed() -> [u32; 4] {
+    let mut rng = thread_rng();
+    let seed = [
+        rng.gen::<u32>(),
+        rng.gen::<u32>(),
+        rng.gen::<u32>(),
+        rng.gen::<u32>(),
+    ];
+    println!("Using random number seed {:?}\n", seed);
+    seed
 }

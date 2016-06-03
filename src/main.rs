@@ -127,18 +127,3 @@ fn result_str(op: Option<Player>) -> &'static str {
         None => "  tie ",
     }
 }
-
-// -- randomness functions -----------------------------------------------------
-
-/// Returns a random seed, intended for XorShiftRng.
-fn random_seed() -> [u32; 4] {
-    let mut rng = rand::thread_rng();
-    let seed = [
-        rng.gen::<u32>(),
-        rng.gen::<u32>(),
-        rng.gen::<u32>(),
-        rng.gen::<u32>(),
-    ];
-    println!("Using random number seed {:?}\n", seed);
-    seed
-}
