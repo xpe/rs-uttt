@@ -693,6 +693,45 @@ impl BI {
     }
 }
 
+impl SRI {
+    /// Convert a row index into a u8 value.
+    pub fn as_u8(self) -> u8 {
+        match self {
+            SRI::R0 => 0,
+            SRI::R1 => 1,
+            SRI::R2 => 2,
+        }
+    }
+}
+
+impl SCI {
+    /// Convert a column index into a u8 value.
+    pub fn as_u8(self) -> u8 {
+        match self {
+            SCI::C0 => 0,
+            SCI::C1 => 1,
+            SCI::C2 => 2,
+        }
+    }
+}
+
+impl SBI {
+    /// Convert a board index into a u8 value.
+    pub fn as_u8(self) -> u8 {
+        match self {
+            SBI::I0 => 0,
+            SBI::I1 => 1,
+            SBI::I2 => 2,
+            SBI::I3 => 3,
+            SBI::I4 => 4,
+            SBI::I5 => 5,
+            SBI::I6 => 6,
+            SBI::I7 => 7,
+            SBI::I8 => 8,
+        }
+    }
+}
+
 // -- -> Count -----------------------------------------------------------------
 
 impl Board {

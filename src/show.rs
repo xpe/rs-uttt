@@ -180,15 +180,27 @@ impl Show for Play {
 
 // -- sub-board play -----------------------------------------------------------
 
+impl Show for SPlay {
+    fn show(&self) -> String {
+        format!("❨{} {}❩", self.player.show(), self.loc.show())
+    }
+}
+
 // -- board location -----------------------------------------------------------
 
 impl Show for Loc {
     fn show(&self) -> String {
-        format!("❨R{},C{}❩", self.row().show(), self.col().show())
+        format!("❨{},{}❩", self.row().show(), self.col().show())
     }
 }
 
 // -- sub-board location -------------------------------------------------------
+
+impl Show for SLoc {
+    fn show(&self) -> String {
+        format!("❨{},{}❩", self.row.show(), self.col.show())
+    }
+}
 
 // -- slots --------------------------------------------------------------------
 
@@ -226,17 +238,29 @@ impl Show for Slot {
 
 impl Show for RI {
     fn show(&self) -> String {
-        format!("{}", self.as_u8())
+        format!("R{}", self.as_u8())
     }
 }
 
 impl Show for CI {
     fn show(&self) -> String {
-        format!("{}", self.as_u8())
+        format!("C{}", self.as_u8())
     }
 }
 
 // -- sub-board indexes --------------------------------------------------------
+
+impl Show for SRI {
+    fn show(&self) -> String {
+        format!("SR{}", self.as_u8())
+    }
+}
+
+impl Show for SCI {
+    fn show(&self) -> String {
+        format!("SC{}", self.as_u8())
+    }
+}
 
 // -- player -------------------------------------------------------------------
 
