@@ -82,7 +82,7 @@ impl Game {
         match depth {
             0 => self.solve_0(),
             1 => self.solve_1(),
-            2 => unimplemented!(),
+            2 => self.solve_2(),
             _ => unimplemented!(),
         }
     }
@@ -120,6 +120,27 @@ impl Game {
                 }
                 let player = self.next_player().unwrap();
                 best_solution_1(player, solutions)
+            },
+        }
+    }
+
+    /// Returns the solution for depth == 2.
+    #[allow (unused_variables)]
+    fn solve_2(self) -> Solution {
+        let solution = self.solve_1();
+        match solution.outcome {
+            Outcome::Win { player: p, turns: t } => {
+                if t == 0 {
+                    unimplemented!();
+                } else {
+                    unimplemented!();
+                }
+            },
+            Outcome::Tie { turns: t } => {
+                unimplemented!();
+            },
+            Outcome::Unknown { depth: d } => {
+                unimplemented!();
             },
         }
     }
