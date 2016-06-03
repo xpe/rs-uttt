@@ -158,6 +158,6 @@ pub enum SBI { I0, I1, I2, I3, I4, I5, I6, I7, I8 }
 // -- data: player -------------------------------------------------------------
 
 /// A player. Either X or O.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 #[repr(u8)]
 pub enum Player { X, O }
