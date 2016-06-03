@@ -32,7 +32,7 @@ impl Show for Game {
         format!(
             "{}\n{}",
             self.board.show(),
-            format!("     n={:2}      last={}@{}      win={}",
+            format!("     n={:2}      last={}:{}      win={}",
                     self.board.play_count(),
                     self.last_player().show(),
                     self.last_loc.show(),
@@ -173,7 +173,7 @@ impl Show for Option<Play> {
 
 impl Show for Play {
     fn show(&self) -> String {
-        format!("❨{} {}❩", self.player.show(), self.loc.show())
+        format!("❨{}:{}❩", self.player.show(), self.loc.show())
     }
 }
 
