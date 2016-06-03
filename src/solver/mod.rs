@@ -2,6 +2,9 @@
 
 use data::*;
 use lru_time_cache::LruCache;
+use std::cmp::Ordering;
+
+// == data structures ==========================================================
 
 /// The computed outcome of a game; either:
 /// 1. A win for player X in some number of plays
@@ -70,6 +73,8 @@ pub struct Solution {
     pub outcome: Outcome,
 }
 
+// == solvers ==================================================================
+
 impl Game {
     /// Returns the solution for depth == 0.
     fn solve_0(self) -> Solution {
@@ -103,12 +108,8 @@ impl Game {
                 if solutions.is_empty() {
                     panic!("Internal Error. The solutions vector is empty.");
                 }
-                let player = self.next_player();
-                unimplemented!();
-                // Solution {
-                //     opt_play: unimplemented!(),
-                //     outcome: unimplemented!(),
-                // }
+                let player = self.next_player().unwrap();
+                best_solution_1(player, solutions)
             },
         }
     }
@@ -126,6 +127,70 @@ impl Game {
         }
     }
 }
+
+/// Returns the best solution for depth == 1.
+fn best_solution_1(p: Player, solutions: Vec<Solution>) -> Solution {
+    let mut ss = solutions;
+    ss.sort_by(|a, b| Solution::compare(p, a, b));
+    ss.first().unwrap().clone()
+}
+
+// == comparators ==============================================================
+
+impl Outcome {
+    /// Compare two outcomes from the point of view of the given player.
+    #[allow(dead_code)]
+    fn compare(p: Player, a: &Outcome, b: &Outcome) -> Ordering {
+        let o = p.opponent();
+        match (*a, *b) {
+            (Outcome::Win { player: p1, turns: t1 },
+             Outcome::Win { player: p2, turns: t2 }) => {
+                if p1 == p && p2 == o { Ordering::Greater }
+                else if p1 == o && p2 == p { Ordering::Less }
+                else { t1.cmp(&t2) }
+            },
+            (Outcome::Win { player: p1, turns: _ },
+             Outcome::Tie { turns: _ }) => {
+                if p1 == p { Ordering::Greater }
+                else { Ordering::Less }
+            },
+            (Outcome::Tie { turns: _ },
+             Outcome::Win { player: p1, turns: _ }) => {
+                if p1 == o { Ordering::Greater }
+                else { Ordering::Less }
+            },
+            (Outcome::Win { player: p1, turns: _ },
+             Outcome::Unknown { depth: _ }) => {
+                if p1 == p { Ordering::Greater }
+                else { Ordering::Less }
+            },
+            (Outcome::Unknown { depth: _ },
+             Outcome::Win { player: p1, turns: _ }) => {
+                if p1 == o { Ordering::Greater }
+                else { Ordering::Less }
+            },
+            (Outcome::Tie { turns: t1 },
+             Outcome::Tie { turns: t2 }) => t1.cmp(&t2),
+            (Outcome::Tie { turns: _ },
+             Outcome::Unknown { depth: _ }) => Ordering::Less,
+            (Outcome::Unknown { depth: _ },
+             Outcome::Tie { turns: _ }) => Ordering::Greater,
+            (Outcome::Unknown { .. },
+             Outcome::Unknown { .. }) => Ordering::Equal
+        }
+    }
+}
+
+impl Solution {
+    /// Compare two solutions.
+    #[allow(unused_variables)]
+    fn compare(player: Player, a: &Solution, b: &Solution) -> Ordering {
+        let o = player.opponent();
+        Ordering::Equal
+    }
+}
+
+// == cache ====================================================================
 
 /// Constructs and returns a least-recently-used cache.
 pub fn outcome_cache(capacity: usize) -> LruCache<Game, Outcome> {

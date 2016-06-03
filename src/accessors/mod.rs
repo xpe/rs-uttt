@@ -594,6 +594,16 @@ impl SBoard {
     }
 }
 
+impl Player {
+    /// Returns the other player.
+    pub fn opponent(self) -> Player {
+        match self {
+            Player::X => Player::O,
+            Player::O => Player::X,
+        }
+    }
+}
+
 // -- -> u16 -------------------------------------------------------------------
 
 // -- -> u8 --------------------------------------------------------------------
