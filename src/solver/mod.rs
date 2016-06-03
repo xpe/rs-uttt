@@ -131,7 +131,7 @@ impl Game {
 fn best_solution_1(p: Player, solutions: Vec<Solution>) -> Solution {
     let mut ss = solutions;
     ss.sort_by(|a, b| Solution::compare(p, a, b));
-    ss.first().unwrap().clone()
+    ss.last().unwrap().clone()
 }
 
 // == 'modifiers' ==============================================================
