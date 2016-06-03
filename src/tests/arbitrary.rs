@@ -3,6 +3,12 @@
 use data::*;
 use quickcheck::{Arbitrary, Gen};
 
+impl Arbitrary for Game {
+    fn arbitrary<G: Gen>(g: &mut G) -> Self {
+        g.gen::<Game>()
+    }
+}
+
 impl Arbitrary for Row {
     fn arbitrary<G: Gen>(g: &mut G) -> Self {
         g.gen::<Row>()

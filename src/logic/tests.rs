@@ -21,3 +21,23 @@ fn test_loc_from_indexes() {
         prop as fn(BI, SBI) -> bool
     );
 }
+
+#[test]
+fn test_game_state() {
+    fn prop(game: Game) -> bool {
+        match game.state() {
+            GameState::Won(player) => {
+                game.is_over() && game.winner() == Some(player)
+            },
+            GameState::Tied => {
+                game.is_over() && game.winner() == None
+            },
+            GameState::Ongoing => {
+                !game.is_over() && game.winner() == None
+            },
+        }
+    }
+    QuickCheck::new().tests(100).quickcheck(
+        prop as fn(Game) -> bool
+    );
+}
