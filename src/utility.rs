@@ -10,7 +10,7 @@ pub fn h(level: u8, title: &str) {
         2 => "### ",
         _ => "",
     };
-    println!("\n{}{}\n", prefix, title);
+    println!("{}{}\n", prefix, title);
 }
 
 /// Prints a reference that has the Show trait.

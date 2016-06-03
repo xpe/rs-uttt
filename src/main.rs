@@ -1,22 +1,49 @@
 extern crate rand;
 extern crate uttt;
 
+use rand::{Rng, XorShiftRng, SeedableRng};
 use uttt::data::*;
 use uttt::random::*;
-use uttt::utility::*;
+use uttt::utility::{p, h};
 
 fn main() {
-    h(0, "Ended Games");
-    // let seed: &[_] = &[235, 9990005, 22004, 23];
-    // let mut rng: rand::StdRng = rand::SeedableRng::from_seed(seed);
+    let seed = random_seed();
+    let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
+    run_random_game(&mut rng, 5);
+    run_random_games(&mut rng, 100);
+}
+
+/// Returns a random seed, intended for XorShiftRng.
+fn random_seed() -> [u32; 4] {
     let mut rng = rand::thread_rng();
+    let seed = [
+        rng.gen::<u32>(),
+        rng.gen::<u32>(),
+        rng.gen::<u32>(),
+        rng.gen::<u32>(),
+    ];
+    println!("Using random number seed {:?}\n", seed);
+    seed
+}
+
+fn run_random_game<R: Rng>(rng: &mut R, trials: u16) {
+    h(0, "random_game()");
+    for i in 0 .. trials {
+        h(1, &format!("Game #{}", i));
+        let game = random_game(rng);
+        p(&game);
+        println!("");
+    }
+}
+
+fn run_random_games<R: Rng>(rng: &mut R, trials: u16) {
+    h(0, "random_games()");
     let mut x_wins = 0;
     let mut o_wins = 0;
     let mut ties = 0;
     let mut games_len = 0;
-    let trials = 1000;
     for i in 0 .. trials {
-        let games = random_games(&mut rng);
+        let games = random_games(rng);
         let game_len = games.len();
         let game = games.iter().last().unwrap();
         let winner = game.winner();
@@ -33,8 +60,7 @@ fn main() {
     println!("O wins: {:4}", o_wins);
     println!("  ties: {:4}", ties);
     println!("");
-    println!("average game length: {}",
-             (games_len as f64) / (trials as f64));
+    println!("average game length: {}", (games_len as f64) / (trials as f64));
 }
 
 fn result_str(op: Option<Player>) -> &'static str {
@@ -43,4 +69,13 @@ fn result_str(op: Option<Player>) -> &'static str {
         Some(Player::O) => "O wins",
         None => "  tie ",
     }
+}
+
+#[allow(dead_code)]
+fn print_winner(winner: Option<Player>) {
+    let p = match winner {
+        Some(player) => format!("{:?}", player),
+        None => format!("-"),
+    };
+    println!("                 winner : {}", p);
 }

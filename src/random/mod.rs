@@ -28,6 +28,37 @@ pub fn random_games<R: Rng>(rng: &mut R) -> LinkedList<Game> {
 
 // -- game ---------------------------------------------------------------------
 
+/// Returns a random game by making between 1 and 81 moves. It almost certainly
+/// does not sample uniformly from possible random games.
+///
+/// Note: in order to uniformly sample across the game space, it would be
+/// necessary to pick randomly from `random_games`, which returns a game
+/// progression from start to completion. Such an approach would be slower. The
+/// approach here is much faster, although it biases the results towards
+/// completed games (which is not necessarily undesirable).
+pub fn random_game<R: Rng>(rng: &mut R) -> Game {
+    let mut i: u8 = 0;
+    let mut game = EMPTY_GAME;
+    let n = rng.gen_range(1, 82);
+    while i < n {
+        match random_valid_play(game, rng) {
+            None => break,
+            Some(play) => {
+                game = game.play(play).unwrap();
+                i += 1;
+            },
+        }
+    }
+    game
+}
+
+impl Rand for Game {
+    // Returns a random game.
+    fn rand<R: Rng>(rng: &mut R) -> Self {
+        random_game(rng)
+    }
+}
+
 // -- board --------------------------------------------------------------------
 
 // -- rows ---------------------------------------------------------------------
