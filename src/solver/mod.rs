@@ -107,17 +107,17 @@ impl Game {
     /// Returns the solution for depth == k.
     fn solve_depth(self, depth: Count) -> Solution {
         let solution = self.solve_for(depth - 1);
-        match dominant_solution(solution) {
-            Some(sol) => sol,
+        match solution.dominant() {
+            Some(dominant_solution) => dominant_solution,
             None => self.solve_only(depth, solution),
         }
     }
 
     /// Returns the solution for a particular depth (not lower depths).
-    fn solve_only(self, depth: Count, sol: Solution) -> Solution {
+    fn solve_only(self, depth: Count, solution: Solution) -> Solution {
         let player = self.next_player().unwrap();
         let solutions = self.candidate_solutions(depth);
-        best_solution(player, sol, solutions)
+        solution.best(solutions, player)
     }
 
     /// Returns candidate solutions (i.e. possible solutions) for an exact
@@ -133,38 +133,40 @@ impl Game {
     }
 }
 
-/// If a given solution is 'dominant', return it. A 'dominant' solution is
-/// one that is obviously the best possible. If such a solution is found,
-/// there is no need in searching for others.
-fn dominant_solution(solution: Solution) -> Option<Solution> {
-    match solution.outcome {
-        Outcome::Win { player: _, turns: t } => {
-            if t == 0 {
-                Some(solution)
-            } else {
-                None
+impl Solution {
+    /// Returns the best solution.
+    fn best(self, solutions: Vec<Solution>, p: Player) -> Solution {
+        let mut xs = solutions;
+        xs.push(self);
+        xs.sort_by(|a, b| Solution::compare(p, a, b));
+        xs.last().unwrap().clone()
+    }
+
+    /// If a given solution is dominant, return it. A dominant solution is one
+    /// good enough such that there is no need in searching for others.
+    fn dominant(self) -> Option<Solution> {
+        match self.outcome {
+            Outcome::Win { player: _, turns: t } => {
+                if t == 0 {
+                    Some(self)
+                } else {
+                    None
+                }
+            },
+            Outcome::Tie { turns: t } => {
+                if t == 0 {
+                    Some(self)
+                } else {
+                    None
+                }
             }
-        },
-        Outcome::Tie { turns: t } => {
-            if t == 0 {
-                Some(solution)
-            } else {
+            Outcome::Unknown { depth: _ } => {
                 None
-            }
+            },
         }
-        Outcome::Unknown { depth: _ } => {
-            None
-        },
     }
 }
 
-/// Returns the best solution.
-fn best_solution(p: Player, sol: Solution, sols: Vec<Solution>) -> Solution {
-    let mut solutions = sols;
-    solutions.push(sol);
-    solutions.sort_by(|a, b| Solution::compare(p, a, b));
-    solutions.last().unwrap().clone()
-}
 
 // == 'modifiers' ==============================================================
 
