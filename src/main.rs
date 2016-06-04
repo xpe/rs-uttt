@@ -139,10 +139,10 @@ fn run_solve_k<R: Rng>(rng: &mut R, trials: u16) {
             if VERBOSE { h(1, "Game N-2"); }
             if VERBOSE { pln(game_nm2); }
             p_solve("N-2", game_nm2,  1);
-            p_solve("N-2", game_nm2,  2);
-            p_solve("N-2", game_nm2,  3);
-            p_solve("N-2", game_nm2,  4);
-            p_solve("N-2", game_nm2,  5);
+            // p_solve("N-2", game_nm2,  2);
+            // p_solve("N-2", game_nm2,  3);
+            // p_solve("N-2", game_nm2,  4);
+            // p_solve("N-2", game_nm2,  5);
         }
     }
 }

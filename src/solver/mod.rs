@@ -2,6 +2,7 @@
 
 use data::*;
 use lru_time_cache::LruCache;
+use show::*;
 use std::cmp::Ordering;
 
 // == data structures ==========================================================
@@ -106,11 +107,20 @@ impl Game {
 
     /// Returns the solution for depth == k.
     fn solve_depth(self, depth: Count) -> Solution {
+        println!("solve_depth {} {} {}",
+                 self.board.play_count(),
+                 self.last_loc.show(),
+                 depth);
         let solution = self.solve_for(depth - 1);
-        match solution.dominant() {
+        let x = match solution.dominant() {
             Some(dominant_solution) => dominant_solution,
             None => self.solve_only(depth, solution),
-        }
+        };
+        println!("solve_depth {} {} {} -> {}",
+                 self.board.play_count(),
+                 self.last_loc.show(),
+                 depth, x.show());
+        x
     }
 
     /// Returns the solution for a particular depth (not lower depths).
