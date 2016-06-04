@@ -137,7 +137,13 @@ impl Game {
         let solution = self.solve_for(depth - 1);
         let x = match solution.dominant() {
             Some(dominant_solution) => dominant_solution,
-            None => self.solve_only(depth, solution),
+            None => {
+                let sol = match self.last_play() {
+                    None => solution,
+                    Some(play) => solution.time_shift(play),
+                };
+                self.solve_only(depth, sol)
+            },
         };
         println!("{:15} k={} ll={} d={} -> {}",
                  "solve_depth",

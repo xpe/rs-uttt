@@ -58,6 +58,18 @@ impl SBoard {
 
 // -- -> board play ------------------------------------------------------------
 
+impl Game {
+    pub fn last_play(self) -> Option<Play> {
+        match self.last_loc {
+            None => None,
+            Some(loc) => Some(Play {
+                loc: loc,
+                player: self.last_player().unwrap(),
+            })
+        }
+    }
+}
+
 // -- -> sub-board play --------------------------------------------------------
 
 // -- -> board location --------------------------------------------------------
