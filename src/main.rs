@@ -104,7 +104,7 @@ fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N-2"); }
             if VERBOSE { pln(game_nm2); }
-            p_solve("\nN-2", game_nm2, 3);
+            p_solve("\nN-2", game_nm2, 5);
         }
     }
 }
