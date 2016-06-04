@@ -123,7 +123,7 @@ impl Game {
     /// depth == k - 1.
     fn solve_depth(self, depth: Count) -> Solution {
         let s = self.solve_for(depth - 1);
-        match s.dominant() {
+        match s.dominant(self.next_player(), depth) {
             Some(dom) => dom,
             None => {
                 let opt_sol = if s.opt_play.is_some() { Some(s) } else { None };
@@ -182,9 +182,21 @@ fn best_solution(p: Player, ss: Vec<Solution>) -> Solution {
 impl Solution {
     /// If a given solution is dominant, return it. A dominant solution is one
     /// good enough such that there is no need in searching for others.
-    fn dominant(self) -> Option<Solution> {
+    fn dominant(self, opt_player: Option<Player>,
+                depth: Count) -> Option<Solution> {
         match self.outcome {
-            Outcome::Win { player: _, turns: t } if t == 0 => Some(self),
+            Outcome::Win { player: p, turns: t } => {
+                if t == 0 {
+                    Some(self)
+                } else if t < depth {
+                    match opt_player {
+                        Some(player) if p == player => Some(self),
+                        _ => None,
+                    }
+                } else {
+                    None
+                }
+            },
             Outcome::Tie { turns: t } if t == 0 => Some(self),
             _ => None,
         }
