@@ -2,7 +2,6 @@
 
 use data::*;
 use lru_time_cache::LruCache;
-use show::*;
 use std::cmp::Ordering;
 
 // == data structures ==========================================================
@@ -93,7 +92,6 @@ impl Game {
     /// valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
     pub fn solve_for(self, depth: Count) -> Solution {
-        print!(".");
         if depth == 0 {
             self.solve_depth_0()
         } else if depth > 0 {
@@ -154,22 +152,22 @@ impl Game {
             self.play(play).unwrap().solve_for(depth - 1).time_shift(play)
         }).collect::<Vec<Solution>>();
         if solutions.is_empty() {
-            panic!("Internal Error: `solutions` is empty");
+            panic!("Internal Error: solutions is empty");
         }
         solutions
     }
 }
 
-fn merge_solutions(shallow: Option<Solution>,
+/// Returns the combined (merged) solution vector from an optional solution and
+/// a vector of solutions.
+fn merge_solutions(opt_solution: Option<Solution>,
                    solutions: Vec<Solution>) -> Vec<Solution> {
-    println!("\nmerge_solutions: shallow={} solutions={}",
-             shallow.show(), solutions.show());
-    match shallow {
+    match opt_solution {
         None => solutions,
         Some(solution) => {
-            let mut xs = solutions;
-            xs.push(solution);
-            xs.clone()
+            let mut ss = solutions;
+            ss.push(solution);
+            ss.clone()
         },
     }
 }
