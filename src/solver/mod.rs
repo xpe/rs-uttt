@@ -84,6 +84,7 @@ impl Game {
             1 => self.solve_1(),
             2 => self.solve_2(),
             3 => self.solve_3(),
+            4 => self.solve_4(),
             _ => unimplemented!(),
         }
     }
@@ -130,6 +131,15 @@ impl Game {
         match dominant_solution(solution) {
             Some(sol) => sol,
             None => solve_only_3(self, solution),
+        }
+    }
+
+    /// Returns the solution for depth == 4.
+    fn solve_4(self) -> Solution {
+        let solution = self.solve_3();
+        match dominant_solution(solution) {
+            Some(sol) => sol,
+            None => solve_only_4(self, solution),
         }
     }
 }
@@ -183,6 +193,12 @@ fn solve_only_3(game: Game, sol: Solution) -> Solution {
     let solutions = candidate_solutions_3(game);
     best_solution(player, sol, solutions)
 }
+
+/// Returns the solution for depth == 3 (not lower depths).
+fn solve_only_4(game: Game, sol: Solution) -> Solution {
+    let player = game.next_player().unwrap();
+    let solutions = candidate_solutions_4(game);
+    best_solution(player, sol, solutions)
 }
 
 // -- candidate_solutions_? ----------------------------------------------------
@@ -216,6 +232,18 @@ fn candidate_solutions_2(game: Game) -> Vec<Solution> {
 fn candidate_solutions_3(game: Game) -> Vec<Solution> {
     let solutions = game.valid_plays().iter().map(|&play| {
         game.play(play).unwrap().solve_2().time_shift(play)
+    }).collect::<Vec<Solution>>();
+    if solutions.is_empty() {
+        panic!("Internal Error: `solutions` is empty");
+    }
+    solutions
+}
+
+/// Returns candidate solutions (i.e. possible solutions) at depth == 3. Does
+/// not consider lower depths.
+fn candidate_solutions_4(game: Game) -> Vec<Solution> {
+    let solutions = game.valid_plays().iter().map(|&play| {
+        game.play(play).unwrap().solve_3().time_shift(play)
     }).collect::<Vec<Solution>>();
     if solutions.is_empty() {
         panic!("Internal Error: `solutions` is empty");
