@@ -104,8 +104,8 @@ impl Game {
         }
     }
 
-    /// Returns the solution for depth == k. To solve depth == k, it first looks
-    /// at depth == k - 1.
+    /// Returns the solution for depth == k. To solve this, it first solves
+    /// depth == k - 1.
     fn solve_depth(self, depth: Count) -> Solution {
         let solution = self.solve_for(depth - 1);
         match solution.dominant() {
