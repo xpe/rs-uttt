@@ -149,7 +149,7 @@ impl Solution {
         let mut xs = solutions;
         xs.push(self);
         xs.sort_by(|a, b| Solution::compare(p, a, b));
-        xs.last().unwrap().clone()
+        xs.first().unwrap().clone()
     }
 
     /// If a given solution is dominant, return it. A dominant solution is one
@@ -223,53 +223,63 @@ impl Outcome {
             (Outcome::Win { player: p1, turns: t1 },
              Outcome::Win { player: p2, turns: t2 }) => {
                 if p1 == p && p2 == o {
-                    Ordering::Greater
+                    Ordering::Less // prefer to win, not lose
                 } else if p1 == o && p2 == p {
-                    Ordering::Less
-                } else {
-                    t2.cmp(&t1)
+                    Ordering::Greater // prefer to win, not lose
+                } else if p1 == p && p2 == p {
+                    t1.cmp(&t2) // prefer to win sooner, not later
+                } else { // p1 == o && p2 == o
+                    t2.cmp(&t1) // prefer to lose later, not sooner
                 }
             },
             (Outcome::Win { player: p1, turns: _ },
              Outcome::Tie { turns: _ }) => {
                 if p1 == p {
-                    Ordering::Greater
-                } else {
-                    Ordering::Less
+                    Ordering::Less // prefer to win, not tie
+                } else { // p1 == o
+                    Ordering::Greater // prefer to tie, not lose
                 }
             },
             (Outcome::Tie { turns: _ },
-             Outcome::Win { player: p1, turns: _ }) => {
-                if p1 == o {
-                    Ordering::Greater
-                } else {
-                    Ordering::Less
+             Outcome::Win { player: p2, turns: _ }) => {
+                if p2 == o {
+                    Ordering::Less // prefer to tie, not lose
+                } else { // p2 == p
+                    Ordering::Greater // prefer to win, not tie
                 }
             },
             (Outcome::Win { player: p1, turns: _ },
              Outcome::Unknown { depth: _ }) => {
                 if p1 == p {
-                    Ordering::Greater
-                } else {
-                    Ordering::Less
+                    Ordering::Less // prefer to win over the unknown
+                } else { // p1 == o
+                    Ordering::Greater // prefer the unknown over losing
                 }
             },
             (Outcome::Unknown { depth: _ },
-             Outcome::Win { player: p1, turns: _ }) => {
-                if p1 == o {
-                    Ordering::Greater
-                } else {
-                    Ordering::Less
+             Outcome::Win { player: p2, turns: _ }) => {
+                if p2 == o {
+                    Ordering::Less // prefer the unknown over losing
+                } else { // p2 == p
+                    Ordering::Greater // prefer to win over the unknown
                 }
             },
             (Outcome::Tie { turns: t1 },
-             Outcome::Tie { turns: t2 }) => t1.cmp(&t2),
+             Outcome::Tie { turns: t2 }) => {
+                t2.cmp(&t1) // prefer to tie later, not sooner
+            },
             (Outcome::Tie { turns: _ },
-             Outcome::Unknown { depth: _ }) => Ordering::Less,
+             Outcome::Unknown { depth: _ }) => {
+                Ordering::Greater // prefer the unknown over the tie
+            },
             (Outcome::Unknown { depth: _ },
-             Outcome::Tie { turns: _ }) => Ordering::Greater,
+             Outcome::Tie { turns: _ }) => {
+                Ordering::Less // prefer the unknown over the tie
+            },
             (Outcome::Unknown { depth: d1 },
-             Outcome::Unknown { depth: d2 }) => d1.cmp(&d2),
+             Outcome::Unknown { depth: d2 }) => {
+                d2.cmp(&d1) // Prefer the unknown later, not sooner
+            },
         }
     }
 }
