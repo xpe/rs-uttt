@@ -138,7 +138,7 @@ impl Game {
     fn candidate_solutions(self, depth: Count) -> Vec<Solution> {
         let valid_plays = self.valid_plays();
         let solutions = valid_plays.iter().map(|&play| {
-            self.play(play).unwrap().solve_depth(depth).time_shift(play)
+            self.play(play).unwrap().solve_depth(depth - 1).time_shift(play)
         }).collect::<Vec<Solution>>();
         if solutions.is_empty() {
             panic!("Internal Error: `solutions` is empty");
