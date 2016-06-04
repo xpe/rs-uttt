@@ -81,6 +81,7 @@ impl Game {
     /// valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
     pub fn solve_for(self, depth: Depth) -> Solution {
+        print!(".");
         if depth == 0 {
             self.solve_depth_0()
         } else if depth > 0 {
@@ -111,7 +112,6 @@ impl Game {
     /// Returns the solution for depth == k. To solve this, it first solves
     /// depth == k - 1.
     fn solve_depth(self, depth: Depth) -> Solution {
-        println!("solve_depth k={} d={}", self.board.play_count(), depth);
         let solution = self.solve_for(depth - 1);
         match solution.dominant() {
             Some(dominant_solution) => dominant_solution,

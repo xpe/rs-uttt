@@ -82,7 +82,7 @@ fn run_solve_1<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N-1"); }
             if VERBOSE { pln(game_nm1); }
-            p_solve("N-1", game_nm1, 1);
+            p_solve("\nN-1", game_nm1, 1);
         }
     }
 }
@@ -104,7 +104,7 @@ fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N-2"); }
             if VERBOSE { pln(game_nm2); }
-            p_solve("N-2", game_nm2, 2);
+            p_solve("\nN-2", game_nm2, 3);
         }
     }
 }
@@ -127,7 +127,7 @@ fn run_solve_3<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N-3"); }
             if VERBOSE { pln(game_nm3); }
-            p_solve("N-3", game_nm3, 3);
+            p_solve("\nN-3", game_nm3, 3);
         }
     }
 }
@@ -151,7 +151,7 @@ fn run_solve_4<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N-4"); }
             if VERBOSE { pln(game_nm4); }
-            p_solve("N-4", game_nm4, 4);
+            p_solve("\nN-4", game_nm4, 4);
         }
     }
 }
