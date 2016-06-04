@@ -32,12 +32,30 @@ impl Show for Game {
         format!(
             "{}\n{}",
             self.board.show(),
-            format!("     n={:2}      last={}:{}      win={}",
-                    self.board.play_count(),
-                    self.last_player().show(),
-                    self.last_loc.show(),
-                    self.winner().show()
-            )
+            match self.state() {
+                GameState::Won(_) => {
+                    format!("    n={:2}      last={}:{}      {} won",
+                            self.board.play_count(),
+                            self.last_player().show(),
+                            self.last_loc.show(),
+                            self.winner().show()
+                    )
+                },
+                GameState::Tied => {
+                    format!("    n={:2}      last={}:{}          tie",
+                            self.board.play_count(),
+                            self.last_player().show(),
+                            self.last_loc.show()
+                    )
+                },
+                GameState::Ongoing => {
+                    format!("    n={:2}      last={}:{}      ongoing",
+                            self.board.play_count(),
+                            self.last_player().show(),
+                            self.last_loc.show()
+                    )
+                },
+            }
         )
     }
 }
