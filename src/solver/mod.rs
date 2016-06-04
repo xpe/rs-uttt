@@ -222,7 +222,7 @@ impl Solution {
     fn time_shift(self, play: Play) -> Solution {
         Solution {
             opt_play: Some(play),
-            outcome: self.outcome.inc_count(),
+            outcome: self.outcome.inc(),
         }
     }
 }
@@ -230,7 +230,7 @@ impl Solution {
 impl Outcome {
     /// Returns an 'updated' outcome by incrementing the 'turns' or 'depth' (as
     /// appropriate) for the given outcome.
-    fn inc_count(self) -> Outcome {
+    fn inc(self) -> Outcome {
         match self {
             Outcome::Win { player: p, turns: k } =>
                 Outcome::Win { player: p, turns: k + 1 },
