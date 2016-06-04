@@ -18,9 +18,9 @@ fn main() {
     let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
     run_random_games(&mut rng, 0);
     run_random_game(&mut rng, 0);
-    run_solve_1(&mut rng, 0);
+    run_solve_1(&mut rng, 1);
     run_solve_2(&mut rng, 0);
-    run_solve_3(&mut rng, 1);
+    run_solve_3(&mut rng, 0);
     run_solve_4(&mut rng, 0);
 }
 
@@ -68,31 +68,28 @@ fn run_random_game<R: Rng>(rng: &mut R, trials: u16) {
 
 fn run_solve_1<R: Rng>(rng: &mut R, trials: u16) {
     if trials > 0 {
-        h(0, "Solve 1");
+        h(0, "Solve N-1");
         for i in 0 .. trials {
             if VERBOSE { h(1, &format!("Trial #{}", i)); }
 
             let games = random_games(rng);
             let mut games_iter = games.iter();
+            let game_n = games_iter.next_back().unwrap();
+            let game_nm1 = games_iter.next_back().unwrap();
 
             if VERBOSE { h(1, "Game N"); }
-            let game_n = games_iter.next_back().unwrap();
             if VERBOSE { pln(game_n); }
-            let solution_n = game_n.solve_for(0);
-            if VERBOSE { p_solution("N", 0, &solution_n); }
 
             if VERBOSE { h(1, "Game N-1"); }
-            let game_nm1 = games_iter.next_back().unwrap();
             if VERBOSE { pln(game_nm1); }
-            let sol_nm1_d1 = game_nm1.solve_for(1);
-            if VERBOSE { p_solution("N-1", 1, &sol_nm1_d1); }
+            p_solve("N-1", game_nm1, 1);
         }
     }
 }
 
 fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
     if trials > 0 {
-        h(0, "Solve 2");
+        h(0, "Solve N-2");
         for i in 0 .. trials {
             if VERBOSE { h(1, &format!("Trial #{}", i)); }
 
@@ -107,17 +104,7 @@ fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N-2"); }
             if VERBOSE { pln(game_nm2); }
-            let sol_nm2_d1 = game_nm2.solve_for(1);
-            if VERBOSE { p_solution("N-2", 1, &sol_nm2_d1); }
-            let sol_nm2_d2 = game_nm2.solve_for(2);
-            if VERBOSE { p_solution("N-2", 2, &sol_nm2_d2); }
-
-            if VERBOSE { h(2, "Game N-2+1"); }
-            let play = sol_nm2_d2.opt_play.unwrap();
-            let game_nm2p1 = game_nm2.play(play).unwrap();
-            if VERBOSE { pln(&game_nm2p1); }
-            let sol_nm2p1_d2 = game_nm2p1.solve_for(2);
-            if VERBOSE { p_solution("N-2+1", 2, &sol_nm2p1_d2); }
+            p_solve("N-2", game_nm2, 1);
         }
     }
 }
