@@ -18,8 +18,8 @@ fn main() {
     let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
     run_random_games(&mut rng, 0);
     run_random_game(&mut rng, 0);
-    run_solve_1(&mut rng, 1);
-    run_solve_2(&mut rng, 0);
+    run_solve_1(&mut rng, 0);
+    run_solve_2(&mut rng, 1);
     run_solve_3(&mut rng, 0);
     run_solve_4(&mut rng, 0);
 }
@@ -104,7 +104,7 @@ fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N-2"); }
             if VERBOSE { pln(game_nm2); }
-            p_solve("N-2", game_nm2, 1);
+            p_solve("N-2", game_nm2, 2);
         }
     }
 }
@@ -127,7 +127,7 @@ fn run_solve_3<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N-3"); }
             if VERBOSE { pln(game_nm3); }
-            p_solve("N-3", game_nm3, 1);
+            p_solve("N-3", game_nm3, 3);
         }
     }
 }
@@ -151,7 +151,7 @@ fn run_solve_4<R: Rng>(rng: &mut R, trials: u16) {
 
             if VERBOSE { h(1, "Game N-4"); }
             if VERBOSE { pln(game_nm4); }
-            p_solve("N-4", game_nm4, 1);
+            p_solve("N-4", game_nm4, 4);
         }
     }
 }
