@@ -164,24 +164,25 @@ fn dominant_solution(solution: Solution) -> Option<Solution> {
 // -- solve_only_? -------------------------------------------------------------
 
 /// Returns the solution for depth == 1 (not lower depths).
-fn solve_only_1(game: Game, sol_0: Solution) -> Solution {
+fn solve_only_1(game: Game, sol: Solution) -> Solution {
     let player = game.next_player().unwrap();
-    let solutions_1 = candidate_solutions_1(game);
-    best_solution(player, sol_0, solutions_1)
+    let solutions = candidate_solutions_1(game);
+    best_solution(player, sol, solutions)
 }
 
 /// Returns the solution for depth == 2 (not lower depths).
-fn solve_only_2(game: Game, sol_1: Solution) -> Solution {
+fn solve_only_2(game: Game, sol: Solution) -> Solution {
     let player = game.next_player().unwrap();
-    let solutions_2 = candidate_solutions_2(game);
-    best_solution(player, sol_1, solutions_2)
+    let solutions = candidate_solutions_2(game);
+    best_solution(player, sol, solutions)
 }
 
 /// Returns the solution for depth == 3 (not lower depths).
-fn solve_only_3(game: Game, sol_2: Solution) -> Solution {
+fn solve_only_3(game: Game, sol: Solution) -> Solution {
     let player = game.next_player().unwrap();
-    let solutions_3 = candidate_solutions_3(game);
-    best_solution(player, sol_2, solutions_3)
+    let solutions = candidate_solutions_3(game);
+    best_solution(player, sol, solutions)
+}
 }
 
 // -- candidate_solutions_? ----------------------------------------------------
