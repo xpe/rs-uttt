@@ -5,6 +5,19 @@ use lru_time_cache::LruCache;
 use show::*;
 use std::cmp::Ordering;
 
+/// Indentation (debugging)
+static mut I: Count = 0;
+
+fn label(s: &str) -> String {
+    format!("{}{}", prefix(), s)
+}
+
+fn prefix() -> String {
+    unsafe {
+        (0 .. I).map(|_| " ").collect::<String>()
+    }
+}
+
 // == data structures ==========================================================
 
 /// A solution to a game state, containing (a) the optimal next play (optional)
@@ -16,9 +29,9 @@ use std::cmp::Ordering;
 ///
 /// Some specific examples, assuming optimal players:
 ///
-/// 1. See turn 30 in the table below; it is X's move. Let's assume that X's
+/// 1. See turn 25 in the table below; it is X's move. Let's assume that X's
 ///    best move will ensure victory in 5 moves (counting the moves of both
-///    players), so the 'outcome' of turn 30 is a 'win by X in 5'. In this kind
+///    players), so the 'outcome' of turn 25 is a 'win by X in 5'. In this kind
 ///    of situation (ie.e X is next to move and will guarantee victory in K
 ///    turns), K is always odd.
 ///
@@ -31,7 +44,7 @@ use std::cmp::Ordering;
 ///   ..  .       -       .        .
 ///   ..  .       -       .        .
 ///   ..  .       -       .        .
-///   30  O       -       Win X 5  X
+///   25  O       -       Win X 5  X
 ///   31  X       -       Win X 4  O
 ///   32  O       -       Win X 3  X
 ///   33  X       -       Win X 2  O
@@ -80,18 +93,20 @@ impl Game {
     /// valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
     pub fn solve_for(self, depth: Count) -> Solution {
-        println!("{:15} k={} ll={} d={}",
-                 "solve_for",
+        println!("{:25} k={} ll={} d={}",
+                 label("solve_for"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth);
+        unsafe { I += 1; }
         let x = if depth == 0 {
             self.solve_depth_0()
         } else {
             self.solve_depth(depth)
         };
-        println!("{:15} k={} ll={} d={} -> {}",
-                 "solve_for",
+        unsafe { I -= 1; }
+        println!("{:25} k={} ll={} d={} -> {}",
+                 label("solve_for"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth,
@@ -101,10 +116,11 @@ impl Game {
 
     /// Returns the solution for depth == 0.
     fn solve_depth_0(self) -> Solution {
-        println!("{:15} {} {}",
-                 "solve_depth_0",
+        println!("{:25} {} {}",
+                 label("solve_depth_0"),
                  self.board.play_count(),
                  self.last_loc.show());
+        unsafe { I += 1; }
         let x = match self.state() {
             GameState::Won(player) => Solution {
                 opt_play: None,
@@ -119,53 +135,58 @@ impl Game {
                 outcome: Outcome::Unknown { depth: 0 },
             },
         };
-        println!("{:15} {} {} -> {}",
-                 "solve_depth_0",
+        unsafe { I -= 1; }
+        println!("{:25} {} {} -> {}",
+                 label("solve_depth_0"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  x.show());
         x
     }
 
-    /// Returns the solution for depth == k.
+    /// Returns the solution for depth == k. To solve depth == k, it first looks
+    /// at depth == k - 1.
     fn solve_depth(self, depth: Count) -> Solution {
-        println!("{:15} k={} ll={} d={}",
-                 "solve_depth",
+        println!("{:25} k={} ll={} d={}",
+                 label("solve_depth"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth);
+        unsafe { I += 1; }
         let solution = self.solve_for(depth - 1);
         let x = match solution.dominant() {
             Some(dominant_solution) => dominant_solution,
-            None => {
-                let sol = match self.last_play() {
-                    None => solution,
-                    Some(play) => solution.time_shift(play),
-                };
-                self.solve_only(depth, sol)
-            },
+            None => self.solve_only(depth, solution),
         };
-        println!("{:15} k={} ll={} d={} -> {}",
-                 "solve_depth",
+        unsafe { I -= 1; }
+        println!("{:25} k={} ll={} d={} -> {}",
+                 label("solve_depth"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth, x.show());
         x
     }
 
-    /// Returns the solution for a particular depth (not lower depths).
+    /// Returns the solution for a particular depth (not lower depths). Pass it
+    /// the best solution from the lower depth searches.
     fn solve_only(self, depth: Count, solution: Solution) -> Solution {
-        println!("{:15} k={} ll={} d={} sol={}",
-                 "solve_only",
+        println!("{:25} k={} ll={} d={} sol={}",
+                 label("solve_only"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth,
                  solution.show());
+        unsafe { I += 1; }
         let player = self.next_player().unwrap();
         let solutions = self.candidate_solutions(depth);
-        let x = best_solution(player, solution, solutions);
-        println!("{:15} k={} ll={} d={} sol={} -> {}",
-                 "solve_only",
+        let sol = match self.last_play() {
+            None => solution,
+            Some(play) => solution.time_shift(play),
+        };
+        let x = best_solution(player, sol, solutions);
+        unsafe { I -= 1; }
+        println!("{:25} k={} ll={} d={} sol={} -> {}",
+                 label("solve_only"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth,
@@ -177,14 +198,15 @@ impl Game {
     /// Returns candidate solutions (i.e. possible solutions) for an exact
     /// depth; does not consider lower depths.
     fn candidate_solutions(self, depth: Count) -> Vec<Solution> {
-        println!("{:15} k={} ll={} d={}",
-                 "cand_sols",
+        println!("{:25} k={} ll={} d={}",
+                 label("cand_sols"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth);
+        unsafe { I += 1; }
         let valid_plays = self.valid_plays();
-        println!("{:15} k={} ll={} d={} : valid_plays={}",
-                 "cand_sols",
+        println!("{:25} k={} ll={} d={} : valid_plays={}",
+                 label("cand_sols"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth,
@@ -195,8 +217,9 @@ impl Game {
         if solutions.is_empty() {
             panic!("Internal Error: `solutions` is empty");
         }
-        println!("{:15} k={} ll={} d={} -> {}",
-                 "cand_sols",
+        unsafe { I -= 1; }
+        println!("{:25} k={} ll={} d={} -> {}",
+                 label("cand_sols"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth,
@@ -207,17 +230,19 @@ impl Game {
 
 /// Returns the best solution.
 fn best_solution(p: Player, s: Solution, ss: Vec<Solution>) -> Solution {
-    println!("{:15} p={} s={} ss={}",
-             "best_sol",
+    println!("{:25} p={} s={} ss={}",
+             label("best_sol"),
              p.show(),
              s.show(),
              ss.show());
+    unsafe { I += 1; }
     let mut xs = ss.clone(); // TODO: remove clone
     xs.push(s);
     xs.sort_by(|a, b| Solution::compare(p, a, b));
     let x = xs.first().unwrap().clone();
-    println!("{:15} p={} s={} ss={} -> {}",
-             "best_sol",
+    unsafe { I -= 1; }
+    println!("{:25} p={} s={} ss={} -> {}",
+             label("best_sol"),
              p.show(),
              s.show(),
              ss.show(),
