@@ -149,8 +149,8 @@ fn run_solve_3<R: Rng>(rng: &mut R, trials: u16) {
             let play = sol_nm2_d3.opt_play.unwrap();
             let game_nm2p1 = game_nm2.play(play).unwrap();
             if VERBOSE { pln(&game_nm2p1); }
-            let sol_nm2p1_d3 = game_nm2p1.solve_for(3);
-            if VERBOSE { p_solution("N-2+1", 3, &sol_nm2p1_d3); }
+            let sol_nm2p1_d4 = game_nm2p1.solve_for(4);
+            if VERBOSE { p_solution("N-2+1", 4, &sol_nm2p1_d4); }
         }
     }
 }
