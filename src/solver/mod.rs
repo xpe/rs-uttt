@@ -192,23 +192,9 @@ impl Solution {
     /// good enough such that there is no need in searching for others.
     fn dominant(self) -> Option<Solution> {
         match self.outcome {
-            Outcome::Win { player: _, turns: t } => {
-                if t == 0 {
-                    Some(self)
-                } else {
-                    None
-                }
-            },
-            Outcome::Tie { turns: t } => {
-                if t == 0 {
-                    Some(self)
-                } else {
-                    None
-                }
-            }
-            Outcome::Unknown { depth: _ } => {
-                None
-            },
+            Outcome::Win { player: _, turns: t } if t == 0 => Some(self),
+            Outcome::Tie { turns: t } if t == 0 => Some(self),
+            _ => None,
         }
     }
 }
