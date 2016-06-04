@@ -211,7 +211,7 @@ fn candidate_solutions_2(game: Game) -> Vec<Solution> {
     solutions
 }
 
-/// Returns candidate solutions (i.e. possible solutions) at depth == 2. Does
+/// Returns candidate solutions (i.e. possible solutions) at depth == 3. Does
 /// not consider lower depths.
 fn candidate_solutions_3(game: Game) -> Vec<Solution> {
     let solutions = game.valid_plays().iter().map(|&play| {
