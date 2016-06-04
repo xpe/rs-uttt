@@ -44,8 +44,8 @@ impl Show for Outcome {
             Outcome::Tie { turns: t } => {
                 format!("❨Tie:{}❩", t.show())
             },
-            Outcome::Unknown { depth: d } => {
-                format!("❨Unknown:{}❩", d.show())
+            Outcome::Unknown { turns: t } => {
+                format!("❨Unknown:{}❩", t.show())
             },
         }
     }
@@ -339,14 +339,6 @@ impl Show for Player {
             Player::X => "X",
             Player::O => "O",
         }.to_string()
-    }
-}
-
-// -- depth --------------------------------------------------------------------
-
-impl Show for Depth {
-    fn show(&self) -> String {
-        format!("{}", self)
     }
 }
 

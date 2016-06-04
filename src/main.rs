@@ -156,14 +156,14 @@ fn run_solve_4<R: Rng>(rng: &mut R, trials: u16) {
     }
 }
 
-fn p_solve(label: &str, game: &Game, depth: Depth) {
+fn p_solve(label: &str, game: &Game, depth: Count) {
     let solution = game.solve_for(depth);
     if VERBOSE { p_solution(label, depth, &solution); }
 }
 
 // -- print functions ----------------------------------------------------------
 
-fn p_solution(k: &str, d: Depth, solution: &Solution) {
+fn p_solution(k: &str, d: Count, solution: &Solution) {
     println!("{} sol d={}: {}\n", k, d, solution.show());
 }
 
