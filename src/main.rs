@@ -19,7 +19,8 @@ fn main() {
     run_random_games(&mut rng, 0); // 100
     run_random_game(&mut rng, 0); // 5
     run_solve_1(&mut rng, 0); // 100
-    run_solve_2(&mut rng, 1); // 100
+    run_solve_2(&mut rng, 0); // 100
+    run_solve_3(&mut rng, 1); // 100
 }
 
 // -- main sub-functions -------------------------------------------------------
@@ -116,6 +117,41 @@ fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
             if VERBOSE { pln(&game_nm2p1); }
             let sol_nm2p1_d2 = game_nm2p1.solve_for(2);
             if VERBOSE { p_solution("N-2+1", 2, &sol_nm2p1_d2); }
+        }
+    }
+}
+
+fn run_solve_3<R: Rng>(rng: &mut R, trials: u16) {
+    if trials > 0 {
+        h(0, "Solve 3");
+        for i in 0 .. trials {
+            if VERBOSE { h(1, &format!("Trial #{}", i)); }
+
+            let games = random_games(rng);
+            let mut games_iter = games.iter();
+            let game_n = games_iter.next_back().unwrap();
+            games_iter.next_back().unwrap(); // game_nm1
+            let game_nm2 = games_iter.next_back().unwrap();
+
+            if VERBOSE { h(1, "Game N"); }
+            if VERBOSE { pln(game_n); }
+
+            if VERBOSE { h(1, "Game N-2"); }
+            if VERBOSE { pln(game_nm2); }
+            let sol_nm2_d1 = game_nm2.solve_for(1);
+            if VERBOSE { p_solution("N-2", 1, &sol_nm2_d1); }
+            let sol_nm2_d2 = game_nm2.solve_for(2);
+            if VERBOSE { p_solution("N-2", 2, &sol_nm2_d2); }
+            let sol_nm2_d3 = game_nm2.solve_for(3);
+            if VERBOSE { p_solution("N-2", 3, &sol_nm2_d3); }
+
+            if VERBOSE { h(2, "Game N-2+1"); }
+            let play = sol_nm2_d3.opt_play.unwrap();
+            if VERBOSE { println!("play : {}", play.show()); }
+            let game_nm2p1 = game_nm2.play(play).unwrap();
+            if VERBOSE { pln(&game_nm2p1); }
+            let sol_nm2p1_d3 = game_nm2p1.solve_for(3);
+            if VERBOSE { p_solution("N-2+1", 3, &sol_nm2p1_d3); }
         }
     }
 }
