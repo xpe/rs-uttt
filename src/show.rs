@@ -17,6 +17,15 @@ impl Show for Vec<Solution> {
     }
 }
 
+impl Show for Option<Solution> {
+    fn show(&self) -> String {
+        match *self {
+            None => "None".to_string(),
+            Some(solution) => solution.show(),
+        }
+    }
+}
+
 impl Show for Solution {
     fn show(&self) -> String {
         format!("❨Play:{} Outcome:{}❩",

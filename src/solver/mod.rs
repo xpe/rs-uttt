@@ -5,8 +5,7 @@ use lru_time_cache::LruCache;
 use show::*;
 use std::cmp::Ordering;
 
-/// Indentation (debugging)
-static mut I: Count = 0;
+static mut I: Count = 0; // indentation
 
 fn label(s: &str) -> String {
     format!("{}{}", prefix(), s)
@@ -156,41 +155,49 @@ impl Game {
         let solution = self.solve_for(depth - 1);
         let x = match solution.dominant() {
             Some(dominant_solution) => dominant_solution,
-            None => self.solve_only(depth, solution),
+            None => {
+                let opt_sol = if solution.opt_play.is_some() {
+                    Some(solution)
+                } else {
+                    None
+                };
+                self.solve_only(depth, opt_sol)
+            },
         };
         unsafe { I -= 1; }
         println!("{:25} k={} ll={} d={} -> {}",
                  label("solve_depth"),
                  self.board.play_count(),
                  self.last_loc.show(),
-                 depth, x.show());
+                 depth,
+                 x.show());
         x
     }
 
-    /// Returns the solution for a particular depth (not lower depths). Pass it
-    /// the best solution from the lower depth searches.
-    fn solve_only(self, depth: Count, solution: Solution) -> Solution {
-        println!("{:25} k={} ll={} d={} sol={}",
+    /// Returns the solution for a particular depth (not lower depths) and an
+    /// optional 'shallower' solution.
+    ///
+    /// Note about the 'shallower' solution: If there is a actionable solution
+    /// (containing a play) from the lower depths, pass in `Some(_)`. Otherwise,
+    /// pass in `None`.
+    fn solve_only(self, depth: Count, shallow: Option<Solution>) -> Solution {
+        println!("{:25} k={} ll={} d={} s={}",
                  label("solve_only"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth,
-                 solution.show());
+                 shallow.show());
         unsafe { I += 1; }
         let player = self.next_player().unwrap();
-        let solutions = self.candidate_solutions(depth);
-        let sol = match self.last_play() {
-            None => solution,
-            Some(play) => solution.time_shift(play),
-        };
-        let x = best_solution(player, sol, solutions);
+        let merged = merge_solutions(shallow, self.candidate_solutions(depth));
+        let x = best_solution(player, merged);
         unsafe { I -= 1; }
-        println!("{:25} k={} ll={} d={} sol={} -> {}",
+        println!("{:25} k={} ll={} d={} s={} -> {}",
                  label("solve_only"),
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth,
-                 solution.show(),
+                 shallow.show(),
                  x.show());
         x
     }
@@ -228,23 +235,32 @@ impl Game {
     }
 }
 
+fn merge_solutions(shallow: Option<Solution>,
+                   solutions: Vec<Solution>) -> Vec<Solution> {
+    match shallow {
+        None => solutions,
+        Some(solution) => {
+            let mut xs = solutions;
+            xs.push(solution);
+            xs.clone()
+        },
+    }
+}
+
 /// Returns the best solution.
-fn best_solution(p: Player, s: Solution, ss: Vec<Solution>) -> Solution {
-    println!("{:25} p={} s={} ss={}",
+fn best_solution(p: Player, ss: Vec<Solution>) -> Solution {
+    println!("{:25} p={} ss={}",
              label("best_sol"),
              p.show(),
-             s.show(),
              ss.show());
     unsafe { I += 1; }
-    let mut xs = ss.clone(); // TODO: remove clone
-    xs.push(s);
+    let mut xs = ss.clone();
     xs.sort_by(|a, b| Solution::compare(p, a, b));
     let x = xs.first().unwrap().clone();
     unsafe { I -= 1; }
-    println!("{:25} p={} s={} ss={} -> {}",
+    println!("{:25} p={} ss={} -> {}",
              label("best_sol"),
              p.show(),
-             s.show(),
              ss.show(),
              x.show());
     x
