@@ -235,29 +235,45 @@ impl Outcome {
         match (*a, *b) {
             (Outcome::Win { player: p1, turns: t1 },
              Outcome::Win { player: p2, turns: t2 }) => {
-                if p1 == p && p2 == o { Ordering::Greater }
-                else if p1 == o && p2 == p { Ordering::Less }
-                else { t1.cmp(&t2) }
+                if p1 == p && p2 == o {
+                    Ordering::Greater
+                } else if p1 == o && p2 == p {
+                    Ordering::Less
+                } else {
+                    t2.cmp(&t1)
+                }
             },
             (Outcome::Win { player: p1, turns: _ },
              Outcome::Tie { turns: _ }) => {
-                if p1 == p { Ordering::Greater }
-                else { Ordering::Less }
+                if p1 == p {
+                    Ordering::Greater
+                } else {
+                    Ordering::Less
+                }
             },
             (Outcome::Tie { turns: _ },
              Outcome::Win { player: p1, turns: _ }) => {
-                if p1 == o { Ordering::Greater }
-                else { Ordering::Less }
+                if p1 == o {
+                    Ordering::Greater
+                } else {
+                    Ordering::Less
+                }
             },
             (Outcome::Win { player: p1, turns: _ },
              Outcome::Unknown { depth: _ }) => {
-                if p1 == p { Ordering::Greater }
-                else { Ordering::Less }
+                if p1 == p {
+                    Ordering::Greater
+                } else {
+                    Ordering::Less
+                }
             },
             (Outcome::Unknown { depth: _ },
              Outcome::Win { player: p1, turns: _ }) => {
-                if p1 == o { Ordering::Greater }
-                else { Ordering::Less }
+                if p1 == o {
+                    Ordering::Greater
+                } else {
+                    Ordering::Less
+                }
             },
             (Outcome::Tie { turns: t1 },
              Outcome::Tie { turns: t2 }) => t1.cmp(&t2),
