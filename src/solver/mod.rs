@@ -157,7 +157,7 @@ impl Game {
                  solution.show());
         let player = self.next_player().unwrap();
         let solutions = self.candidate_solutions(depth);
-        let x = solution.best(solutions, player);
+        let x = best_solution(player, solution, solutions);
         println!("{:15} k={} ll={} d={} sol={} -> {}",
                  "solve_only",
                  self.board.play_count(),
@@ -199,27 +199,27 @@ impl Game {
     }
 }
 
-impl Solution {
-    /// Returns the best solution.
-    fn best(self, solutions: Vec<Solution>, p: Player) -> Solution {
-        println!("{:15} {} {} {}",
-                 "best",
-                 self.show(),
-                 solutions.show(),
-                 p.show());
-        let mut xs = solutions.clone(); // TODO: remove clone
-        xs.push(self);
-        xs.sort_by(|a, b| Solution::compare(p, a, b));
-        let x = xs.first().unwrap().clone();
-        println!("{:15} {} {} {} -> {}",
-                 "best",
-                 self.show(),
-                 solutions.show(),
-                 p.show(),
-                 x.show());
-        x
-    }
+/// Returns the best solution.
+fn best_solution(p: Player, s: Solution, ss: Vec<Solution>) -> Solution {
+    println!("{:15} p={} s={} ss={}",
+             "best_sol",
+             p.show(),
+             s.show(),
+             ss.show());
+    let mut xs = ss.clone(); // TODO: remove clone
+    xs.push(s);
+    xs.sort_by(|a, b| Solution::compare(p, a, b));
+    let x = xs.first().unwrap().clone();
+    println!("{:15} p={} s={} ss={} -> {}",
+             "best_sol",
+             p.show(),
+             s.show(),
+             ss.show(),
+             x.show());
+    x
+}
 
+impl Solution {
     /// If a given solution is dominant, return it. A dominant solution is one
     /// good enough such that there is no need in searching for others.
     fn dominant(self) -> Option<Solution> {
