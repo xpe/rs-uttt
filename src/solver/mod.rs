@@ -2,20 +2,7 @@
 
 use data::*;
 use lru_time_cache::LruCache;
-use show::*;
 use std::cmp::Ordering;
-
-static mut I: Count = 0; // indentation
-
-fn label(s: &str) -> String {
-    format!("{}{}", prefix(), s)
-}
-
-fn prefix() -> String {
-    unsafe {
-        (0 .. I).map(|_| " ").collect::<String>()
-    }
-}
 
 // == data structures ==========================================================
 
@@ -92,35 +79,16 @@ impl Game {
     /// valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
     pub fn solve_for(self, depth: Count) -> Solution {
-        println!("{:25} k={} ll={} d={}",
-                 label("solve_for"),
-                 self.board.play_count(),
-                 self.last_loc.show(),
-                 depth);
-        unsafe { I += 1; }
-        let x = if depth == 0 {
+        if depth == 0 {
             self.solve_depth_0()
         } else {
             self.solve_depth(depth)
-        };
-        unsafe { I -= 1; }
-        println!("{:25} k={} ll={} d={} -> {}",
-                 label("solve_for"),
-                 self.board.play_count(),
-                 self.last_loc.show(),
-                 depth,
-                 x.show());
-        x
+        }
     }
 
     /// Returns the solution for depth == 0.
     fn solve_depth_0(self) -> Solution {
-        println!("{:25} {} {}",
-                 label("solve_depth_0"),
-                 self.board.play_count(),
-                 self.last_loc.show());
-        unsafe { I += 1; }
-        let x = match self.state() {
+        match self.state() {
             GameState::Won(player) => Solution {
                 opt_play: None,
                 outcome: Outcome::Win { player: player, turns: 0 },
@@ -133,27 +101,14 @@ impl Game {
                 opt_play: None,
                 outcome: Outcome::Unknown { depth: 0 },
             },
-        };
-        unsafe { I -= 1; }
-        println!("{:25} {} {} -> {}",
-                 label("solve_depth_0"),
-                 self.board.play_count(),
-                 self.last_loc.show(),
-                 x.show());
-        x
+        }
     }
 
     /// Returns the solution for depth == k. To solve depth == k, it first looks
     /// at depth == k - 1.
     fn solve_depth(self, depth: Count) -> Solution {
-        println!("{:25} k={} ll={} d={}",
-                 label("solve_depth"),
-                 self.board.play_count(),
-                 self.last_loc.show(),
-                 depth);
-        unsafe { I += 1; }
         let solution = self.solve_for(depth - 1);
-        let x = match solution.dominant() {
+        match solution.dominant() {
             Some(dominant_solution) => dominant_solution,
             None => {
                 let opt_sol = if solution.opt_play.is_some() {
@@ -163,15 +118,7 @@ impl Game {
                 };
                 self.solve_only(depth, opt_sol)
             },
-        };
-        unsafe { I -= 1; }
-        println!("{:25} k={} ll={} d={} -> {}",
-                 label("solve_depth"),
-                 self.board.play_count(),
-                 self.last_loc.show(),
-                 depth,
-                 x.show());
-        x
+        }
     }
 
     /// Returns the solution for a particular depth (not lower depths) and an
@@ -181,56 +128,21 @@ impl Game {
     /// (containing a play) from the lower depths, pass in `Some(_)`. Otherwise,
     /// pass in `None`.
     fn solve_only(self, depth: Count, shallow: Option<Solution>) -> Solution {
-        println!("{:25} k={} ll={} d={} s={}",
-                 label("solve_only"),
-                 self.board.play_count(),
-                 self.last_loc.show(),
-                 depth,
-                 shallow.show());
-        unsafe { I += 1; }
         let player = self.next_player().unwrap();
         let merged = merge_solutions(shallow, self.candidate_solutions(depth));
-        let x = best_solution(player, merged);
-        unsafe { I -= 1; }
-        println!("{:25} k={} ll={} d={} s={} -> {}",
-                 label("solve_only"),
-                 self.board.play_count(),
-                 self.last_loc.show(),
-                 depth,
-                 shallow.show(),
-                 x.show());
-        x
+        best_solution(player, merged)
     }
 
     /// Returns candidate solutions (i.e. possible solutions) for an exact
     /// depth; does not consider lower depths.
     fn candidate_solutions(self, depth: Count) -> Vec<Solution> {
-        println!("{:25} k={} ll={} d={}",
-                 label("cand_sols"),
-                 self.board.play_count(),
-                 self.last_loc.show(),
-                 depth);
-        unsafe { I += 1; }
         let valid_plays = self.valid_plays();
-        println!("{:25} k={} ll={} d={} : valid_plays={}",
-                 label("cand_sols"),
-                 self.board.play_count(),
-                 self.last_loc.show(),
-                 depth,
-                 valid_plays.show());
         let solutions = valid_plays.iter().map(|&play| {
             self.play(play).unwrap().solve_depth(depth).time_shift(play)
         }).collect::<Vec<Solution>>();
         if solutions.is_empty() {
             panic!("Internal Error: `solutions` is empty");
         }
-        unsafe { I -= 1; }
-        println!("{:25} k={} ll={} d={} -> {}",
-                 label("cand_sols"),
-                 self.board.play_count(),
-                 self.last_loc.show(),
-                 depth,
-                 solutions.show());
         solutions
     }
 }
@@ -249,21 +161,9 @@ fn merge_solutions(shallow: Option<Solution>,
 
 /// Returns the best solution.
 fn best_solution(p: Player, ss: Vec<Solution>) -> Solution {
-    println!("{:25} p={} ss={}",
-             label("best_sol"),
-             p.show(),
-             ss.show());
-    unsafe { I += 1; }
     let mut xs = ss.clone();
     xs.sort_by(|a, b| Solution::compare(p, a, b));
-    let x = xs.first().unwrap().clone();
-    unsafe { I -= 1; }
-    println!("{:25} p={} ss={} -> {}",
-             label("best_sol"),
-             p.show(),
-             ss.show(),
-             x.show());
-    x
+    xs.first().unwrap().clone()
 }
 
 impl Solution {
