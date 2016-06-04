@@ -112,14 +112,30 @@ impl Game {
     /// Returns the solution for depth == k. To solve this, it first solves
     /// depth == k - 1.
     fn solve_depth(self, depth: Depth) -> Solution {
-        let solution = self.solve_for(depth - 1);
-        match solution.dominant() {
-            Some(dominant_solution) => dominant_solution,
+        let sol = self.solve_for(depth - 1);
+        match sol.dominant() {
+            Some(dom_sol) => dom_sol,
             None => {
-                let opt_sol = if solution.opt_play.is_some() {
-                    Some(solution)
-                } else {
-                    None
+                let opt_sol = match sol {
+                    Solution { opt_play: Some(_),
+                               outcome: _ } => {
+                        Some(sol)
+                    },
+                    Solution { opt_play: None,
+                               outcome: Outcome::Win { .. } } => {
+                        // Should be handled by `dominant()`, above.
+                        panic!("Internal Error: unexpected match");
+                    },
+                    Solution { opt_play: None,
+                               outcome: Outcome::Tie { .. } } => {
+                        // Should be handled by `dominant()`, above.
+                        panic!("Internal Error: unexpected match");
+                    },
+                    Solution { opt_play: None,
+                               outcome: Outcome::Unknown { .. } } => {
+                        // TODO: maybe room for improvement here?
+                        None
+                    }
                 };
                 self.solve_only(depth, opt_sol)
             },
