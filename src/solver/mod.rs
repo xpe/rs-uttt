@@ -83,6 +83,7 @@ impl Game {
             0 => self.solve_0(),
             1 => self.solve_1(),
             2 => self.solve_2(),
+            3 => self.solve_3(),
             _ => unimplemented!(),
         }
     }
@@ -108,50 +109,79 @@ impl Game {
     /// Returns the solution for depth == 1.
     fn solve_1(self) -> Solution {
         let solution = self.solve_0();
-        match solution.outcome {
-            Outcome::Win { .. } => solution,
-            Outcome::Tie { .. } => solution,
-            Outcome::Unknown { .. } => {
-                let player = self.next_player().unwrap();
-                solve_only_1(self, player, solution)
-            },
+        match dominant_solution(solution) {
+            Some(sol) => sol,
+            None => solve_only_1(self, solution),
         }
     }
 
     /// Returns the solution for depth == 2.
-    fn solve_2(self) -> Solution { // WIP
+    fn solve_2(self) -> Solution {
         let solution = self.solve_1();
-        let player = self.next_player().unwrap();
-        match solution.outcome {
-            Outcome::Win { player: p, turns: _ } => {
-                if p == player {
-                    solution
-                } else {
-                    solve_only_2(self, player, solution)
-                }
-            },
-            Outcome::Tie { .. } => {
-                solve_only_2(self, player, solution)
-            },
-            Outcome::Unknown { .. } => {
-                solve_only_2(self, player, solution)
-            },
+        match dominant_solution(solution) {
+            Some(sol) => sol,
+            None => solve_only_2(self, solution),
         }
+    }
+
+    /// Returns the solution for depth == 3.
+    fn solve_3(self) -> Solution {
+        let solution = self.solve_2();
+        match dominant_solution(solution) {
+            Some(sol) => sol,
+            None => solve_only_3(self, solution),
+        }
+    }
+}
+
+// -- dominant_solution --------------------------------------------------------
+
+/// If a given solution is 'dominant', return it. A 'dominant' solution is
+/// one that is obviously the best possible. If such a solution is found,
+/// there is no need in searching for others.
+fn dominant_solution(solution: Solution) -> Option<Solution> {
+    match solution.outcome {
+        Outcome::Win { player: _, turns: t } => {
+            if t == 0 {
+                Some(solution)
+            } else {
+                None
+            }
+        },
+        Outcome::Tie { turns: t } => {
+            if t == 0 {
+                Some(solution)
+            } else {
+                None
+            }
+        }
+        Outcome::Unknown { depth: _ } => {
+            None
+        },
     }
 }
 
 // -- solve_only_? -------------------------------------------------------------
 
-/// Returns the solution for depth == 1, but not lower depths.
-fn solve_only_1(game: Game, player: Player, sol_0: Solution) -> Solution {
+/// Returns the solution for depth == 1 (not lower depths).
+fn solve_only_1(game: Game, sol_0: Solution) -> Solution {
+    let player = game.next_player().unwrap();
     let solutions_1 = candidate_solutions_1(game);
     best_solution(player, sol_0, solutions_1)
 }
 
-/// Returns the solution for depth == 2, but not lower depths.
-fn solve_only_2(game: Game, player: Player, sol_1: Solution) -> Solution {
+/// Returns the solution for depth == 2 (not lower depths).
+fn solve_only_2(game: Game, sol_1: Solution) -> Solution {
+    let player = game.next_player().unwrap();
     let solutions_2 = candidate_solutions_2(game);
     best_solution(player, sol_1, solutions_2)
+}
+
+/// Returns the solution for depth == 3 (not lower depths).
+fn solve_only_3(game: Game, sol_2: Solution) -> Solution {
+    let player = game.next_player().unwrap();
+    let solutions_3 = candidate_solutions_3(game);
+    best_solution(player, sol_2, solutions_3)
 }
 
 // -- candidate_solutions_? ----------------------------------------------------
@@ -173,6 +203,18 @@ fn candidate_solutions_1(game: Game) -> Vec<Solution> {
 fn candidate_solutions_2(game: Game) -> Vec<Solution> {
     let solutions = game.valid_plays().iter().map(|&play| {
         game.play(play).unwrap().solve_1().time_shift(play)
+    }).collect::<Vec<Solution>>();
+    if solutions.is_empty() {
+        panic!("Internal Error: `solutions` is empty");
+    }
+    solutions
+}
+
+/// Returns candidate solutions (i.e. possible solutions) at depth == 2. Does
+/// not consider lower depths.
+fn candidate_solutions_3(game: Game) -> Vec<Solution> {
+    let solutions = game.valid_plays().iter().map(|&play| {
+        game.play(play).unwrap().solve_2().time_shift(play)
     }).collect::<Vec<Solution>>();
     if solutions.is_empty() {
         panic!("Internal Error: `solutions` is empty");
