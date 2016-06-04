@@ -125,20 +125,41 @@ impl Game {
 
     /// Returns the solution for a particular depth (not lower depths).
     fn solve_only(self, depth: Count, solution: Solution) -> Solution {
+        println!("solve_only {} {} {} {}",
+                 self.board.play_count(),
+                 self.last_loc.show(),
+                 depth,
+                 solution.show());
         let player = self.next_player().unwrap();
         let solutions = self.candidate_solutions(depth);
-        solution.best(solutions, player)
+        let x = solution.best(solutions, player);
+        println!("solve_only {} {} {} {} -> {}",
+                 self.board.play_count(),
+                 self.last_loc.show(),
+                 depth,
+                 solution.show(),
+                 x.show());
+        x
     }
 
     /// Returns candidate solutions (i.e. possible solutions) for an exact
     /// depth; does not consider lower depths.
     fn candidate_solutions(self, depth: Count) -> Vec<Solution> {
+        println!("candidate_solutions {} {} {}",
+                 self.board.play_count(),
+                 self.last_loc.show(),
+                 depth);
         let solutions = self.valid_plays().iter().map(|&play| {
             self.play(play).unwrap().solve_depth(depth).time_shift(play)
         }).collect::<Vec<Solution>>();
         if solutions.is_empty() {
             panic!("Internal Error: `solutions` is empty");
         }
+        println!("candidate_solutions {} {} {} -> {}",
+                 self.board.play_count(),
+                 self.last_loc.show(),
+                 depth,
+                 solutions.show());
         solutions
     }
 }
@@ -146,10 +167,20 @@ impl Game {
 impl Solution {
     /// Returns the best solution.
     fn best(self, solutions: Vec<Solution>, p: Player) -> Solution {
-        let mut xs = solutions;
+        println!("best {} {} {}",
+                 self.show(),
+                 solutions.show(),
+                 p.show());
+        let mut xs = solutions.clone(); // TODO: remove clone
         xs.push(self);
         xs.sort_by(|a, b| Solution::compare(p, a, b));
-        xs.first().unwrap().clone()
+        let x = xs.first().unwrap().clone();
+        println!("best {} {} {} -> {}",
+                 self.show(),
+                 solutions.show(),
+                 p.show(),
+                 x.show());
+        x
     }
 
     /// If a given solution is dominant, return it. A dominant solution is one

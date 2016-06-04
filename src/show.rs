@@ -9,6 +9,14 @@ pub trait Show {
 
 // -- solution -----------------------------------------------------------------
 
+impl Show for Vec<Solution> {
+    fn show(&self) -> String {
+        format!("[{}]", self.iter().map(
+            |solution| solution.show()
+        ).collect::<Vec<String>>().join(", "))
+    }
+}
+
 impl Show for Solution {
     fn show(&self) -> String {
         format!("❨Play:{} Outcome:{}❩",
@@ -20,8 +28,17 @@ impl Show for Solution {
 
 impl Show for Outcome {
     fn show(&self) -> String {
-        format!("❨{:?}❩", self)
-
+        match *self {
+            Outcome::Win { player: p, turns: t } => {
+                format!("❨Win:{} {}❩", p.show(), t.show())
+            },
+            Outcome::Tie { turns: t } => {
+                format!("❨Tie:{}❩", t.show())
+            },
+            Outcome::Unknown { depth: d } => {
+                format!("❨Unknown:{}❩", d.show())
+            },
+        }
     }
 }
 
@@ -305,5 +322,13 @@ impl Show for Player {
             Player::X => "X",
             Player::O => "O",
         }.to_string()
+    }
+}
+
+// -- count --------------------------------------------------------------------
+
+impl Show for Count {
+    fn show(&self) -> String {
+        format!("{}", self)
     }
 }
