@@ -155,7 +155,7 @@ fn p_solve(label: &str, game: &Game, depth: Count) {
 // -- print functions ----------------------------------------------------------
 
 fn p_solution(k: &str, d: Count, solution: &Solution) {
-    println!("{} solution (depth={}): {}\n", k, d, solution.show());
+    println!("{} sol d={}: {}\n", k, d, solution.show());
 }
 
 // -- str functions ------------------------------------------------------------

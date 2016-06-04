@@ -197,6 +197,14 @@ impl Show for Row {
 
 // -- board play ---------------------------------------------------------------
 
+impl Show for Vec<Play> {
+    fn show(&self) -> String {
+        format!("[{}]", self.iter().map(
+            |play| play.show()
+        ).collect::<Vec<String>>().join(", "))
+    }
+}
+
 impl Show for Option<Play> {
     fn show(&self) -> String {
         match *self {

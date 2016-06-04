@@ -107,7 +107,8 @@ impl Game {
 
     /// Returns the solution for depth == k.
     fn solve_depth(self, depth: Count) -> Solution {
-        println!("solve_depth {} {} {}",
+        println!("{:12} k={} ll={} d={}",
+                 "solve_depth",
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth);
@@ -116,7 +117,8 @@ impl Game {
             Some(dominant_solution) => dominant_solution,
             None => self.solve_only(depth, solution),
         };
-        println!("solve_depth {} {} {} -> {}",
+        println!("{:12} k={} ll={} d={} -> {}",
+                 "solve_depth",
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth, x.show());
@@ -125,7 +127,8 @@ impl Game {
 
     /// Returns the solution for a particular depth (not lower depths).
     fn solve_only(self, depth: Count, solution: Solution) -> Solution {
-        println!("solve_only {} {} {} {}",
+        println!("{:12} k={} ll={} d={} sol={}",
+                 "solve_only",
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth,
@@ -133,7 +136,8 @@ impl Game {
         let player = self.next_player().unwrap();
         let solutions = self.candidate_solutions(depth);
         let x = solution.best(solutions, player);
-        println!("solve_only {} {} {} {} -> {}",
+        println!("{:12} k={} ll={} d={} sol={} -> {}",
+                 "solve_only",
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth,
@@ -145,17 +149,26 @@ impl Game {
     /// Returns candidate solutions (i.e. possible solutions) for an exact
     /// depth; does not consider lower depths.
     fn candidate_solutions(self, depth: Count) -> Vec<Solution> {
-        println!("candidate_solutions {} {} {}",
+        println!("{:12} k={} ll={} d={}",
+                 "cand_sols",
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth);
-        let solutions = self.valid_plays().iter().map(|&play| {
+        let valid_plays = self.valid_plays();
+        println!("{:12} k={} ll={} d={} : valid_plays={}",
+                 "cand_sols",
+                 self.board.play_count(),
+                 self.last_loc.show(),
+                 depth,
+                 valid_plays.show());
+        let solutions = valid_plays.iter().map(|&play| {
             self.play(play).unwrap().solve_depth(depth).time_shift(play)
         }).collect::<Vec<Solution>>();
         if solutions.is_empty() {
             panic!("Internal Error: `solutions` is empty");
         }
-        println!("candidate_solutions {} {} {} -> {}",
+        println!("{:12} k={} ll={} d={} -> {}",
+                 "cand_sols",
                  self.board.play_count(),
                  self.last_loc.show(),
                  depth,
@@ -167,7 +180,8 @@ impl Game {
 impl Solution {
     /// Returns the best solution.
     fn best(self, solutions: Vec<Solution>, p: Player) -> Solution {
-        println!("best {} {} {}",
+        println!("{:12} {} {} {}",
+                 "best",
                  self.show(),
                  solutions.show(),
                  p.show());
@@ -175,7 +189,8 @@ impl Solution {
         xs.push(self);
         xs.sort_by(|a, b| Solution::compare(p, a, b));
         let x = xs.first().unwrap().clone();
-        println!("best {} {} {} -> {}",
+        println!("{:12} {} {} {} -> {}",
+                 "best",
                  self.show(),
                  solutions.show(),
                  p.show(),
