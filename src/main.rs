@@ -14,14 +14,10 @@ const VERBOSE: bool = true;
 
 fn main() {
     let seed = random_seed();
-    // let seed = [3294465295, 97182992, 4241695563, 163574426];
     let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
     run_random_games(&mut rng, 0);
     run_random_game(&mut rng, 0);
-    run_solve_1(&mut rng, 0);
-    run_solve_2(&mut rng, 1);
-    run_solve_3(&mut rng, 0);
-    run_solve_4(&mut rng, 0);
+    run_solve_for(&mut rng, 1, 7, 9);
 }
 
 // -- main sub-functions -------------------------------------------------------
@@ -66,74 +62,8 @@ fn run_random_game<R: Rng>(rng: &mut R, trials: u16) {
     }
 }
 
-fn run_solve_1<R: Rng>(rng: &mut R, trials: u16) {
-    if trials > 0 {
-        h(0, "Solve N-1");
-        for i in 0 .. trials {
-            if VERBOSE { h(1, &format!("Trial #{}", i)); }
-
-            let games = random_games(rng);
-            let mut games_iter = games.iter();
-            let game_n = games_iter.next_back().unwrap();
-            let game_nm1 = games_iter.next_back().unwrap();
-
-            if VERBOSE { h(1, "Game N"); }
-            if VERBOSE { pln(game_n); }
-
-            if VERBOSE { h(1, "Game N-1"); }
-            if VERBOSE { pln(game_nm1); }
-            p_solve("\nN-1", game_nm1, 1);
-        }
-    }
-}
-
-fn run_solve_2<R: Rng>(rng: &mut R, trials: u16) {
-    if trials > 0 {
-        h(0, "Solve N-2");
-        for i in 0 .. trials {
-            if VERBOSE { h(1, &format!("Trial #{}", i)); }
-
-            let games = random_games(rng);
-            let mut games_iter = games.iter();
-            let game_n = games_iter.next_back().unwrap();
-            games_iter.next_back().unwrap(); // game_nm1
-            let game_nm2 = games_iter.next_back().unwrap();
-
-            if VERBOSE { h(1, "Game N"); }
-            if VERBOSE { pln(game_n); }
-
-            if VERBOSE { h(1, "Game N-2"); }
-            if VERBOSE { pln(game_nm2); }
-            p_solve("\nN-2", game_nm2, 5);
-        }
-    }
-}
-
-fn run_solve_3<R: Rng>(rng: &mut R, trials: u16) {
-    if trials > 0 {
-        h(0, "Solve N-3");
-        for i in 0 .. trials {
-            if VERBOSE { h(1, &format!("Trial #{}", i)); }
-
-            let games = random_games(rng);
-            let mut games_iter = games.iter();
-            let game_n = games_iter.next_back().unwrap();
-            games_iter.next_back().unwrap(); // game_nm1
-            games_iter.next_back().unwrap(); // game_nm2
-            let game_nm3 = games_iter.next_back().unwrap();
-
-            if VERBOSE { h(1, "Game N"); }
-            if VERBOSE { pln(game_n); }
-
-            if VERBOSE { h(1, "Game N-3"); }
-            if VERBOSE { pln(game_nm3); }
-            p_solve("\nN-3", game_nm3, 3);
-        }
-    }
-}
-
-fn run_solve_4<R: Rng>(rng: &mut R, trials: u16) {
-    if trials > 0 {
+fn run_solve_for<R: Rng>(rng: &mut R, trials: u16, k: Count, depth: Count) {
+    if trials > 0 && k > 0 {
         h(0, "Solve N-4");
         for i in 0 .. trials {
             if VERBOSE { h(1, &format!("Trial #{}", i)); }
@@ -141,17 +71,17 @@ fn run_solve_4<R: Rng>(rng: &mut R, trials: u16) {
             let games = random_games(rng);
             let mut games_iter = games.iter();
             let game_n = games_iter.next_back().unwrap();
-            games_iter.next_back().unwrap(); // game_nm1
-            games_iter.next_back().unwrap(); // game_nm2
-            games_iter.next_back().unwrap(); // game_nm3
-            let game_nm4 = games_iter.next_back().unwrap();
-
             if VERBOSE { h(1, "Game N"); }
             if VERBOSE { pln(game_n); }
 
-            if VERBOSE { h(1, "Game N-4"); }
-            if VERBOSE { pln(game_nm4); }
-            p_solve("\nN-4", game_nm4, 4);
+            for _ in 0 .. (k - 1) {
+                games_iter.next_back().unwrap();
+            }
+            let game = games_iter.next_back().unwrap();
+            let label = format!("Game N-{}", k);
+            if VERBOSE { h(1, &label); }
+            if VERBOSE { pln(game); }
+            p_solve(&label, game, depth);
         }
     }
 }
