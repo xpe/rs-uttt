@@ -4,6 +4,8 @@ use data::*;
 use lru_time_cache::LruCache;
 use std::cmp::Ordering;
 
+pub type Depth = i16;
+
 // == data structures ==========================================================
 
 /// A solution to a game state, containing (a) the optimal next play (optional)
@@ -68,7 +70,7 @@ pub struct Solution {
 pub enum Outcome {
     Win { player: Player, turns: Count },
     Tie { turns: Count },
-    Unknown { depth: Count },
+    Unknown { depth: Depth },
 }
 
 // == solving functions ========================================================
@@ -78,11 +80,13 @@ impl Game {
     /// ahead for a number of moves (specified by `depth`). If there are no
     /// valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
-    pub fn solve_for(self, depth: Count) -> Solution {
+    pub fn solve_for(self, depth: Depth) -> Solution {
         if depth == 0 {
             self.solve_depth_0()
-        } else {
+        } else if depth > 0 {
             self.solve_depth(depth)
+        } else {
+            panic!("Internal Error: depth < 0");
         }
     }
 
@@ -106,7 +110,8 @@ impl Game {
 
     /// Returns the solution for depth == k. To solve this, it first solves
     /// depth == k - 1.
-    fn solve_depth(self, depth: Count) -> Solution {
+    fn solve_depth(self, depth: Depth) -> Solution {
+        println!("solve_depth k={} d={}", self.board.play_count(), depth);
         let solution = self.solve_for(depth - 1);
         match solution.dominant() {
             Some(dominant_solution) => dominant_solution,
@@ -127,7 +132,7 @@ impl Game {
     /// Note about the 'shallower' solution: If there is a actionable solution
     /// (containing a play) from the lower depths, pass in `Some(_)`. Otherwise,
     /// pass in `None`.
-    fn solve_only(self, depth: Count, shallow: Option<Solution>) -> Solution {
+    fn solve_only(self, depth: Depth, shallow: Option<Solution>) -> Solution {
         let player = self.next_player().unwrap();
         let merged = merge_solutions(shallow, self.candidate_solutions(depth));
         best_solution(player, merged)
@@ -135,10 +140,10 @@ impl Game {
 
     /// Returns candidate solutions (i.e. possible solutions) for an exact
     /// depth; does not consider lower depths.
-    fn candidate_solutions(self, depth: Count) -> Vec<Solution> {
+    fn candidate_solutions(self, depth: Depth) -> Vec<Solution> {
         let valid_plays = self.valid_plays();
         let solutions = valid_plays.iter().map(|&play| {
-            self.play(play).unwrap().solve_depth(depth - 1).time_shift(play)
+            self.play(play).unwrap().solve_for(depth - 1).time_shift(play)
         }).collect::<Vec<Solution>>();
         if solutions.is_empty() {
             panic!("Internal Error: `solutions` is empty");

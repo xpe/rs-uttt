@@ -342,6 +342,14 @@ impl Show for Player {
     }
 }
 
+// -- depth --------------------------------------------------------------------
+
+impl Show for Depth {
+    fn show(&self) -> String {
+        format!("{}", self)
+    }
+}
+
 // -- count --------------------------------------------------------------------
 
 impl Show for Count {
