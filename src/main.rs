@@ -14,11 +14,13 @@ const VERBOSE: bool = true;
 
 fn main() {
     // let seed: [u32; 4] = [1979915768, 300767643, 3885545663, 2473070596];
-    let seed = random_seed();
+    // let seed: [u32; 4] = [3387584637, 3821802413, 3724964352, 3288162107];
+    let seed: [u32; 4] = [1456198685, 762656086, 844876651, 1745969790];
+    // let seed = random_seed();
     let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
     run_random_games(&mut rng, 0);
     run_random_game(&mut rng, 0);
-    run_solve_for(&mut rng, 1, 7, 9);
+    run_solve_for(&mut rng, 1, 6, 8);
 }
 
 // -- main sub-functions -------------------------------------------------------

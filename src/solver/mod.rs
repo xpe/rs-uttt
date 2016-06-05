@@ -4,6 +4,12 @@ use data::*;
 use lru_time_cache::LruCache;
 use std::cmp::Ordering;
 
+#[cfg(test)]
+mod tests;
+
+#[cfg(test)]
+mod benchmarks;
+
 // == data structures ==========================================================
 
 /// A solution to a game state, containing (a) the optimal next play (optional)
@@ -51,7 +57,7 @@ use std::cmp::Ordering;
 /// 4. If X is only willing/able to compute 10 moves, it is possible that a
 ///    solution will not be found. In such a situation, the optional next play
 ///    will be `None` and the outcome will be 'unknown for depth 10'.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Solution {
     /// The optimal next play (optional)
     pub opt_play: Option<Play>,

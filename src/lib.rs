@@ -1,4 +1,5 @@
 #![feature(slice_patterns)]
+#![cfg_attr(test, feature(test))]
 
 pub mod accessors;
 pub mod constants;
@@ -19,3 +20,6 @@ mod tests;
 
 #[cfg(test)]
 extern crate quickcheck;
+
+#[cfg(test)]
+extern crate test;
