@@ -4,6 +4,7 @@
 // -- data: game state ---------------------------------------------------------
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[repr(u8)]
 pub enum GameState { Won(Player), Tied, Ongoing }
 
 // -- data: game ---------------------------------------------------------------

@@ -71,6 +71,7 @@ pub struct Solution {
 /// 3. A tie in some number of turns
 /// 4. Not one of the above, so unknown.
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[repr(u8)]
 pub enum Outcome {
     Win { player: Player, turns: Count },
     Tie { turns: Count },
@@ -89,7 +90,6 @@ impl Outcome {
     }
 }
 
-
 // == solving functions ========================================================
 
 impl Game {
@@ -97,7 +97,7 @@ impl Game {
     /// ahead for a number of moves (specified by `depth`). If there are no
     /// valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
-    pub fn solve_for(self, depth: Count) -> Solution {
+    pub fn solve_for(&self, depth: Count) -> Solution {
         if depth == 0 {
             self.solve_depth_0()
         } else if depth > 0 {
@@ -108,7 +108,7 @@ impl Game {
     }
 
     /// Returns the solution for depth == 0.
-    fn solve_depth_0(self) -> Solution {
+    fn solve_depth_0(&self) -> Solution {
         match self.state() {
             GameState::Won(player) => Solution {
                 opt_play: None,
@@ -127,7 +127,7 @@ impl Game {
 
     /// Returns the solution for depth == k. To solve this, it first solves
     /// depth == k - 1.
-    fn solve_depth(self, depth: Count) -> Solution {
+    fn solve_depth(&self, depth: Count) -> Solution {
         let s = self.solve_for(depth - 1);
         match s.dominant(self.next_player(), depth) {
             Some(dom) => dom,
@@ -144,7 +144,7 @@ impl Game {
     /// Note about the 'shallower' solution: If there is a actionable solution
     /// (containing a play) from the lower depths, pass in `Some(_)`. Otherwise,
     /// pass in `None`.
-    fn solve_only(self, depth: Count, shallow: Option<Solution>) -> Solution {
+    fn solve_only(&self, depth: Count, shallow: Option<Solution>) -> Solution {
         let player = self.next_player().unwrap();
         let merged = merge_solutions(shallow, self.candidate_solutions(depth));
         best_solution(player, merged)
@@ -152,10 +152,12 @@ impl Game {
 
     /// Returns candidate solutions (i.e. possible solutions) for an exact
     /// depth; does not consider lower depths.
-    fn candidate_solutions(self, depth: Count) -> Vec<Solution> {
+    fn candidate_solutions(&self, depth: Count) -> Vec<Solution> {
         let valid_plays = self.valid_plays();
         let solutions = valid_plays.iter().map(|&play| {
-            self.play(play).unwrap().solve_for(depth - 1).time_shift(play)
+            let mut game = self.clone();
+            game.play(play);
+            game.solve_for(depth - 1).time_shift(play)
         }).collect::<Vec<Solution>>();
         if solutions.is_empty() {
             panic!("Internal Error: solutions is empty");
@@ -181,7 +183,7 @@ fn merge_solutions(opt_solution: Option<Solution>,
 /// Returns the best solution.
 fn best_solution(p: Player, ss: Vec<Solution>) -> Solution {
     let mut xs = ss.clone();
-    xs.sort_by(|a, b| Solution::compare(p, a, b));
+    xs.sort_by(|a, b| Solution::compare(p, *a, *b));
     xs.first().unwrap().clone()
 }
 
@@ -241,24 +243,24 @@ impl Outcome {
 
 impl Solution {
     /// Compare two solutions.
-    fn compare(p: Player, a: &Solution, b: &Solution) -> Ordering {
-        let play_a = &a.opt_play.unwrap();
-        let play_b = &b.opt_play.unwrap();
+    fn compare(p: Player, a: Solution, b: Solution) -> Ordering {
+        let play_a = a.opt_play.unwrap();
+        let play_b = b.opt_play.unwrap();
         if play_a == play_b {
             let turns_a = a.outcome.turns();
             let turns_b = b.outcome.turns();
             turns_b.cmp(&turns_a)
         } else {
-            Outcome::compare(p, &a.outcome, &b.outcome)
+            Outcome::compare(p, a.outcome, b.outcome)
         }
     }
 }
 
 impl Outcome {
     /// Compare two outcomes from the point of view of the given player.
-    fn compare(p: Player, a: &Outcome, b: &Outcome) -> Ordering {
+    fn compare(p: Player, a: Outcome, b: Outcome) -> Ordering {
         let o = p.opponent();
-        match (*a, *b) {
+        match (a, b) {
             (Outcome::Win { player: p1, turns: t1 },
              Outcome::Win { player: p2, turns: t2 }) => {
                 if p1 == p && p2 == o {

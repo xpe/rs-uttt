@@ -12,7 +12,7 @@ mod tests;
 impl Game {
     /// Returns the game state. Note: it is more efficient to call this function
     /// instead of calling `Game::winner()` and `Game::is_over()` separately.
-    pub fn state(self) -> GameState {
+    pub fn state(&self) -> GameState {
         if let Some(player) = self.board.winner() {
             GameState::Won(player)
         } else if self.board.has_open_sboard() {
@@ -26,36 +26,29 @@ impl Game {
 // -> game ---------------------------------------------------------------------
 
 impl Game {
-    /// If the play is valid, makes the play and returns the 'updated' game.
-    pub fn play(self, play: Play) -> Option<Game> {
+    /// Makes the play (if valid) and mutates the game. Returns true if the play
+    /// is valid.
+    pub fn play(&mut self, play: Play) -> bool {
         if self.is_valid_play(play) {
-            Some(self.play_sans_validate(play))
+            self.play_sans_validate(play);
+            true
         } else {
-            None
+            false
         }
     }
 
-    /// Makes the play (without validation) and returns the 'updated' game.
-    fn play_sans_validate(self, play: Play) -> Game {
-        Game {
-            board: self.board.play_sans_validate(play),
-            last_loc: Some(play.loc),
-        }
+    /// Makes the play (without validation) and mutates the game.
+    fn play_sans_validate(&mut self, play: Play) {
+        self.board.play_sans_validate(play);
+        self.last_loc = Some(play.loc);
     }
 }
 
 // -> board --------------------------------------------------------------------
 
 impl Board {
-    /// Returns a copy of the board after making the play (without validation).
-    fn play_sans_validate(self, play: Play) -> Board {
-        let mut board = self.clone();
-        board.update_with_play(play);
-        board
-    }
-
-    /// Mutates the board after making the play (without validation).
-    fn update_with_play(&mut self, play: Play) {
+    /// Makes the play (without validation) and mutates the board.
+    fn play_sans_validate(&mut self, play: Play) {
         let bi: BI = BI::from_loc(play.loc);
         let sbi: SBI = SBI::from_loc(play.loc);
         self.mut_sboard_at_idx(bi).update_with(sbi, play.player);

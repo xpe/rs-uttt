@@ -15,12 +15,12 @@ use constants::*;
 
 impl Board {
     /// Returns the sub-board at a given board row and col.
-    pub fn sboard_at_row_col(self, row: RI, col: CI) -> SBoard {
+    pub fn sboard_at_row_col(&self, row: RI, col: CI) -> SBoard {
         self.sboard_at_idx(BI::from_row_col(row, col))
     }
 
     /// Returns the sub-board at a given board index.
-    pub fn sboard_at_idx(self, idx: BI) -> SBoard {
+    pub fn sboard_at_idx(&self, idx: BI) -> SBoard {
         self.sboards[idx.as_u8() as usize]
     }
 
@@ -59,7 +59,7 @@ impl SBoard {
 // -- -> board play ------------------------------------------------------------
 
 impl Game {
-    pub fn last_play(self) -> Option<Play> {
+    pub fn last_play(&self) -> Option<Play> {
         match self.last_loc {
             None => None,
             Some(loc) => Some(Play {
@@ -80,7 +80,7 @@ impl Game {
 
 impl Board {
     /// Returns an array of 81 slots for a given board.
-    pub fn slots(self) -> [Slot; 81] {
+    pub fn slots(&self) -> [Slot; 81] {
 	let mut a = [SE; 81];
 	a[ 0 ..  9].copy_from_slice(&self.sboards[0].slots());
 	a[ 9 .. 18].copy_from_slice(&self.sboards[1].slots());
@@ -95,7 +95,7 @@ impl Board {
     }
 
     /// Returns a two dimensional array (9x9) of slots for a given board.
-    pub fn slots_9x9(self) -> [[Slot; 9]; 9] {
+    pub fn slots_9x9(&self) -> [[Slot; 9]; 9] {
         [
             self.sboards[0].slots(),
             self.sboards[1].slots(),
@@ -171,12 +171,12 @@ impl Row {
 
 impl Board {
     /// Returns the Slot at a particular row and column in a board.
-    pub fn slot_at_loc(self, loc: Loc) -> Slot {
+    pub fn slot_at_loc(&self, loc: Loc) -> Slot {
         self.slot_at_row_col(loc.row(), loc.col())
     }
 
     /// Returns the Slot at a particular row and column in a board.
-    pub fn slot_at_row_col(self, row: RI, col: CI) -> Slot {
+    pub fn slot_at_row_col(&self, row: RI, col: CI) -> Slot {
         let sb: SBoard = self.sboard_at_row_col(row, col);
         sb.slot_at_idx(SBI::from_row_col(row, col))
     }
@@ -567,7 +567,7 @@ impl SBI {
 
 impl Game {
     /// Returns the last (previous) player in a game, if present.
-    pub fn last_player(self) -> Option<Player> {
+    pub fn last_player(&self) -> Option<Player> {
         match self.last_loc {
             None => None,
             Some(loc) => self.board.player_at_loc(loc),
@@ -577,12 +577,12 @@ impl Game {
 
 impl Board {
     /// Returns the player at a board location, if present.
-    pub fn player_at_loc(self, loc: Loc) -> Option<Player> {
+    pub fn player_at_loc(&self, loc: Loc) -> Option<Player> {
         self.player_at_row_col(loc.row(), loc.col())
     }
 
     /// Returns the player at a row + col, if present.
-    pub fn player_at_row_col(self, row: RI, col: CI) -> Option<Player> {
+    pub fn player_at_row_col(&self, row: RI, col: CI) -> Option<Player> {
         match self.slot_at_row_col(row, col) {
             Slot::Empty => None,
             Slot::Taken(player) => Some(player),
@@ -747,7 +747,7 @@ impl SBI {
 // -- -> Count -----------------------------------------------------------------
 
 impl Board {
-    pub fn play_count(self) -> Count {
+    pub fn play_count(&self) -> Count {
         let s = self.sboards;
         s[0].play_count() +
             s[1].play_count() +

@@ -78,7 +78,7 @@ Note: it could be useful to compute if a position is unwinnable against an
 optimal opponent. This could allow an AI player to resign, perhaps, or allocate
 more computation to games where it has a chance of winning.
 
-## Number of  Board States
+## Number of Board States
 
 As one upper bound, there a maximum of 3 ^ 81 = 4.434e38 board states in
 UTTT, since there are 9 x 9 = 81 slots, each with 3 possible values (empty, X,

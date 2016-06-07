@@ -20,21 +20,19 @@ fn test_empty_game() {
 
 #[test]
 fn test_game_play() {
-    let opt_game = EMPTY_GAME.play(Play {
+    let mut game = EMPTY_GAME;
+    game.play(Play {
         loc: Loc::new(RI::R6, CI::C3),
         player: Player::X,
     });
-    assert!(opt_game != None);
-    if let Some(game) = opt_game {
-        assert!(game != EMPTY_GAME);
-        assert!(game.last_loc == Some(Loc::new(RI::R6, CI::C3)));
-        assert!(game.state() == GameState::Ongoing);
-        assert!(game.is_over() == false);
-        assert!(game.winner() == None);
-        assert!(game.board != EMPTY_BOARD);
-        assert!(game.board.is_won() == false);
-        assert!(game.board.is_open() == true);
-    }
+    assert!(game != EMPTY_GAME);
+    assert!(game.last_loc == Some(Loc::new(RI::R6, CI::C3)));
+    assert!(game.state() == GameState::Ongoing);
+    assert!(game.is_over() == false);
+    assert!(game.winner() == None);
+    assert!(game.board != EMPTY_BOARD);
+    assert!(game.board.is_won() == false);
+    assert!(game.board.is_open() == true);
 }
 
 #[test]
@@ -103,12 +101,12 @@ fn test_empty_sboard() {
 
 #[test]
 fn test_sboard_from_slots() {
-    assert!(SBoard::from_slots([
+    assert!(SBoard::from_slots(&[
         SE, SE, SX,
         SO, SX, SE,
         SE, SE, SE,
     ]) == SBoard { encoding: 0b0000001010100001 });
-    assert!(SBoard::from_slots([
+    assert!(SBoard::from_slots(&[
         SE, SE, SE,
         SE, SE, SX,
         SO, SX, SE,

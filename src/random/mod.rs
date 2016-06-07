@@ -17,9 +17,10 @@ pub fn random_games<R: Rng>(rng: &mut R) -> LinkedList<Game> {
         if Game::is_over(game) {
             break;
         } else {
-            match random_valid_play(game, rng) {
+            match random_valid_play(&game, rng) {
                 None => break,
-                Some(play) => game = game.play(play).unwrap(),
+                Some(play) => { game.play(play); },
+
             }
         }
     }
@@ -41,10 +42,10 @@ pub fn random_game<R: Rng>(rng: &mut R) -> Game {
     let mut game = EMPTY_GAME;
     let n = rng.gen_range(1, 82);
     while i < n {
-        match random_valid_play(game, rng) {
+        match random_valid_play(&game, rng) {
             None => break,
             Some(play) => {
-                game = game.play(play).unwrap();
+                game.play(play);
                 i += 1;
             },
         }
@@ -86,13 +87,12 @@ impl Rand for Row {
 // -- board play ---------------------------------------------------------------
 
 /// Returns a random play for a given game.
-pub fn random_valid_play<R: Rng>(game: Game, rng: &mut R) -> Option<Play> {
+pub fn random_valid_play<R: Rng>(game: &Game, rng: &mut R) -> Option<Play> {
     match game.next_player() {
         None => None,
         Some(_) => {
-            let plays: Vec<Play> = game.valid_plays();
-            let ps: &[Play] = &plays[..];
-            let play: &Play = rng.choose(ps).unwrap();
+            let valid_plays: &[Play] = &game.valid_plays()[..];
+            let play: &Play = rng.choose(valid_plays).unwrap();
             Some(play.clone())
         },
     }

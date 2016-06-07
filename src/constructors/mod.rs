@@ -28,7 +28,7 @@ impl SBoard {
     }
 
     /// Return a sub-board from 9 slots.
-    pub fn from_slots(slots: [Slot; 9]) -> SBoard {
+    pub fn from_slots(slots: &[Slot; 9]) -> SBoard {
         let mut s0 = [SE; 3];
         let mut s1 = [SE; 3];
         let mut s2 = [SE; 3];
