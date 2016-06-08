@@ -86,7 +86,8 @@ fn run_solve_for<R: Rng>(rng: &mut R, k: Count, depth: Count, trials: u16) {
             let label = format!("Game N-{}", k);
             if VERBOSE { h(1, &label); }
             if VERBOSE { pln(game); }
-            let solution = game.solve_for(depth, cache);
+            let threads: u16 = 8;
+            let solution = game.solve_for(depth, threads, cache);
             if VERBOSE { p_solution(&label, depth, &solution); }
         }
     }
@@ -106,8 +107,9 @@ fn run_backwards_solver<R: Rng>(rng: &mut R, depth: Count, n: Count) {
             if VERBOSE { h(1, label) }
             let game = games_iter.next_back().unwrap();
             if VERBOSE { pln(game); }
-            let solution = game.solve_for(depth, cache);
-            // let solution = game.solve_for_uncached(depth);
+            let threads: u16 = 8;
+            let solution = game.solve_for(depth, threads, cache);
+            // let solution = game.solve_for_uncached(depth, threadsg);
             if VERBOSE { p_solution(label, depth, &solution); }
         }
     }

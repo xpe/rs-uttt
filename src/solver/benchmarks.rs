@@ -13,7 +13,8 @@ fn solve_example_1(k: Count, depth: Count, cache: &mut Cache) {
         games_iter.next_back();
     }
     let game = games_iter.next_back().unwrap();
-    game.solve_for(depth, cache);
+    let threads = 8;
+    game.solve_for(depth, threads, cache);
 }
 
 #[bench]

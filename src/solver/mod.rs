@@ -106,7 +106,8 @@ impl Game {
     /// ahead for a number of moves (specified by `depth`). If there are no
     /// valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
-    pub fn solve_for(&self, depth: Count, cache: &mut Cache) -> Solution {
+    pub fn solve_for(&self, depth: Count, threads: u16,
+                     cache: &mut Cache) -> Solution {
         let s1 = match cache.get_mut(self) {
             Some(sol_mut) => Some(*sol_mut),
             None => None,
@@ -115,7 +116,7 @@ impl Game {
             // a cache hit
             Some(solution) => Some(match solution.outcome {
                 Outcome::Unknown { turns: t } if t < depth => {
-                    self.solve_for_cached(depth, cache)
+                    self.solve_for_cached(depth, threads, cache)
                 },
                 _ => solution,
             }),
@@ -125,7 +126,7 @@ impl Game {
             Some(solution) => solution,
             // a cache miss
             None => {
-                let solution = self.solve_for_cached(depth, cache);
+                let solution = self.solve_for_cached(depth, threads, cache);
                 cache.insert(*self, solution);
                 solution
             },
@@ -133,11 +134,12 @@ impl Game {
     }
 
     /// Cached. Supporting function for `solve_for`.
-    fn solve_for_cached(&self, depth: Count, cache: &mut Cache) -> Solution {
+    fn solve_for_cached(&self, depth: Count, threads: u16,
+                        cache: &mut Cache) -> Solution {
         if depth == 0 {
             self.solve_depth_0()
         } else if depth > 0 {
-            self.solve_depth_cached(depth, cache)
+            self.solve_depth_cached(depth, threads, cache)
         } else {
             panic!("Internal Error: depth < 0");
         }
@@ -147,11 +149,11 @@ impl Game {
     /// looks ahead for a number of moves (specified by `depth`). If there are
     /// no valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
-    pub fn solve_for_uncached(&self, depth: Count) -> Solution {
+    pub fn solve_for_uncached(&self, depth: Count, threads: u16) -> Solution {
         if depth == 0 {
             self.solve_depth_0()
         } else if depth > 0 {
-            self.solve_depth_uncached(depth)
+            self.solve_depth_uncached(depth, threads)
         } else {
             panic!("Internal Error: depth < 0");
         }
@@ -178,21 +180,24 @@ impl Game {
 
     /// Cached. Returns the solution for depth == k. To solve this, it first
     /// solves depth == k - 1.
-    fn solve_depth_cached(&self, depth: Count, cache: &mut Cache) -> Solution {
-        let sol = self.solve_for(depth - 1, cache);
+    fn solve_depth_cached(&self, depth: Count, threads: u16,
+                          cache: &mut Cache) -> Solution {
+        let sol = self.solve_for(depth - 1, threads, cache);
         match sol.dominant(self.next_player(), depth) {
             Some(dom) => dom,
-            None => self.solve_only_cached(depth, sol.opt_solution(), cache),
+            None => self.solve_only_cached(
+                depth, sol.opt_solution(), threads, cache),
         }
     }
 
     /// Uncached. Returns the solution for depth == k. To solve this, it first
     /// solves depth == k - 1.
-    fn solve_depth_uncached(&self, depth: Count) -> Solution {
-        let sol = self.solve_for_uncached(depth - 1);
+    fn solve_depth_uncached(&self, depth: Count, threads: u16) -> Solution {
+        let sol = self.solve_for_uncached(depth - 1, threads);
         match sol.dominant(self.next_player(), depth) {
             Some(dom) => dom,
-            None => self.solve_only_uncached(depth, sol.opt_solution()),
+            None => self.solve_only_uncached(
+                depth, sol.opt_solution(), threads),
         }
     }
 
@@ -201,9 +206,9 @@ impl Game {
     /// (containing a play) from the lower depths, pass in `Some(_)` for the
     /// 'shallow solution' argument. Otherwise, pass in `None`.
     fn solve_only_cached(&self, depth: Count, shallow: Option<Solution>,
-                         cache: &mut Cache) -> Solution {
+                         threads: u16, cache: &mut Cache) -> Solution {
         let player = self.next_player().unwrap();
-        let solutions = self.candidate_solutions_cached(depth, cache);
+        let solutions = self.solutions_cached(depth, threads, cache);
         let merged = merge_solutions(shallow, solutions);
         best_solution(player, merged)
     }
@@ -212,32 +217,32 @@ impl Game {
     /// and an optional 'shallower' solution. If there is a actionable solution
     /// (containing a play) from the lower depths, pass in `Some(_)` for the
     /// 'shallow solution' argument. Otherwise, pass in `None`.
-    fn solve_only_uncached(&self, depth: Count, shallow: Option<Solution>)
-                           -> Solution {
+    fn solve_only_uncached(&self, depth: Count, shallow: Option<Solution>,
+                           threads: u16) -> Solution {
         let player = self.next_player().unwrap();
-        let solutions = self.candidate_solutions_uncached(depth);
+        let solutions = self.solutions_uncached(depth, threads);
         let merged = merge_solutions(shallow, solutions);
         best_solution(player, merged)
     }
 
     /// Cached. Returns candidate solutions (i.e. possible solutions) for an
     /// exact depth; does not consider lower depths.
-    fn candidate_solutions_cached(&self, depth: Count,
-                                  cache: &mut Cache) -> Vec<Solution> {
+    fn solutions_cached(&self, depth: Count, threads: u16,
+                        cache: &mut Cache) -> Vec<Solution> {
         self.valid_plays().iter().map(|&play| {
             let mut game = self.clone();
             game.play(play);
-            game.solve_for(depth - 1, cache).time_shift(play)
+            game.solve_for(depth - 1, threads, cache).time_shift(play)
         }).collect::<Vec<Solution>>()
     }
 
     /// Uncached. Returns candidate solutions (i.e. possible solutions) for an
     /// exact depth; does not consider lower depths.
-    fn candidate_solutions_uncached(&self, depth: Count) -> Vec<Solution> {
+    fn solutions_uncached(&self, depth: Count, threads: u16) -> Vec<Solution> {
         self.valid_plays().iter().map(|&play| {
             let mut game = self.clone();
             game.play(play);
-            game.solve_for_uncached(depth - 1).time_shift(play)
+            game.solve_for_uncached(depth - 1, threads).time_shift(play)
         }).collect::<Vec<Solution>>()
     }
 }
