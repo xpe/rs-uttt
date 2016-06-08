@@ -3,6 +3,7 @@
 use data::*;
 use lru_cache::{LruCache};
 use std::cmp::Ordering;
+use threadpool::ThreadPool;
 
 #[cfg(test)]
 mod tests;

@@ -13,6 +13,7 @@ pub mod utility;
 
 extern crate rand;
 extern crate lru_cache;
+extern crate threadpool;
 
 #[cfg(test)]
 mod tests;
