@@ -121,7 +121,7 @@ impl Game {
         }
     }
 
-    fn cache_hit(self, depth: Count, solution: Solution,
+    fn cache_hit(&self, depth: Count, solution: Solution,
                  cache: &mut Cache) -> Solution {
         match solution.outcome {
             Outcome::Unknown { turns: t } if t < depth => {
@@ -131,9 +131,9 @@ impl Game {
         }
     }
 
-    fn cache_miss(self, depth: Count, cache: &mut Cache) -> Solution {
+    fn cache_miss(&self, depth: Count, cache: &mut Cache) -> Solution {
         let solution = self.solve_for_cached(depth, cache);
-        cache.insert(self, solution);
+        cache.insert(*self, solution);
         solution
     }
 
