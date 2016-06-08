@@ -21,7 +21,7 @@ fn main() {
     run_random_games(&mut rng, 0);
     run_random_game(&mut rng, 0);
     run_solve_for(&mut rng, 6, 8, 0);
-    run_backwards_solver(&mut rng, 9, 10);
+    run_backwards_solver(&mut rng, 20, 15);
 }
 
 // -- main sub-functions -------------------------------------------------------
@@ -92,7 +92,7 @@ fn run_solve_for<R: Rng>(rng: &mut R, k: Count, depth: Count, trials: u16) {
     }
 }
 
-fn run_backwards_solver<R: Rng>(rng: &mut R, n: Count, depth: Count) {
+fn run_backwards_solver<R: Rng>(rng: &mut R, depth: Count, n: Count) {
     if n > 0 {
         h(0, "Solving Back to Front");
         let games = random_games(rng);
