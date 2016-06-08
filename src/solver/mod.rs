@@ -1,7 +1,7 @@
 /// Functions for intelligent behaviors.
 
 use data::*;
-use lru_time_cache::LruCache;
+use lru_cache::{LruCache};
 use std::cmp::Ordering;
 
 #[cfg(test)]
@@ -9,6 +9,15 @@ mod tests;
 
 #[cfg(test)]
 mod benchmarks;
+
+// == cache ====================================================================
+
+pub type Cache = LruCache<Game, Solution>;
+
+/// Constructs and returns a least-recently-used cache.
+pub fn new_cache(capacity: usize) -> Cache {
+    Cache::new(capacity)
+}
 
 // == data structures ==========================================================
 
@@ -57,7 +66,7 @@ mod benchmarks;
 /// 4. If X is only willing/able to compute 10 moves, it is possible that a
 ///    solution will not be found. In such a situation, the optional next play
 ///    will be `None` and the outcome will be 'unknown for depth 10'.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct Solution {
     /// The optimal next play (optional)
     pub opt_play: Option<Play>,
@@ -70,7 +79,7 @@ pub struct Solution {
 /// 2. A win for player O in some number of plays
 /// 3. A tie in some number of turns
 /// 4. Not one of the above, so unknown.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[repr(u8)]
 pub enum Outcome {
     Win { player: Player, turns: Count },
@@ -97,17 +106,64 @@ impl Game {
     /// ahead for a number of moves (specified by `depth`). If there are no
     /// valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
-    pub fn solve_for(&self, depth: Count) -> Solution {
+    pub fn solve_for(&self, depth: Count, cache: &mut Cache) -> Solution {
+        let s1 = match cache.get_mut(self) {
+            Some(sol_mut) => Some(*sol_mut),
+            None => None,
+        };
+        let s2 = match s1 {
+            Some(sol) => Some(self.cache_hit(depth, sol, cache)),
+            None => None,
+        };
+        match s2 {
+            Some(sol) => sol,
+            None => self.cache_miss(depth, cache),
+        }
+    }
+
+    fn cache_hit(self, depth: Count, solution: Solution,
+                 cache: &mut Cache) -> Solution {
+        match solution.outcome {
+            Outcome::Unknown { turns: t } if t < depth => {
+                self.solve_for_cached(depth, cache)
+            },
+            _ => solution,
+        }
+    }
+
+    fn cache_miss(self, depth: Count, cache: &mut Cache) -> Solution {
+        let solution = self.solve_for_cached(depth, cache);
+        cache.insert(self, solution);
+        solution
+    }
+
+    /// Cached. Supporting function for `solve_for`.
+    fn solve_for_cached(&self, depth: Count, cache: &mut Cache) -> Solution {
         if depth == 0 {
             self.solve_depth_0()
         } else if depth > 0 {
-            self.solve_depth(depth)
+            self.solve_depth_cached(depth, cache)
         } else {
             panic!("Internal Error: depth < 0");
         }
     }
 
-    /// Returns the solution for depth == 0.
+    /// Uncached. Returns the solution for a given depth and game. This function
+    /// looks ahead for a number of moves (specified by `depth`). If there are
+    /// no valid moves, returns a solution where the optional play is `None` and
+    /// the outcome is either a win or a tie.
+    pub fn solve_for_uncached(&self, depth: Count) -> Solution {
+        if depth == 0 {
+            self.solve_depth_0()
+        } else if depth > 0 {
+            self.solve_depth_uncached(depth)
+        } else {
+            panic!("Internal Error: depth < 0");
+        }
+    }
+
+    /// Returns the solution for depth == 0. This function supports both cached
+    /// and uncached solving.
     fn solve_depth_0(&self) -> Solution {
         match self.state() {
             GameState::Won(player) => Solution {
@@ -125,58 +181,69 @@ impl Game {
         }
     }
 
-    /// Returns the solution for depth == k. To solve this, it first solves
-    /// depth == k - 1.
-    fn solve_depth(&self, depth: Count) -> Solution {
-        let s = self.solve_for(depth - 1);
-        match s.dominant(self.next_player(), depth) {
+    /// Cached. Returns the solution for depth == k. To solve this, it first
+    /// solves depth == k - 1.
+    fn solve_depth_cached(&self, depth: Count, cache: &mut Cache) -> Solution {
+        let sol = self.solve_for(depth - 1, cache);
+        match sol.dominant(self.next_player(), depth) {
             Some(dom) => dom,
-            None => {
-                let opt_sol = if s.opt_play.is_some() { Some(s) } else { None };
-                self.solve_only(depth, opt_sol)
-            },
+            None => self.solve_only_cached(depth, sol.opt_solution(), cache),
         }
     }
 
-    /// Returns the solution for a particular depth (not lower depths) and an
-    /// optional 'shallower' solution.
-    ///
-    /// Note about the 'shallower' solution: If there is a actionable solution
-    /// (containing a play) from the lower depths, pass in `Some(_)`. Otherwise,
-    /// pass in `None`.
-    fn solve_only(&self, depth: Count, shallow: Option<Solution>) -> Solution {
+    /// Uncached. Returns the solution for depth == k. To solve this, it first
+    /// solves depth == k - 1.
+    fn solve_depth_uncached(&self, depth: Count) -> Solution {
+        let sol = self.solve_for_uncached(depth - 1);
+        match sol.dominant(self.next_player(), depth) {
+            Some(dom) => dom,
+            None => self.solve_only_uncached(depth, sol.opt_solution()),
+        }
+    }
+
+    /// Cached. Returns the solution for a particular depth (not lower depths)
+    /// and an optional 'shallower' solution. If there is a actionable solution
+    /// (containing a play) from the lower depths, pass in `Some(_)` for the
+    /// 'shallow solution' argument. Otherwise, pass in `None`.
+    fn solve_only_cached(&self, depth: Count, shallow: Option<Solution>,
+                         cache: &mut Cache) -> Solution {
         let player = self.next_player().unwrap();
-        let merged = merge_solutions(shallow, self.candidate_solutions(depth));
+        let solutions = self.candidate_solutions_cached(depth, cache);
+        let merged = merge_solutions(shallow, solutions);
         best_solution(player, merged)
     }
 
-    /// Returns candidate solutions (i.e. possible solutions) for an exact
-    /// depth; does not consider lower depths.
-    fn candidate_solutions(&self, depth: Count) -> Vec<Solution> {
-        let valid_plays = self.valid_plays();
-        let solutions = valid_plays.iter().map(|&play| {
+    /// Uncached. Returns the solution for a particular depth (not lower depths)
+    /// and an optional 'shallower' solution. If there is a actionable solution
+    /// (containing a play) from the lower depths, pass in `Some(_)` for the
+    /// 'shallow solution' argument. Otherwise, pass in `None`.
+    fn solve_only_uncached(&self, depth: Count, shallow: Option<Solution>)
+                           -> Solution {
+        let player = self.next_player().unwrap();
+        let solutions = self.candidate_solutions_uncached(depth);
+        let merged = merge_solutions(shallow, solutions);
+        best_solution(player, merged)
+    }
+
+    /// Cached. Returns candidate solutions (i.e. possible solutions) for an
+    /// exact depth; does not consider lower depths.
+    fn candidate_solutions_cached(&self, depth: Count,
+                                  cache: &mut Cache) -> Vec<Solution> {
+        self.valid_plays().iter().map(|&play| {
             let mut game = self.clone();
             game.play(play);
-            game.solve_for(depth - 1).time_shift(play)
-        }).collect::<Vec<Solution>>();
-        if solutions.is_empty() {
-            panic!("Internal Error: solutions is empty");
-        }
-        solutions
+            game.solve_for(depth - 1, cache).time_shift(play)
+        }).collect::<Vec<Solution>>()
     }
-}
 
-/// Returns the combined (merged) solution vector from an optional solution and
-/// a vector of solutions.
-fn merge_solutions(opt_solution: Option<Solution>,
-                   solutions: Vec<Solution>) -> Vec<Solution> {
-    match opt_solution {
-        None => solutions,
-        Some(solution) => {
-            let mut ss = solutions;
-            ss.push(solution);
-            ss.clone()
-        },
+    /// Uncached. Returns candidate solutions (i.e. possible solutions) for an
+    /// exact depth; does not consider lower depths.
+    fn candidate_solutions_uncached(&self, depth: Count) -> Vec<Solution> {
+        self.valid_plays().iter().map(|&play| {
+            let mut game = self.clone();
+            game.play(play);
+            game.solve_for_uncached(depth - 1).time_shift(play)
+        }).collect::<Vec<Solution>>()
     }
 }
 
@@ -208,6 +275,32 @@ impl Solution {
             Outcome::Tie { turns: t } if t == 0 => Some(self),
             _ => None,
         }
+    }
+}
+
+// == helpers for solving functions ============================================
+
+impl Solution {
+    /// Helper function for `Game::solve_depth`.
+    fn opt_solution(self) -> Option<Solution> {
+        match self.opt_play {
+            Some(_) => Some(self),
+            None => None,
+        }
+    }
+}
+
+/// Returns the combined (merged) solution vector from an optional solution and
+/// a vector of solutions.
+fn merge_solutions(opt_solution: Option<Solution>,
+                   solutions: Vec<Solution>) -> Vec<Solution> {
+    match opt_solution {
+        None => solutions,
+        Some(solution) => {
+            let mut ss = solutions;
+            ss.push(solution);
+            ss.clone()
+        },
     }
 }
 
@@ -323,11 +416,4 @@ impl Outcome {
             },
         }
     }
-}
-
-// == cache ====================================================================
-
-/// Constructs and returns a least-recently-used cache.
-pub fn outcome_cache(capacity: usize) -> LruCache<Game, Outcome> {
-    LruCache::<Game, Outcome>::with_capacity(capacity)
 }

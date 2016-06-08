@@ -1,4 +1,4 @@
-# Optimizing
+# Data Structure Sizes
 
 From [the Rust Reference on machine-dependent integer types][mdit]:
 

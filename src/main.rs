@@ -20,7 +20,8 @@ fn main() {
     let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
     run_random_games(&mut rng, 0);
     run_random_game(&mut rng, 0);
-    run_solve_for(&mut rng, 1, 6, 8);
+    run_solve_for(&mut rng, 6, 8, 0);
+    run_backwards_solver(&mut rng, 9, 10);
 }
 
 // -- main sub-functions -------------------------------------------------------
@@ -65,8 +66,9 @@ fn run_random_game<R: Rng>(rng: &mut R, trials: u16) {
     }
 }
 
-fn run_solve_for<R: Rng>(rng: &mut R, trials: u16, k: Count, depth: Count) {
+fn run_solve_for<R: Rng>(rng: &mut R, k: Count, depth: Count, trials: u16) {
     if trials > 0 && k > 0 {
+        let cache = &mut new_cache(1000);
         h(0, "Solve N-4");
         for i in 0 .. trials {
             if VERBOSE { h(1, &format!("Trial #{}", i)); }
@@ -84,14 +86,31 @@ fn run_solve_for<R: Rng>(rng: &mut R, trials: u16, k: Count, depth: Count) {
             let label = format!("Game N-{}", k);
             if VERBOSE { h(1, &label); }
             if VERBOSE { pln(game); }
-            p_solve(&label, game, depth);
+            let solution = game.solve_for(depth, cache);
+            if VERBOSE { p_solution(&label, depth, &solution); }
         }
     }
 }
 
-fn p_solve(label: &str, game: &Game, depth: Count) {
-    let solution = game.solve_for(depth);
-    if VERBOSE { p_solution(label, depth, &solution); }
+fn run_backwards_solver<R: Rng>(rng: &mut R, n: Count, depth: Count) {
+    if n > 0 {
+        h(0, "Solving Back to Front");
+        let games = random_games(rng);
+        let mut games_iter = games.iter();
+        let game_n = games_iter.next_back().unwrap();
+        if VERBOSE { h(1, "Game N"); }
+        if VERBOSE { pln(game_n); }
+        let cache = &mut new_cache(10000000);
+        for i in 1 .. (n + 1) {
+            let label = &format!("N-{}", i);
+            if VERBOSE { h(1, label) }
+            let game = games_iter.next_back().unwrap();
+            if VERBOSE { pln(game); }
+            let solution = game.solve_for(depth, cache);
+            // let solution = game.solve_for_uncached(depth);
+            if VERBOSE { p_solution(label, depth, &solution); }
+        }
+    }
 }
 
 // -- print functions ----------------------------------------------------------
