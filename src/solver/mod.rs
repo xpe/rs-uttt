@@ -112,29 +112,24 @@ impl Game {
             None => None,
         };
         let s2 = match s1 {
-            Some(sol) => Some(self.cache_hit(depth, sol, cache)),
+            // a cache hit
+            Some(solution) => Some(match solution.outcome {
+                Outcome::Unknown { turns: t } if t < depth => {
+                    self.solve_for_cached(depth, cache)
+                },
+                _ => solution,
+            }),
             None => None,
         };
         match s2 {
-            Some(sol) => sol,
-            None => self.cache_miss(depth, cache),
-        }
-    }
-
-    fn cache_hit(&self, depth: Count, solution: Solution,
-                 cache: &mut Cache) -> Solution {
-        match solution.outcome {
-            Outcome::Unknown { turns: t } if t < depth => {
-                self.solve_for_cached(depth, cache)
+            Some(solution) => solution,
+            // a cache miss
+            None => {
+                let solution = self.solve_for_cached(depth, cache);
+                cache.insert(*self, solution);
+                solution
             },
-            _ => solution,
         }
-    }
-
-    fn cache_miss(&self, depth: Count, cache: &mut Cache) -> Solution {
-        let solution = self.solve_for_cached(depth, cache);
-        cache.insert(*self, solution);
-        solution
     }
 
     /// Cached. Supporting function for `solve_for`.
