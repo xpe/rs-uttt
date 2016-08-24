@@ -100,7 +100,7 @@ fn run_backwards_solver<R: Rng>(rng: &mut R, depth: Count, n: Count) {
         let game_n = games_iter.next_back().unwrap();
         if VERBOSE { h(1, "Game N"); }
         if VERBOSE { pln(game_n); }
-        let cache = &mut new_cache(10000000);
+        let cache = &mut new_cache(500000000);
         for i in 1 .. (n + 1) {
             let label = &format!("N-{}", i);
             if VERBOSE { h(1, label) }
@@ -109,6 +109,7 @@ fn run_backwards_solver<R: Rng>(rng: &mut R, depth: Count, n: Count) {
             let solution = game.solve_for(depth, cache);
             // let solution = game.solve_for_uncached(depth);
             if VERBOSE { p_solution(label, depth, &solution); }
+            if VERBOSE { p_cache(cache); }
         }
     }
 }
@@ -117,6 +118,10 @@ fn run_backwards_solver<R: Rng>(rng: &mut R, depth: Count, n: Count) {
 
 fn p_solution(k: &str, d: Count, solution: &Solution) {
     println!("{} sol d={}: {}\n", k, d, solution.show());
+}
+
+fn p_cache(cache: &Cache) {
+    println!("cache utilization: {} of {}\n", cache.len(), cache.capacity());
 }
 
 // -- str functions ------------------------------------------------------------
