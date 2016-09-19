@@ -313,8 +313,8 @@ impl Solution {
 }
 
 impl Outcome {
-    /// Returns an 'updated' outcome by incrementing the 'turns' or 'depth' (as
-    /// appropriate) for the given outcome.
+    /// Returns an 'updated' outcome by incrementing the 'turns' for the given
+    /// outcome.
     fn inc(self) -> Outcome {
         match self {
             Outcome::Win { player: p, turns: k } =>
