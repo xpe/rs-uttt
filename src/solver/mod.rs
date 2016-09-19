@@ -302,7 +302,7 @@ fn merge_solutions(opt_solution: Option<Solution>,
 // == 'modifiers' ==============================================================
 
 impl Solution {
-    /// Returns an 'update' time-shifted solution by setting the play field and
+    /// Returns an 'updated' time-shifted solution by setting the play field and
     /// incrementing the associated count on the outcome field.
     fn time_shift(self, play: Play) -> Solution {
         Solution {
