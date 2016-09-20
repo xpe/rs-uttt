@@ -21,7 +21,7 @@ fn main() {
     run_random_games(&mut rng, 0);
     run_random_game(&mut rng, 0);
     run_solve_for(&mut rng, 6, 8, 0);
-    run_backwards_solver(&mut rng, 20, 15);
+    run_backwards_solver(&mut rng, 20, 8);
 }
 
 // -- main sub-functions -------------------------------------------------------
@@ -107,9 +107,8 @@ fn run_backwards_solver<R: Rng>(rng: &mut R, depth: Count, n: Count) {
             if VERBOSE { h(1, label) }
             let game = games_iter.next_back().unwrap();
             if VERBOSE { pln(game); }
-            let threads: u16 = 8;
+            let threads: u16 = 4;
             let solution = game.solve_for(depth, threads, cache);
-            // let solution = game.solve_for_uncached(depth, threadsg);
             if VERBOSE { p_solution(label, depth, &solution); }
         }
     }

@@ -3,6 +3,8 @@
 use data::*;
 use lru_cache::{LruCache};
 use std::cmp::Ordering;
+use std::thread;
+use std::result::{Result};
 
 #[cfg(test)]
 mod tests;
@@ -229,11 +231,40 @@ impl Game {
     /// exact depth; does not consider lower depths.
     fn solutions_cached(&self, depth: Count, threads: u16,
                         cache: &mut Cache) -> Vec<Solution> {
-        self.valid_plays().iter().map(|&play| {
-            let mut game = self.clone();
-            game.play(play);
-            game.solve_for(depth - 1, threads, cache).time_shift(play)
-        }).collect::<Vec<Solution>>()
+        let mut children = vec![];
+        let mut solutions: Vec<Solution> = vec![];
+        let plays = self.valid_plays();
+        let plays_len: u16 = plays.len() as u16;
+        let threads_per_play: u16 = threads / plays_len;
+        let mut avail_threads = threads;
+        for (i, play) in plays.into_iter().enumerate() {
+            if avail_threads > 0 {
+                let k = if i == 0 {
+                    threads_per_play + (threads % plays_len)
+                } else {
+                    threads_per_play
+                };
+                let game = self.clone();
+                let child = thread::spawn(move || {
+                    game.solution_uncached(play, depth, k)
+                });
+                children.push(child);
+                avail_threads -= k;
+            } else {
+                solutions.push(self.solution(play, depth, threads, cache));
+            }
+        }
+        for child in children {
+            match child.join() {
+                Result::Ok(solution) => {
+                    solutions.push(solution)
+                },
+                Result::Err(_) => {
+                    panic!("Internal Error: thread error")
+                },
+            }
+        }
+        solutions.clone()
     }
 
     /// Uncached. Returns candidate solutions (i.e. possible solutions) for an
@@ -244,6 +275,20 @@ impl Game {
             game.play(play);
             game.solve_for_uncached(depth - 1, threads).time_shift(play)
         }).collect::<Vec<Solution>>()
+    }
+
+    fn solution(self, play: Play, depth: Count, threads: u16,
+                cache: &mut Cache) -> Solution {
+        let mut game = self;
+        game.play(play);
+        game.solve_for(depth - 1, threads, cache).time_shift(play)
+    }
+
+    fn solution_uncached(self, play: Play, depth: Count,
+                         threads: u16) -> Solution {
+        let mut game = self;
+        game.play(play);
+        game.solve_for_uncached(depth - 1, threads).time_shift(play)
     }
 }
 
