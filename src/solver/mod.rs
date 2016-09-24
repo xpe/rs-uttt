@@ -140,16 +140,16 @@ impl Game {
     /// the outcome is either a win or a tie.
     pub fn solve(&self, depth: Count) -> Solution {
         if depth == 0 {
-            self.solve_depth_0()
+            self.solve_zero_depth()
         } else if depth > 0 {
-            self.solve_depth(depth)
+            self.solve_positive_depth(depth)
         } else {
             panic!("Internal Error: depth < 0");
         }
     }
 
     /// Returns the solution for depth == 0.
-    fn solve_depth_0(&self) -> Solution {
+    fn solve_zero_depth(&self) -> Solution {
         match self.state() {
             GameState::Won(player) => Solution {
                 opt_play: None,
@@ -168,27 +168,36 @@ impl Game {
 
     /// Returns the solution for a given game and depth.
     ///
-    /// It works by first solving a simpler case, `depth - 1`. If that gives a
-    /// dominant solution, return it. (For example, if the specified depth is 4
-    /// and a win can be found in 3 moves, there is no need to search 4 levels
-    /// deep.) Next, if there is not a dominant solution at `depth - 1`, then
-    /// this function delegates to the `solve_only` function.
-    fn solve_depth(&self, depth: Count) -> Solution {
+    /// It works by first solving a simpler case, `depth - 1`. If the solution
+    /// is dominant, return it. (For example, if the specified depth is 4 and a
+    /// win can be found in 3 moves, there is no need to search 4 levels deep.)
+    ///
+    /// Alternatively, if the `depth - 1` solution is not dominant, then build a
+    /// vector of possible solutions for all possible moves, with a solution
+    /// depth of `depth`. Merge in the `depth - 1` solution if it has some
+    /// value. (Since it might be the optimal solution, even though it was not
+    /// dominant.)  Finally, return the best solution.
+    fn solve_positive_depth(&self, depth: Count) -> Solution {
         let solution = self.solve(depth - 1);
-        let next_player = self.next_player();
-        match solution.dominant(next_player, depth) {
+        match solution.dominant(self.next_player(), depth) {
             Some(dom) => dom,
             None => {
-                let player = next_player.unwrap();
-                let solutions = self.candidate_solutions(depth);
-                let opt_solution = solution.opt_play.and(Some(solution));
-                let merged = merge_solutions(opt_solution, solutions);
-                best_solution(player, merged)
+                let player = self.next_player().unwrap();
+                let solutions = merge_solutions(
+                    solution.if_optimal(), self.candidate_solutions(depth));
+                best_solution(player, solutions)
             }
         }
     }
 
     /// Returns candidate (possible) solutions for a given depth.
+    ///
+    /// Builds a vector of solutions by calculating all valid plays from the
+    /// current game, computing the next game state for each play, and solving
+    /// each resulting game to a depth of `depth - 1`. (Note: It is essential to
+    /// decrease the depth by one as a counterbalance to advancing the game by
+    /// one play. Otherwise, this function would not effectively be bounded by
+    /// the depth argument.)
     fn candidate_solutions(&self, depth: Count) -> Vec<Solution> {
         self.valid_plays().iter().map(|&play| {
             let mut game = self.clone();
@@ -196,13 +205,6 @@ impl Game {
             game.solve(depth - 1).futurize(play)
         }).collect::<Vec<Solution>>()
     }
-}
-
-/// Returns the best solution.
-fn best_solution(p: Player, ss: Vec<Solution>) -> Solution {
-    let mut xs = ss.clone();
-    xs.sort_by(|a, b| Solution::compare(p, *a, *b));
-    xs.first().unwrap().clone()
 }
 
 impl Solution {
@@ -230,6 +232,23 @@ impl Solution {
 }
 
 // == helpers for solving functions ============================================
+
+/// Returns the best solution from given solutions for a player.
+fn best_solution(p: Player, ss: Vec<Solution>) -> Solution {
+    let mut xs = ss.clone();
+    xs.sort_by(|a, b| Solution::compare(p, *a, *b));
+    xs.first().unwrap().clone()
+}
+
+impl Solution {
+    /// If the solution contains an optimal move, returns the solution wrapped
+    /// in `Some`; otherwise, returns `None`. (Put another way, if
+    /// `solution.opt_play` has some value, return `Some(solution)`; otherwise,
+    /// return `None`.)
+    fn if_optimal(self) -> Option<Solution> {
+        self.opt_play.and(Some(self))
+    }
+}
 
 /// Returns the combined (merged) solution vector from an optional solution and
 /// a vector of solutions.
