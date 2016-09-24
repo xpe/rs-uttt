@@ -9,8 +9,8 @@ So, for a 64-bit machine, a `usize` must be 64 bits wide.
 
 These data structures have memory layouts **bigger** than [usize][usize]:
 
-* `Game`
-* `Board`
+* `Game` = 144 + last location bits (>= 151 bits)
+* `Board` = 9 x 16 = 144 bits
 * `[Slot; 9]`: `u8` * 9 = 72 bits
 
 These data structures have memory layouts **less** than `usize`:

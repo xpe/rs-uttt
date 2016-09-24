@@ -2,7 +2,14 @@
 
 ## Summary / Conclusion
 
-If one wants to compactly store a game, 151 bits (i.e. 19 bytes) are needed.
+Here, I list three ways to store a game:
+
+1. As compactly as possible: 9 * 15 + 7 = 142 bits
+2. Less compactly: 9 * 16 + 7 = 151 bits
+3. Conveniently for a database: 9 * 16 + 8 = 152 bits
+
+For database persistence, I choose option #2. The following shows the
+calculation:
 
 ## Calculation
 
@@ -19,5 +26,6 @@ A game consists of a board and the last location.
   but it still must be representable in binary form. This means there need to be
   81 + 1 possibilities. 6 bits is not enough, since it can represent 2 ^ 6 =
   64 possibilities. 7 bits is sufficient and optimal, since it can represent 2
-  ^ 7 = 128 possibilities.
-* How many bits to store a game? 144 + 7 = 151 bits (18.875 bytes)
+  ^ 7 = 128 possibilities. In this case, the program uses 8 bits. This is
+  1 bit more than needed but makes byte alignment easier.
+* How many bits to store a game? 144 + 8 = 152 bits (19 bytes)
