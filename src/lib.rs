@@ -12,7 +12,7 @@ pub mod solver;
 pub mod utility;
 
 extern crate rand;
-extern crate lru_cache;
+// extern crate lru_cache;
 
 #[cfg(test)]
 mod tests;
