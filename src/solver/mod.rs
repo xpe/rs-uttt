@@ -181,10 +181,7 @@ impl Game {
             None => {
                 let player = next_player.unwrap();
                 let solutions = self.candidate_solutions(depth);
-                let opt_solution = match solution.opt_play {
-                    Some(_) => Some(solution),
-                    None => None,
-                };
+                let opt_solution = solution.opt_play.and(Some(solution));
                 let merged = merge_solutions(opt_solution, solutions);
                 best_solution(player, merged)
             }
