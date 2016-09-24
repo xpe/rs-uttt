@@ -1,8 +1,7 @@
 /// Show (text output) functions.
 
 use data::*;
-use solver::solution::Solution;
-use solver::outcome::Outcome;
+use solver::{Solution, Outcome};
 
 pub trait Show {
     fn show(&self) -> String;

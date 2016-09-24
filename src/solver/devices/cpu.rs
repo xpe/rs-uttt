@@ -1,8 +1,7 @@
 /// CPU
 
 use data::Game;
-use solver::solution::Solution;
-use solver::device::Device;
+use solver::{Device, Solution};
 
 #[allow(dead_code)]
 struct CPU {}
