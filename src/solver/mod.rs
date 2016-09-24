@@ -2,7 +2,7 @@
 
 use data::*;
 
-pub mod solve;
+mod solve;
 
 #[cfg(test)]
 mod tests;
