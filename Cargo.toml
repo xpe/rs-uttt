@@ -7,7 +7,7 @@ homepage = "https://github.com/bluemont/rs-uttt.git"
 
 [dependencies]
 rand = "0.3"
-# lru_cache = "0.0.7"
+lru-cache = "0.0.7"
 
 [dev-dependencies]
 quickcheck = "0.3.1"
