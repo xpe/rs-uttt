@@ -1,7 +1,6 @@
 use data::*;
 use rand::{SeedableRng, XorShiftRng};
 use random::{random_games};
-use solver::*;
 use test::Bencher;
 
 fn solve_example_1(k: Count, depth: Count, cache: &mut Cache) {
