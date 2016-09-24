@@ -1,7 +1,8 @@
 /// solve.rs
 
 use data::*;
-use solver::*;
+use solver::solution::Solution;
+use solver::outcome::Outcome;
 use std::cmp::Ordering;
 
 // == solving functions ========================================================

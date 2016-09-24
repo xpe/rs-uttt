@@ -1,5 +1,6 @@
 use constants::*;
-use solver::*;
+use solver::solution::Solution;
+use solver::outcome::Outcome;
 
 #[test]
 fn test_empty_game() {

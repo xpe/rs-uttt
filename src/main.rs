@@ -5,7 +5,7 @@ use rand::{Rng, XorShiftRng, SeedableRng};
 use uttt::data::*;
 use uttt::random::*;
 use uttt::show::*;
-use uttt::solver::*;
+use uttt::solver::solution::Solution;
 use uttt::utility::{h, p, pln};
 
 const VERBOSE: bool = true;
