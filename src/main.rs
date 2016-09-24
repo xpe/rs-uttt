@@ -13,15 +13,21 @@ const VERBOSE: bool = true;
 // -- main ---------------------------------------------------------------------
 
 fn main() {
-    // let seed: [u32; 4] = [1979915768, 300767643, 3885545663, 2473070596];
-    // let seed: [u32; 4] = [3387584637, 3821802413, 3724964352, 3288162107];
-    let seed: [u32; 4] = [1456198685, 762656086, 844876651, 1745969790];
-    // let seed = random_seed();
-    let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
+    let mut rng = make_rng();
     run_random_games(&mut rng, 0);
     run_random_game(&mut rng, 0);
-    run_solve_for(&mut rng, 6, 8, 0);
-    run_backwards_solver(&mut rng, 20, 15);
+    run_solve(&mut rng, 6, 9, 1);
+    run_backwards_solve(&mut rng, 20, 0);
+}
+
+fn make_rng() -> XorShiftRng {
+    // let seed: [u32; 4] = [1979915768, 300767643, 3885545663, 2473070596];
+    // let seed: [u32; 4] = [3387584637, 3821802413, 3724964352, 3288162107];
+    // let seed: [u32; 4] = [1456198685, 762656086, 844876651, 1745969790];
+    let seed: [u32; 4] = [1889679491, 3196469285, 1180531842, 4290521956];
+    // let seed = random_seed();
+    // let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
+    SeedableRng::from_seed(seed)
 }
 
 // -- main sub-functions -------------------------------------------------------
@@ -66,9 +72,8 @@ fn run_random_game<R: Rng>(rng: &mut R, trials: u16) {
     }
 }
 
-fn run_solve_for<R: Rng>(rng: &mut R, k: Count, depth: Count, trials: u16) {
+fn run_solve<R: Rng>(rng: &mut R, k: Count, depth: Count, trials: u16) {
     if trials > 0 && k > 0 {
-        let cache = &mut new_cache(1000);
         h(0, "Solve N-4");
         for i in 0 .. trials {
             if VERBOSE { h(1, &format!("Trial #{}", i)); }
@@ -86,13 +91,13 @@ fn run_solve_for<R: Rng>(rng: &mut R, k: Count, depth: Count, trials: u16) {
             let label = format!("Game N-{}", k);
             if VERBOSE { h(1, &label); }
             if VERBOSE { pln(game); }
-            let solution = game.solve_for(depth, cache);
+            let solution = game.solve(depth);
             if VERBOSE { p_solution(&label, depth, &solution); }
         }
     }
 }
 
-fn run_backwards_solver<R: Rng>(rng: &mut R, depth: Count, n: Count) {
+fn run_backwards_solve<R: Rng>(rng: &mut R, depth: Count, n: Count) {
     if n > 0 {
         h(0, "Solving Back to Front");
         let games = random_games(rng);
@@ -100,16 +105,13 @@ fn run_backwards_solver<R: Rng>(rng: &mut R, depth: Count, n: Count) {
         let game_n = games_iter.next_back().unwrap();
         if VERBOSE { h(1, "Game N"); }
         if VERBOSE { pln(game_n); }
-        let cache = &mut new_cache(500000000);
         for i in 1 .. (n + 1) {
             let label = &format!("N-{}", i);
             if VERBOSE { h(1, label) }
             let game = games_iter.next_back().unwrap();
             if VERBOSE { pln(game); }
-            let solution = game.solve_for(depth, cache);
-            // let solution = game.solve_for_uncached(depth);
+            let solution = game.solve(depth);
             if VERBOSE { p_solution(label, depth, &solution); }
-            if VERBOSE { p_cache(cache); }
         }
     }
 }
@@ -118,10 +120,6 @@ fn run_backwards_solver<R: Rng>(rng: &mut R, depth: Count, n: Count) {
 
 fn p_solution(k: &str, d: Count, solution: &Solution) {
     println!("{} sol d={}: {}\n", k, d, solution.show());
-}
-
-fn p_cache(cache: &Cache) {
-    println!("cache utilization: {} of {}\n", cache.len(), cache.capacity());
 }
 
 // -- str functions ------------------------------------------------------------
