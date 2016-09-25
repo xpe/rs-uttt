@@ -299,7 +299,7 @@ impl Game {
     /// 4. The play is in an empty location.
     ///
     /// See also `Game::is_valid_play()`.
-    pub fn valid_plays(self) -> Vec<Play> {
+    pub fn valid_plays(&self) -> Vec<Play> {
         match self.next_player() {
             None => vec![],
             Some(player) => {
@@ -363,7 +363,7 @@ impl SBoard {
 impl Game {
     /// Returns the next player in the game, if there is one. Returns None if
     /// the game is finished.
-    pub fn next_player(self) -> Option<Player> {
+    pub fn next_player(&self) -> Option<Player> {
         if self.is_over() {
             None
         } else {
@@ -420,7 +420,7 @@ impl Game {
     /// 4. The play is in an empty location.
     ///
     /// See also: `Game::valid_plays()`.
-    pub fn is_valid_play(self, p: Play) -> bool {
+    pub fn is_valid_play(&self, p: Play) -> bool {
         !self.is_over() &&
             self.next_player() == Some(p.player) &&
             self.is_valid_sboard(p) &&
@@ -436,7 +436,7 @@ impl Game {
     ///    B. Otherwise, the player may play in any open sub-board.
     ///
     /// See also `Game::next_play_valid_sboards`.
-    fn is_valid_sboard(self, play: Play) -> bool {
+    fn is_valid_sboard(&self, play: Play) -> bool {
         match self.last_loc {
             None => true,
             Some(loc) => {
