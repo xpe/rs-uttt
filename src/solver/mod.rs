@@ -7,6 +7,9 @@ pub use self::solve::*;
 pub use self::stack::*;
 pub use self::stacks::*;
 
+pub mod cache;
+pub mod db;
+
 mod devices;
 mod layers;
 mod outcome;
