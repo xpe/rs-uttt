@@ -375,6 +375,21 @@ impl Game {
         }
     }
 
+    /// Returns the next player in the game, if there is one. Returns None if
+    /// the game is finished. (Note: this function is the same as `next_player`
+    /// except that it has a second argument.)
+    pub fn next_player_(&self, last_player: Option<Player>) -> Option<Player> {
+        if self.is_over() {
+            None
+        } else {
+            Some(match last_player {
+                None => FIRST_PLAYER,
+                Some(Player::X) => Player::O,
+                Some(Player::O) => Player::X,
+            })
+        }
+    }
+
     /// Returns the winning player of a game, if there is one.
     pub fn winner(self) -> Option<Player> {
         self.board.winner()

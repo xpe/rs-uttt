@@ -11,8 +11,8 @@ pub mod show;
 pub mod solver;
 pub mod utility;
 
-extern crate bit_vec;
 extern crate lru_cache;
+extern crate postgres;
 extern crate rand;
 
 #[cfg(test)]
