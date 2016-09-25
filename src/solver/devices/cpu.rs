@@ -1,23 +1,21 @@
-/// CPU
+/// CPU Device.
 
-use data::Game;
-use solver::{Device, Solution};
+use data::*;
+use solver::*;
 
-#[allow(dead_code)]
-struct CPU {}
+pub struct CPU {}
 
 impl Device for CPU {
-    #[allow(unused_variables)]
-    fn get(&self, game: Game) -> Option<Solution> {
-        None
+    fn read(&self, game: &Game, depth: Count) -> Option<Solution> {
+        Some(game.solve(depth))
     }
 
     #[allow(unused_variables)]
-    fn put(&self, game: Game, solution: Solution) -> bool {
+    fn write(&self, game: &Game, solution: Solution) -> bool {
         false
     }
 
-    fn has_put(&self) -> bool {
+    fn is_writable(&self) -> bool {
         false
     }
 

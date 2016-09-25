@@ -1,6 +1,7 @@
-/// solver/components/mod.rs
+/// Solver Devices.
+
+pub use self::cpu::*;
+pub use self::ssd::*;
 
 mod cpu;
-mod hdd;
-mod ram;
 mod ssd;

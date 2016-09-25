@@ -1,23 +1,22 @@
-/// SSD
+/// SSD Device.
 
-use data::Game;
-use solver::{Device, Solution};
+use data::*;
+use solver::*;
 
-#[allow(dead_code)]
-struct SSD {}
+pub struct SSD {}
 
 impl Device for SSD {
     #[allow(unused_variables)]
-    fn get(&self, game: Game) -> Option<Solution> {
+    fn read(&self, game: &Game, depth: Count) -> Option<Solution> {
         None
     }
 
     #[allow(unused_variables)]
-    fn put(&self, game: Game, solution: Solution) -> bool {
+    fn write(&self, game: &Game, solution: Solution) -> bool {
         true
     }
 
-    fn has_put(&self) -> bool {
+    fn is_writable(&self) -> bool {
         true
     }
 

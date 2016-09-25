@@ -1,43 +1,49 @@
-use data::Game;
-use solver::Solution;
+use data::*;
+use solver::*;
 
 /// A solver stack.
-pub struct Stack<'a, D, P> where D: Device, P: Policy {
-    /// The layers that comprise the stack.
-    pub layers: Vec<Layer<D, P>>,
-    /// A human-presentable string label.
-    pub label: &'a str,
+pub trait Stack {
+    fn layers(&self) -> Vec<Box<Layer>>;
+
+    fn label(&self) -> &str;
+
+    fn read(&self, game: &Game, depth: Count) -> Option<Solution> {
+        for layer in self.layers().iter() {
+            match layer.device().read(&game, depth) {
+                Some(solution) => {
+                    println!("[+] {}", layer.label());
+                    return Some(solution)
+                },
+                None => {
+                    println!("[ ] {}", layer.label());
+                },
+            }
+        }
+        None
+    }
 }
 
 /// A solver layer.
-pub struct Layer<D, P> where D: Device, P: Policy {
-    /// The device in the layer.
-    pub device: D,
-    /// The policy
-    pub policy: P,
+pub trait Layer {
+    fn device(&self) -> Box<Device>;
+
+    fn policy(&self) -> Box<Policy>;
+
+    fn label(&self) -> &str;
 }
 
-/// A device always can read (get) and sometimes can write (put). If `put` is
-/// supported, `has_put` must report `true`.
+/// A solver device; e.g. RAM, SSD, HDD, or CPU.
 pub trait Device {
-    /// Reads from the device.
-    fn get(&self, game: Game) -> Option<Solution>;
+    fn read(&self, game: &Game, depth: Count) -> Option<Solution>;
 
-    /// Writes to the device.
-    fn put(&self, game: Game, solution: Solution) -> bool;
+    fn write(&self, game: &Game, solution: Solution) -> bool;
 
-    /// Returns true if put is supported, false otherwise.
-    fn has_put(&self) -> bool;
+    fn is_writable(&self) -> bool;
 
-    /// Returns a human-presentable string label.
     fn label(&self) -> &str;
 }
 
 /// A solver policy.
 pub trait Policy {
-    /// Returns true when the game should be expired from the device.
-    fn is_expired(&self, game: Game) -> bool;
-
-    /// Returns a human-presentable string label.
     fn label(&self) -> &str;
 }

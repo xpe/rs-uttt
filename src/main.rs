@@ -14,10 +14,11 @@ const VERBOSE: bool = true;
 
 fn main() {
     let mut rng = make_rng();
-    run_random_games(&mut rng, 0);
-    run_random_game(&mut rng, 0);
-    run_solve(&mut rng, 6, 9, 1);
-    run_backwards_solve(&mut rng, 20, 0);
+    let stack = SSD_CPU_Stack {};
+    run_random_games(0, &mut rng);
+    run_random_game(0, &mut rng);
+    run_solve(1, &stack, &mut rng, 5, 7);
+    run_backwards_solve(0, &stack, &mut rng, 4, 8);
 }
 
 // -- main sub-function(s) -----------------------------------------------------
@@ -28,7 +29,7 @@ fn make_rng() -> XorShiftRng {
     SeedableRng::from_seed(seed)
 }
 
-fn run_random_games<R: Rng>(rng: &mut R, trials: u16) {
+fn run_random_games<R: Rng>(trials: u16, rng: &mut R) {
     if trials > 0 {
         h(0, "random_games()");
         let mut x_wins = 0;
@@ -53,11 +54,12 @@ fn run_random_games<R: Rng>(rng: &mut R, trials: u16) {
         println!("O wins: {:4}", o_wins);
         println!("  ties: {:4}", ties);
         println!("");
-        println!("average game length: {}", (games_len as f64) / (trials as f64));
+        println!("average game length: {}",
+                 (games_len as f64) / (trials as f64));
     }
 }
 
-fn run_random_game<R: Rng>(rng: &mut R, trials: u16) {
+fn run_random_game<R: Rng>(trials: u16, rng: &mut R) {
     if trials > 0 {
         h(0, "random_game()");
         for i in 0 .. trials {
@@ -68,57 +70,79 @@ fn run_random_game<R: Rng>(rng: &mut R, trials: u16) {
     }
 }
 
-fn run_solve<R: Rng>(rng: &mut R, k: Count, depth: Count, trials: u16) {
-    if trials > 0 && k > 0 {
+#[allow(unused_variables)]
+fn run_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
+                               back: Count, depth: Count) {
+    if trials > 0 && back > 0 {
         h(0, "Solve N-4");
         for i in 0 .. trials {
             if VERBOSE { h(1, &format!("Trial #{}", i)); }
+            let games = random_games(rng);
+            let mut games_iter = games.iter();
+            // Get the last move in the sequence of games.
+            let game_n = games_iter.next_back().unwrap();
+            if VERBOSE { h(1, "Game N"); }
+            if VERBOSE { pln(game_n); }
+
+            // TODO: It would be nice to extract out this chunk of code;
+            // however, the types have flummoxed me so far.
+            //
+            // Back up `back - 1` times.
+            for _ in 0 .. (back - 1) {
+                games_iter.next_back().unwrap();
+            }
+            // Back up one more time.
+            let game = games_iter.next_back().unwrap();
+
+            let label = format!("Game N-{}", back);
+            if VERBOSE { h(1, &label); }
+            if VERBOSE { pln(game); }
+            let solution = solve(stack, &game, depth);
+            if VERBOSE { p_solution(&label, depth, &solution); }
+        }
+    }
+}
+
+#[allow(unused_variables)]
+fn run_backwards_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
+                                         depth: Count, n: Count) {
+    if trials > 0 {
+        if n > 0 {
+            h(0, "Solving Back to Front");
 
             let games = random_games(rng);
             let mut games_iter = games.iter();
             let game_n = games_iter.next_back().unwrap();
             if VERBOSE { h(1, "Game N"); }
             if VERBOSE { pln(game_n); }
-
-            for _ in 0 .. (k - 1) {
-                games_iter.next_back().unwrap();
+            for i in 1 .. (n + 1) {
+                let label = &format!("N-{}", i);
+                if VERBOSE { h(1, label) }
+                let game = games_iter.next_back().unwrap();
+                if VERBOSE { pln(game); }
+                let solution = solve(stack, &game, depth);
+                if VERBOSE { p_solution(label, depth, &solution); }
             }
-            let game = games_iter.next_back().unwrap();
-            let label = format!("Game N-{}", k);
-            if VERBOSE { h(1, &label); }
-            if VERBOSE { pln(game); }
-            let solution = game.solve(depth);
-            if VERBOSE { p_solution(&label, depth, &solution); }
         }
     }
 }
 
-fn run_backwards_solve<R: Rng>(rng: &mut R, depth: Count, n: Count) {
-    if n > 0 {
-        h(0, "Solving Back to Front");
-        let games = random_games(rng);
-        let mut games_iter = games.iter();
-        let game_n = games_iter.next_back().unwrap();
-        if VERBOSE { h(1, "Game N"); }
-        if VERBOSE { pln(game_n); }
-        for i in 1 .. (n + 1) {
-            let label = &format!("N-{}", i);
-            if VERBOSE { h(1, label) }
-            let game = games_iter.next_back().unwrap();
-            if VERBOSE { pln(game); }
-            let solution = game.solve(depth);
-            if VERBOSE { p_solution(label, depth, &solution); }
-        }
+// -- solve function(s) --------------------------------------------------------
+
+fn solve(stack: &Stack, game: &Game, depth: Count) -> Solution {
+    match stack.read(&game, depth) {
+        Some(solution) => solution,
+        None => panic!("Stack '{}' returned no solution", stack.label())
     }
 }
 
-// -- print functions ----------------------------------------------------------
+// -- print function(s) --------------------------------------------------------
 
 fn p_solution(k: &str, d: Count, solution: &Solution) {
     println!("{} sol d={}: {}\n", k, d, solution.show());
 }
 
-// -- str functions ------------------------------------------------------------
+// -- str function(s) ----------------------------------------------------------
 
 fn result_str(op: Option<Player>) -> &'static str {
     match op {
