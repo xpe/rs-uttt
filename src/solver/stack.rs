@@ -1,5 +1,5 @@
-use data::*;
-use solver::*;
+use data::{Count, Game};
+use solver::{Layer, Solution};
 
 /// A solver stack.
 pub trait Stack {
@@ -21,29 +21,4 @@ pub trait Stack {
         }
         None
     }
-}
-
-/// A solver layer.
-pub trait Layer {
-    fn device(&self) -> Box<Device>;
-
-    fn policy(&self) -> Box<Policy>;
-
-    fn label(&self) -> &str;
-}
-
-/// A solver device; e.g. RAM, SSD, HDD, or CPU.
-pub trait Device {
-    fn read(&self, game: &Game, depth: Count) -> Option<Solution>;
-
-    fn write(&self, game: &Game, solution: Solution) -> bool;
-
-    fn is_writable(&self) -> bool;
-
-    fn label(&self) -> &str;
-}
-
-/// A solver policy.
-pub trait Policy {
-    fn label(&self) -> &str;
 }
