@@ -35,9 +35,9 @@ impl Board {
 impl SBoard {
     /// Returns the rows for a given sub-board.
     pub fn rows(self) -> [Row; 3] {
-        let x0: u8 = (self.encoding & 0b11111) as u8;
-        let x1: u8 = (self.encoding >> 5 & 0b11111) as u8;
-        let x2: u8 = (self.encoding >> 10 & 0b011111) as u8;
+        let x0: u8 = (self.encoding       & 0b11111) as u8;
+        let x1: u8 = (self.encoding >>  5 & 0b11111) as u8;
+        let x2: u8 = (self.encoding >> 10 & 0b11111) as u8;
         [Row::from_u8(x0), Row::from_u8(x1), Row::from_u8(x2)]
     }
 }
