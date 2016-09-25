@@ -11,8 +11,9 @@ pub mod show;
 pub mod solver;
 pub mod utility;
 
-extern crate rand;
+extern crate bit_vec;
 extern crate lru_cache;
+extern crate rand;
 
 #[cfg(test)]
 mod tests;
