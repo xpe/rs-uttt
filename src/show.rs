@@ -1,7 +1,7 @@
 /// Show (text output) functions.
 
 use data::*;
-use solver::{Solution, Outcome};
+use solver::*;
 
 pub trait Show {
     fn show(&self) -> String;
