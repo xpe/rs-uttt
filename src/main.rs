@@ -20,17 +20,13 @@ fn main() {
     run_backwards_solve(&mut rng, 20, 0);
 }
 
+// -- main sub-function(s) -----------------------------------------------------
+
 fn make_rng() -> XorShiftRng {
-    // let seed: [u32; 4] = [1979915768, 300767643, 3885545663, 2473070596];
-    // let seed: [u32; 4] = [3387584637, 3821802413, 3724964352, 3288162107];
-    // let seed: [u32; 4] = [1456198685, 762656086, 844876651, 1745969790];
-    let seed: [u32; 4] = [1889679491, 3196469285, 1180531842, 4290521956];
     // let seed = random_seed();
-    // let mut rng: XorShiftRng = SeedableRng::from_seed(seed);
+    let seed: [u32; 4] = [2394588627, 2210102940, 2221205224, 2409798786];
     SeedableRng::from_seed(seed)
 }
-
-// -- main sub-functions -------------------------------------------------------
 
 fn run_random_games<R: Rng>(rng: &mut R, trials: u16) {
     if trials > 0 {
