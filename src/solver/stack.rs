@@ -23,7 +23,7 @@ pub trait Stack {
     /// than 'read' or 'compute'.)
     fn get(&self, game: &Game, depth: Count)
            -> (Option<Solution>, Vec<Box<Device>>) {
-        let devices: Vec<Box<Device>> = vec![];
+        let mut devices: Vec<Box<Device>> = Vec::new();
         for layer in self.layers().iter() {
             let device = layer.device();
             let opt_solution = if device.supports_read() {
@@ -37,12 +37,10 @@ pub trait Stack {
                 Some(solution) => {
                     if solution.is_deep_enough(depth) {
                         println!("[+] {}", layer.label());
-                        return (Some(solution), devices)
+                        return (Some(solution), devices);
                     } else {
                         println!("[-] {}", layer.label());
-                        // TODO: Store this layer so that the algorithm can come
-                        // back to it later and replace it with a more useful
-                        // solution.
+                        devices.push(device);
                     }
                 },
                 None => {
