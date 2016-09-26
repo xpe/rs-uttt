@@ -38,7 +38,7 @@ pub fn db_connect<T: IntoConnectParams> (params: T) -> Connection {
 /// depth, return None. Otherwise, return some solution.
 pub fn db_read(conn: &Connection, game: &Game, depth: Count)
                -> Option<Solution> {
-    match db_read_(conn, game) {
+    match db_read_2(conn, game) {
         Some(solution) => {
             match solution.outcome {
                 Outcome::Unknown { turns: t } if t < depth => None,
@@ -48,29 +48,6 @@ pub fn db_read(conn: &Connection, game: &Game, depth: Count)
         None => None,
     }
 }
-
-/// Low-level read function.
-fn db_read_(conn: &Connection, game: &Game) -> Option<Solution> {
-    let game_cols: (i64, i64, i32) = game_columns_from(game);
-    let game_1: i64 = game_cols.0;
-    let game_2: i64 = game_cols.1;
-    let game_3: i32 = game_cols.2;
-    let rows: Rows = conn.query(
-        "SELECT solution \
-         FROM solution \
-         WHERE game_1 = $1, game_2 = $2, game_3 = $3",
-        &[&game_1, &game_2, &game_3]).unwrap();
-    match rows.len() {
-        0 => None,
-        1 => {
-            let row: Row = rows.get(0);
-            let sol: i16 = row.get(0);
-            Some(solution_from(sol, game.next_player()))
-        },
-        _ => panic!("Error 1143: expected 0 or 1 row"),
-    }
-}
-
 
 /// Write to database, inserting or updating as appropriate. This function is
 /// not responsible for testing if an overwrite is the 'sensible' thing to do;
@@ -91,6 +68,30 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
         0 => false,
         1 => true,
         _ => panic!("Error 6873"),
+    }
+}
+
+// == internal database read/write functions ===================================
+
+/// Low-level read function.
+fn db_read_2(conn: &Connection, game: &Game) -> Option<Solution> {
+    let game_cols: (i64, i64, i32) = game_columns_from(game);
+    let game_1: i64 = game_cols.0;
+    let game_2: i64 = game_cols.1;
+    let game_3: i32 = game_cols.2;
+    let rows: Rows = conn.query(
+        "SELECT solution \
+         FROM solution \
+         WHERE game_1 = $1, game_2 = $2, game_3 = $3",
+        &[&game_1, &game_2, &game_3]).unwrap();
+    match rows.len() {
+        0 => None,
+        1 => {
+            let row: Row = rows.get(0);
+            let sol: i16 = row.get(0);
+            Some(solution_from(sol, game.next_player()))
+        },
+        _ => panic!("Error 1143: expected 0 or 1 row"),
     }
 }
 
