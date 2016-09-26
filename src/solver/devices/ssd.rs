@@ -6,7 +6,7 @@ use solver::*;
 use solver::db::*;
 
 pub const CONNECTION_STRING: &'static str =
-    "postgres://postgres@localhost";
+    "postgres://xpe@localhost";
 
 pub struct SSD {
     conn: Connection,
@@ -14,7 +14,10 @@ pub struct SSD {
 
 impl SSD {
     pub fn new() -> SSD {
-        SSD { conn: db_connect(CONNECTION_STRING) }
+        let conn = db_connect(CONNECTION_STRING);
+        db_drop(&conn);
+        db_create(&conn);
+        SSD { conn: conn }
     }
 }
 
