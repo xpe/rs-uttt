@@ -81,8 +81,8 @@ fn db_read_2(conn: &Connection, game: &Game) -> Option<Solution> {
     let game_3: i32 = game_cols.2;
     let rows: Rows = conn.query(
         "SELECT solution \
-         FROM solution \
-         WHERE game_1 = $1, game_2 = $2, game_3 = $3",
+         FROM solutions \
+         WHERE game_1 = $1 AND game_2 = $2 AND game_3 = $3",
         &[&game_1, &game_2, &game_3]).unwrap();
     match rows.len() {
         0 => None,
