@@ -1,7 +1,7 @@
 /// Database.
 
-use data::{CI, Count, Game, Loc, Play, Player, RI};
-use postgres::rows::{Row, Rows};
+use data::*;
+use postgres::rows::{Row as DataRow, Rows as DataRows};
 use postgres::{Connection, IntoConnectParams, SslMode};
 use solver::{Outcome, Solution};
 
@@ -23,29 +23,26 @@ pub fn db_connect<T: IntoConnectParams> (params: T) -> Connection {
     Connection::connect(params, SslMode::None).unwrap()
 }
 
-// TODO: From the postgres crate documentation: "If the same statement will be
-// repeatedly executed (perhaps with different query parameters), consider using
-// the prepare and prepare_cached methods."
-//
-// let stmt =
-//     conn.prepare_cached("UPDATE foo SET bar = $1 WHERE baz = $2").unwrap();
-// for (bar, baz) in updates {
-//     stmt.execute(&[bar, baz]).unwrap();
-// }
-
-/// Reads the database for a given game and depth. If no match is found, returns
-/// None. If the retrieved game has an unknown outcome where turns is less than
-/// depth, return None. Otherwise, return some solution.
-pub fn db_read(conn: &Connection, game: &Game, depth: Count)
-               -> Option<Solution> {
-    match db_read_2(conn, game) {
-        Some(solution) => {
-            match solution.outcome {
-                Outcome::Unknown { turns: t } if t < depth => None,
-                _ => Some(solution),
-            }
+/// Read function.
+pub fn db_read(conn: &Connection, game: &Game) -> Option<Solution> {
+    let game_cols: (i64, i64, i32) = game_columns_from(game);
+    let game_1: i64 = game_cols.0;
+    let game_2: i64 = game_cols.1;
+    let game_3: i32 = game_cols.2;
+    // TODO: Use a prepared statement instead.
+    let rows: DataRows = conn.query(
+        "SELECT solution \
+         FROM solutions \
+         WHERE game_1 = $1 AND game_2 = $2 AND game_3 = $3",
+        &[&game_1, &game_2, &game_3]).unwrap();
+    match rows.len() {
+        0 => None,
+        1 => {
+            let row: DataRow = rows.get(0);
+            let sol: i16 = row.get(0);
+            Some(solution_from(sol, game.next_player()))
         },
-        None => None,
+        _ => panic!("Error 1143: expected 0 or 1 row"),
     }
 }
 
@@ -73,27 +70,15 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
 
 // == internal database read/write functions ===================================
 
-/// Low-level read function.
-fn db_read_2(conn: &Connection, game: &Game) -> Option<Solution> {
-    let game_cols: (i64, i64, i32) = game_columns_from(game);
-    let game_1: i64 = game_cols.0;
-    let game_2: i64 = game_cols.1;
-    let game_3: i32 = game_cols.2;
-    let rows: Rows = conn.query(
-        "SELECT solution \
-         FROM solutions \
-         WHERE game_1 = $1 AND game_2 = $2 AND game_3 = $3",
-        &[&game_1, &game_2, &game_3]).unwrap();
-    match rows.len() {
-        0 => None,
-        1 => {
-            let row: Row = rows.get(0);
-            let sol: i16 = row.get(0);
-            Some(solution_from(sol, game.next_player()))
-        },
-        _ => panic!("Error 1143: expected 0 or 1 row"),
-    }
-}
+// TODO: From the postgres crate documentation: "If the same statement will be
+// repeatedly executed (perhaps with different query parameters), consider using
+// the prepare and prepare_cached methods."
+//
+// let stmt =
+//     conn.prepare_cached("UPDATE foo SET bar = $1 WHERE baz = $2").unwrap();
+// for (bar, baz) in updates {
+//     stmt.execute(&[bar, baz]).unwrap();
+// }
 
 // == PostgreSQL command strings ===============================================
 

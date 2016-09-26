@@ -22,17 +22,22 @@ impl SSD {
 }
 
 impl Device for SSD {
-    fn read(&self, game: &Game, depth: Count) -> Option<Solution> {
-        db_read(&self.conn, game, depth)
+    #[allow(unused_variables)]
+    fn compute(&self, game: &Game, depth: Count) -> Option<Solution> {
+        None
+    }
+
+    fn read(&self, game: &Game) -> Option<Solution> {
+        db_read(&self.conn, game)
     }
 
     fn write(&self, game: &Game, solution: Solution) -> bool {
         db_write(&self.conn, game, solution)
     }
 
-    fn is_writable(&self) -> bool {
-        true
-    }
+    fn supports_compute(&self) -> bool { false }
+    fn supports_read(&self) -> bool { true }
+    fn supports_write(&self) -> bool { true }
 
     fn label(&self) -> &str {
         "SSD"
