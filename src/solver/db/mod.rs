@@ -119,10 +119,10 @@ fn solution_from(sol: i16, player: Player) -> Solution {
     }
 }
 
-// TODO
 fn opt_loc_from(x: u8) -> Option<Loc> {
     match x {
         127 => None,
+
         0 => Some(Loc::new(RI::R0, CI::C0)),
         1 => Some(Loc::new(RI::R0, CI::C1)),
         2 => Some(Loc::new(RI::R0, CI::C2)),
@@ -132,7 +132,87 @@ fn opt_loc_from(x: u8) -> Option<Loc> {
         6 => Some(Loc::new(RI::R0, CI::C6)),
         7 => Some(Loc::new(RI::R0, CI::C7)),
         8 => Some(Loc::new(RI::R0, CI::C8)),
-        // TODO
+
+        9 => Some(Loc::new(RI::R1, CI::C0)),
+        10 => Some(Loc::new(RI::R1, CI::C1)),
+        11 => Some(Loc::new(RI::R1, CI::C2)),
+        12 => Some(Loc::new(RI::R1, CI::C3)),
+        13 => Some(Loc::new(RI::R1, CI::C4)),
+        14 => Some(Loc::new(RI::R1, CI::C5)),
+        15 => Some(Loc::new(RI::R1, CI::C6)),
+        16 => Some(Loc::new(RI::R1, CI::C7)),
+        17 => Some(Loc::new(RI::R1, CI::C8)),
+
+        18 => Some(Loc::new(RI::R2, CI::C0)),
+        19 => Some(Loc::new(RI::R2, CI::C1)),
+        20 => Some(Loc::new(RI::R2, CI::C2)),
+        21 => Some(Loc::new(RI::R2, CI::C3)),
+        22 => Some(Loc::new(RI::R2, CI::C4)),
+        23 => Some(Loc::new(RI::R2, CI::C5)),
+        24 => Some(Loc::new(RI::R2, CI::C6)),
+        25 => Some(Loc::new(RI::R2, CI::C7)),
+        26 => Some(Loc::new(RI::R2, CI::C8)),
+
+        27 => Some(Loc::new(RI::R3, CI::C0)),
+        28 => Some(Loc::new(RI::R3, CI::C1)),
+        29 => Some(Loc::new(RI::R3, CI::C2)),
+        30 => Some(Loc::new(RI::R3, CI::C3)),
+        31 => Some(Loc::new(RI::R3, CI::C4)),
+        32 => Some(Loc::new(RI::R3, CI::C5)),
+        33 => Some(Loc::new(RI::R3, CI::C6)),
+        34 => Some(Loc::new(RI::R3, CI::C7)),
+        35 => Some(Loc::new(RI::R3, CI::C8)),
+
+        36 => Some(Loc::new(RI::R4, CI::C0)),
+        37 => Some(Loc::new(RI::R4, CI::C1)),
+        38 => Some(Loc::new(RI::R4, CI::C2)),
+        39 => Some(Loc::new(RI::R4, CI::C3)),
+        40 => Some(Loc::new(RI::R4, CI::C4)),
+        41 => Some(Loc::new(RI::R4, CI::C5)),
+        42 => Some(Loc::new(RI::R4, CI::C6)),
+        43 => Some(Loc::new(RI::R4, CI::C7)),
+        44 => Some(Loc::new(RI::R4, CI::C8)),
+
+        45 => Some(Loc::new(RI::R5, CI::C0)),
+        46 => Some(Loc::new(RI::R5, CI::C1)),
+        47 => Some(Loc::new(RI::R5, CI::C2)),
+        48 => Some(Loc::new(RI::R5, CI::C3)),
+        49 => Some(Loc::new(RI::R5, CI::C4)),
+        50 => Some(Loc::new(RI::R5, CI::C5)),
+        51 => Some(Loc::new(RI::R5, CI::C6)),
+        52 => Some(Loc::new(RI::R5, CI::C7)),
+        53 => Some(Loc::new(RI::R5, CI::C8)),
+
+        54 => Some(Loc::new(RI::R6, CI::C0)),
+        55 => Some(Loc::new(RI::R6, CI::C1)),
+        56 => Some(Loc::new(RI::R6, CI::C2)),
+        57 => Some(Loc::new(RI::R6, CI::C3)),
+        58 => Some(Loc::new(RI::R6, CI::C4)),
+        59 => Some(Loc::new(RI::R6, CI::C5)),
+        60 => Some(Loc::new(RI::R6, CI::C6)),
+        61 => Some(Loc::new(RI::R6, CI::C7)),
+        62 => Some(Loc::new(RI::R6, CI::C8)),
+
+        63 => Some(Loc::new(RI::R7, CI::C0)),
+        64 => Some(Loc::new(RI::R7, CI::C1)),
+        65 => Some(Loc::new(RI::R7, CI::C2)),
+        66 => Some(Loc::new(RI::R7, CI::C3)),
+        67 => Some(Loc::new(RI::R7, CI::C4)),
+        68 => Some(Loc::new(RI::R7, CI::C5)),
+        69 => Some(Loc::new(RI::R7, CI::C6)),
+        70 => Some(Loc::new(RI::R7, CI::C7)),
+        71 => Some(Loc::new(RI::R7, CI::C8)),
+
+        72 => Some(Loc::new(RI::R8, CI::C0)),
+        73 => Some(Loc::new(RI::R8, CI::C1)),
+        74 => Some(Loc::new(RI::R8, CI::C2)),
+        75 => Some(Loc::new(RI::R8, CI::C3)),
+        76 => Some(Loc::new(RI::R8, CI::C4)),
+        77 => Some(Loc::new(RI::R8, CI::C5)),
+        78 => Some(Loc::new(RI::R8, CI::C6)),
+        79 => Some(Loc::new(RI::R8, CI::C7)),
+        80 => Some(Loc::new(RI::R8, CI::C8)),
+
         _ => panic!("Internal error"),
     }
 }
