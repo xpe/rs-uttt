@@ -50,17 +50,17 @@ use solver::{Outcome, Solution};
 
 // == public API: table functions ==============================================
 
-pub fn create(conn: &Connection) {
+pub fn db_create(conn: &Connection) {
     conn.execute(CREATE_TABLE, &[]).unwrap();
 }
 
-pub fn drop(conn: &Connection) {
+pub fn db_drop(conn: &Connection) {
     conn.execute(DROP_TABLE, &[]).unwrap();
 }
 
 // == public API: connect / read / write =======================================
 
-pub fn db_conn<T: IntoConnectParams> (params: T) -> Connection {
+pub fn db_connect<T: IntoConnectParams> (params: T) -> Connection {
     Connection::connect(params, SslMode::None).unwrap()
 }
 

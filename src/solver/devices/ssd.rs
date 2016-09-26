@@ -5,8 +5,8 @@ use postgres::Connection;
 use solver::*;
 use solver::db::*;
 
-pub const CONNECT : &'static str = "postgres://postgres@localhost";
-
+pub const CONNECTION_STRING: &'static str =
+    "postgres://postgres@localhost";
 
 pub struct SSD {
     conn: Connection,
@@ -14,7 +14,7 @@ pub struct SSD {
 
 impl SSD {
     pub fn new() -> SSD {
-        SSD { conn: db_conn(CONNECT) }
+        SSD { conn: db_connect(CONNECTION_STRING) }
     }
 }
 
