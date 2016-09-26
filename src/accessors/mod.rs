@@ -234,7 +234,7 @@ impl RI {
             6 => RI::R6,
             7 => RI::R7,
             8 => RI::R8,
-            _ => panic!("Internal error"),
+            _ => panic!("Error 0913"),
         }
     }
 }
@@ -252,7 +252,7 @@ impl CI {
             6 => CI::C6,
             7 => CI::C7,
             8 => CI::C8,
-            _ => panic!("Internal error"),
+            _ => panic!("Error 2169"),
         }
     }
 }
@@ -364,7 +364,7 @@ impl BI {
             6 => BI::I6,
             7 => BI::I7,
             8 => BI::I8,
-            _ => panic!("Internal error"),
+            _ => panic!("Error 5558"),
         }
     }
 }
@@ -558,7 +558,7 @@ impl SBI {
             6 => SBI::I6,
             7 => SBI::I7,
             8 => SBI::I8,
-            _ => panic!("Internal error"),
+            _ => panic!("Error 9266"),
         }
     }
 }

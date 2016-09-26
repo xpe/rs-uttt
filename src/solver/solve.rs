@@ -15,7 +15,7 @@ impl Game {
         } else if depth > 0 {
             self.solve_positive_depth(depth)
         } else {
-            panic!("Internal Error: depth < 0");
+            panic!("Error 2553: depth < 0");
         }
     }
 
