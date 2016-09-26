@@ -14,5 +14,4 @@ impl Stack for SSD_CPU_Stack {
     fn label(&self) -> &str {
         "SSD + CPU"
     }
-
 }

@@ -92,7 +92,6 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
         1 => true,
         _ => panic!("Error 6873"),
     }
-    // Test for success.
 }
 
 // == PostgreSQL command strings ===============================================
