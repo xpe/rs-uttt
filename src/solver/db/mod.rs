@@ -1,47 +1,4 @@
 /// Database.
-///
-/// Bit mapping for the 'game_1' (BIGINT = 64 bits) column:
-///
-/// bits      width   note
-/// -------   -----   --------
-/// 63 - 48      16   SBoard 3
-/// 47 - 32      16   SBoard 2
-/// 31 - 16      16   SBoard 1
-/// 15 -  0      16   SBoard 0
-///
-/// Bit mapping for the 'game_2' (BIGINT = 64 bits) column:
-///
-/// bits      width   note
-/// -------   -----   --------
-/// 63 - 48      16   SBoard 7
-/// 47 - 32      16   SBoard 6
-/// 31 - 16      16   SBoard 5
-/// 15 -  0      16   SBoard 4
-///
-/// Bit mapping for the 'game_3' (INT = 32 bits) column:
-///
-/// bit(s)    width   note
-/// -------   -----   --------
-/// 31 - 30       2   last player (0 = O, 1 = X, 2 = none)
-/// 29 - 28       2   next player (0 = O, 1 = X, 2 = none)
-/// 27 - 24       4   unused
-/// 23 - 16       8   last location (see Loc.encoding)
-/// 15 -  0      16   SBoard 8
-///
-/// Bit mapping for the 'solution' (SMALLINT = 16 bits) column:
-///
-/// bits       width   note
-/// --------   -----   ----
-/// 15 - 14       2   outcome (0 = ?; 1 = tie, 2 = O to win, 3 = X to win)
-/// 13 -  7       7   location (0 to 80; 127 for none)
-///  6 -  0       7   turns (0 to 81; 82 to 127 impossible)
-///
-/// * I would have preferred to encode the same information as the Solution
-/// struct (Option<Play> + Outcome), which when expanded is (Option<Loc> +
-/// Option<Player> + Outcome). However, I could not encode all of this in 16
-/// bits, so I dropped the Player component. This is not a problem in context,
-/// because the player can quickly calculated after retrieving the current
-/// player from the 'game_3' column.
 
 use data::{CI, Count, Game, Loc, Play, Player, RI};
 use postgres::rows::{Row, Rows};
@@ -140,6 +97,8 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
 
 /// Command to create the 'solutions' table.
 ///
+/// Mapping between PostgreSQL and Rust types:
+///
 /// column     PostgreSQL   Rust
 /// ------     ----------   ----
 /// game_1     BIGINT       i64
@@ -147,7 +106,50 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
 /// game_3     INT          i32
 /// solution   SMALLINT     i16
 ///
-/// Note: game1, game2, game3 form a composite primary key. See below.
+/// Note: game1, game2, game3 form a composite primary key.
+///
+/// Bit mapping for the 'game_1' (BIGINT = 64 bits) column:
+///
+/// bits      width   note
+/// -------   -----   --------
+/// 63 - 48      16   SBoard 3
+/// 47 - 32      16   SBoard 2
+/// 31 - 16      16   SBoard 1
+/// 15 -  0      16   SBoard 0
+///
+/// Bit mapping for the 'game_2' (BIGINT = 64 bits) column:
+///
+/// bits      width   note
+/// -------   -----   --------
+/// 63 - 48      16   SBoard 7
+/// 47 - 32      16   SBoard 6
+/// 31 - 16      16   SBoard 5
+/// 15 -  0      16   SBoard 4
+///
+/// Bit mapping for the 'game_3' (INT = 32 bits) column:
+///
+/// bit(s)    width   note
+/// -------   -----   --------
+/// 31 - 30       2   last player (0 = O, 1 = X, 2 = none)
+/// 29 - 28       2   next player (0 = O, 1 = X, 2 = none)
+/// 27 - 24       4   unused
+/// 23 - 16       8   last location (see Loc.encoding)
+/// 15 -  0      16   SBoard 8
+///
+/// Bit mapping for the 'solution' (SMALLINT = 16 bits) column:
+///
+/// bits       width   note
+/// --------   -----   ----
+/// 15 - 14       2   outcome (0 = ?; 1 = tie, 2 = O to win, 3 = X to win)
+/// 13 -  7       7   location (0 to 80; 127 for none)
+///  6 -  0       7   turns (0 to 81; 82 to 127 impossible)
+///
+/// * I would have preferred to encode the same information as the Solution
+/// struct (Option<Play> + Outcome), which when expanded is (Option<Loc> +
+/// Option<Player> + Outcome). However, I could not encode all of this in 16
+/// bits, so I dropped the Player component. This is not a problem in context,
+/// because the player can quickly calculated after retrieving the current
+/// player from the 'game_3' column.
 pub const CREATE_TABLE: &'static str =
     "CREATE TABLE solutions (\
        game_1    BIGINT    NOT NULL,\
