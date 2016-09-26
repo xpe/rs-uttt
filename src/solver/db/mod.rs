@@ -152,7 +152,7 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
 /// because the player can quickly calculated after retrieving the current
 /// player from the 'game_3' column.
 pub const CREATE_TABLE: &'static str =
-    "CREATE TABLE solutions (\
+    "CREATE TABLE IF NOT EXISTS solutions (\
        game_1    BIGINT    NOT NULL,\
        game_2    BIGINT    NOT NULL,\
        game_3    INT       NOT NULL,\
