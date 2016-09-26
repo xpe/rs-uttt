@@ -154,17 +154,18 @@ fn db_read_2(conn: &Connection, game: &Game) -> Option<Solution> {
 /// player from the 'game_3' column.
 pub const CREATE_TABLE: &'static str =
     "CREATE TABLE IF NOT EXISTS solutions (\
-       game_1    BIGINT    NOT NULL,\
-       game_2    BIGINT    NOT NULL,\
-       game_3    INT       NOT NULL,\
-       solution  SMALLINT  NOT NULL,\
+       game_1    BIGINT    NOT NULL, \
+       game_2    BIGINT    NOT NULL, \
+       game_3    INT       NOT NULL, \
+       solution  SMALLINT  NOT NULL, \
        PRIMARY KEY (game_1, game_2, game_3)
-     );";
+     )";
 
 // In case the PRIMARY KEY does not work, use this:
 // CREATE INDEX game_idx ON solutions (game1, game2, game3);
 
-pub const DROP_TABLE: &'static str = "DROP TABLE IF EXISTS solutions;";
+pub const DROP_TABLE: &'static str =
+    "DROP TABLE IF EXISTS solutions";
 
 // == conversions (structs -> database values) =================================
 
