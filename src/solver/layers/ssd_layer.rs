@@ -7,7 +7,7 @@ pub struct SSD_Layer {}
 
 impl Layer for SSD_Layer {
     fn device(&self) -> Box<Device> {
-        Box::new(SSD {})
+        Box::new(SSD::new())
     }
 
     fn policy(&self) -> Box<Policy> {

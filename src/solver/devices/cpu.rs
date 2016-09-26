@@ -5,7 +5,14 @@ use solver::*;
 
 pub struct CPU {}
 
+impl CPU {
+    pub fn new() -> CPU {
+        CPU {}
+    }
+}
+
 impl Device for CPU {
+
     fn read(&self, game: &Game, depth: Count) -> Option<Solution> {
         Some(game.solve(depth))
     }

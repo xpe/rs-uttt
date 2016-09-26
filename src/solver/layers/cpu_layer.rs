@@ -7,7 +7,7 @@ pub struct CPU_Layer {}
 
 impl Layer for CPU_Layer {
     fn device(&self) -> Box<Device> {
-        Box::new(CPU {})
+        Box::new(CPU::new())
     }
 
     fn policy(&self) -> Box<Policy> {

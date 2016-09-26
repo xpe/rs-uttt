@@ -43,10 +43,98 @@
 /// because the player can quickly calculated after retrieving the current
 /// player from the 'game_3' column.
 
-use data::*;
-use postgres::Connection;
+use data::{CI, Count, Game, Loc, Play, Player, RI};
+use postgres::rows::{Row, Rows};
+use postgres::{Connection, IntoConnectParams, SslMode};
 use solver::{Outcome, Solution};
-// use postgres::rows::Rows;
+
+// == public API: table functions ==============================================
+
+pub fn create(conn: &Connection) {
+    conn.execute(CREATE_TABLE, &[]).unwrap();
+}
+
+pub fn drop(conn: &Connection) {
+    conn.execute(DROP_TABLE, &[]).unwrap();
+}
+
+// == public API: connect / read / write =======================================
+
+pub fn db_conn<T: IntoConnectParams> (params: T) -> Connection {
+    Connection::connect(params, SslMode::None).unwrap()
+}
+
+// TODO: From the postgres crate documentation: "If the same statement will be
+// repeatedly executed (perhaps with different query parameters), consider using
+// the prepare and prepare_cached methods."
+//
+// let stmt =
+//     conn.prepare_cached("UPDATE foo SET bar = $1 WHERE baz = $2").unwrap();
+// for (bar, baz) in updates {
+//     stmt.execute(&[bar, baz]).unwrap();
+// }
+
+/// Reads the database for a given game and depth. If no match is found, returns
+/// None. If the retrieved game has an unknown outcome where turns is less than
+/// depth, return None. Otherwise, return some solution.
+pub fn db_read(conn: &Connection, game: &Game, depth: Count)
+               -> Option<Solution> {
+    match db_read_(conn, game) {
+        Some(solution) => {
+            match solution.outcome {
+                Outcome::Unknown { turns: t } if t < depth => None,
+                _ => Some(solution),
+            }
+        },
+        None => None,
+    }
+}
+
+/// Low-level read function.
+fn db_read_(conn: &Connection, game: &Game) -> Option<Solution> {
+    let game_cols: (i64, i64, i32) = game_columns_from(game);
+    let game_1: i64 = game_cols.0;
+    let game_2: i64 = game_cols.1;
+    let game_3: i32 = game_cols.2;
+    let rows: Rows = conn.query(
+        "SELECT solution \
+         FROM solution \
+         WHERE game_1 = $1, game_2 = $2, game_3 = $3",
+        &[&game_1, &game_2, &game_3]).unwrap();
+    match rows.len() {
+        0 => None,
+        1 => {
+            let row: Row = rows.get(0);
+            let sol: i16 = row.get(0);
+            Some(solution_from(sol, game.next_player()))
+        },
+        _ => panic!("Error 1143: expected 0 or 1 row"),
+    }
+}
+
+
+/// Write to database, inserting or updating as appropriate. This function is
+/// not responsible for testing if an overwrite is the 'sensible' thing to do;
+/// e.g. a caller could overwrite `Outcome::Unknown { turns: 6 }` to
+/// `Outcome::Unknown { turns : 3 }`.
+pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
+    let game_cols: (i64, i64, i32) = game_columns_from(game);
+    let game_1: i64 = game_cols.0;
+    let game_2: i64 = game_cols.1;
+    let game_3: i32 = game_cols.2;
+    let sol: i16 = sol_i16(solution);
+    let rows_modified = conn.execute(
+        "INSERT INTO solutions (game_1, game_2, game_3, solution) \
+         ON CONFLICT DO UPDATE \
+         VALUES ($1, $2, $3, $4)",
+        &[&game_1, &game_2, &game_3, &sol]).unwrap();
+    match rows_modified {
+        0 => false,
+        1 => true,
+        _ => panic!("Error 6873"),
+    }
+    // Test for success.
+}
 
 // == PostgreSQL command strings ===============================================
 
@@ -74,28 +162,72 @@ pub const CREATE_TABLE: &'static str =
 
 pub const DROP_TABLE: &'static str = "DROP TABLE IF EXISTS solutions;";
 
-// == table functions ========================================================
+// == conversions (structs -> database values) =================================
 
-pub fn create(conn: Connection) {
-    conn.execute(CREATE_TABLE, &[]).unwrap();
+/// Converts a Game struct to a 3-tuple (a triple) of types (i64, i64, i32)
+/// suitable for the 'game1', 'game2', 'game3' columns in the 'solutions' table.
+fn game_columns_from(game: &Game) -> (i64, i64, i32) {
+    let game_1: u64 =
+        (game.board.sboards[3].encoding as u64) << 48 |
+        (game.board.sboards[2].encoding as u64) << 32 |
+        (game.board.sboards[1].encoding as u64) << 16 |
+        (game.board.sboards[0].encoding as u64);
+    let game_2: u64 =
+        (game.board.sboards[7].encoding as u64) << 48 |
+        (game.board.sboards[6].encoding as u64) << 32 |
+        (game.board.sboards[5].encoding as u64) << 16 |
+        (game.board.sboards[4].encoding as u64);
+    let last_player: Option<Player> = game.last_player();
+    let game_3: u32 =
+        player_u32(last_player) << 30 |
+        player_u32(game.next_player_(last_player)) << 28 |
+        last_location_u32(game) << 16 |
+        (game.board.sboards[8].encoding as u32);
+    (game_1 as i64, game_2 as i64, game_3 as i32)
 }
 
-pub fn drop(conn: Connection) {
-    conn.execute(DROP_TABLE, &[]).unwrap();
+// TODO
+/// Converts a Solution to a 16-bit integer.
+#[allow(unused_variables)]
+fn sol_i16(solution: Solution) -> i16 {
+    unimplemented!()
 }
 
-// == conversion functions =====================================================
+// == helpers for conversions (structs -> database values) =====================
+
+/// Returns either a location's encoding (8 bits) or 127
+fn last_location_u32(game: &Game) -> u32 {
+    match game.last_loc {
+        Some(loc) => loc.encoding as u32,
+        None => 127 as u32,
+    }
+}
+
+/// Returns either 0, 1, or 2 for a given optional player.
+fn player_u32(opt_player: Option<Player>) -> u32 {
+    match opt_player {
+        Some(Player::O) => 0,
+        Some(Player::X) => 1,
+        None => 2,
+    }
+}
+
+// == conversions (database values -> structs) =================================
 
 /// Converts the 'solution' column (an i16) in the 'solution' table to
 /// a Solution struct.
-#[allow(dead_code)]
-fn solution_from(sol: i16, player: Player) -> Solution {
+fn solution_from(sol: i16, player: Option<Player>) -> Solution {
     let x: u16 = sol as u16;
     let outcome: u8 = (x >> 14 & 3) as u8;
     let location: u8 = (x >> 7 & 0x7F) as u8;
     let turns: u8 = (x & 0x7F) as u8;
     let opt_play: Option<Play> = match opt_loc_from(location) {
-        Some(loc) => Some(Play { loc: loc, player: player }),
+        Some(loc) => {
+            Some(Play {
+                loc: loc,
+                player: player.expect("Error 2294: expected some player")
+            })
+        },
         None => None,
     };
     match outcome {
@@ -115,9 +247,11 @@ fn solution_from(sol: i16, player: Player) -> Solution {
             outcome: Outcome::Win { turns: turns, player: Player::X },
             opt_play: opt_play,
         },
-        _ => panic!("Internal error"),
+        _ => panic!("Error 4771"),
     }
 }
+
+// == helper conversions (database values -> structs) ==========================
 
 fn opt_loc_from(x: u8) -> Option<Loc> {
     match x {
@@ -213,46 +347,6 @@ fn opt_loc_from(x: u8) -> Option<Loc> {
         79 => Some(Loc::new(RI::R8, CI::C7)),
         80 => Some(Loc::new(RI::R8, CI::C8)),
 
-        _ => panic!("Internal error"),
-    }
-}
-
-/// Converts a Game struct to a 3-tuple (a triple) of types (i64, i64, i32)
-/// suitable for the 'game1', 'game2', 'game3' columns in the 'solutions' table.
-#[allow(dead_code)]
-fn game_columns_from(game: &Game) -> (i64, i64, i32) {
-    let game_1: u64 =
-        (game.board.sboards[3].encoding as u64) << 48 |
-        (game.board.sboards[2].encoding as u64) << 32 |
-        (game.board.sboards[1].encoding as u64) << 16 |
-        (game.board.sboards[0].encoding as u64);
-    let game_2: u64 =
-        (game.board.sboards[7].encoding as u64) << 48 |
-        (game.board.sboards[6].encoding as u64) << 32 |
-        (game.board.sboards[5].encoding as u64) << 16 |
-        (game.board.sboards[4].encoding as u64);
-    let last_player: Option<Player> = game.last_player();
-    let game_3: u32 =
-        player_u32(last_player) << 30 |
-        player_u32(game.next_player_(last_player)) << 28 |
-        last_location_u32(game) << 16 |
-        (game.board.sboards[8].encoding as u32);
-    (game_1 as i64, game_2 as i64, game_3 as i32)
-}
-
-/// Returns either a location's encoding (8 bits) or 127
-fn last_location_u32(game: &Game) -> u32 {
-    match game.last_loc {
-        Some(loc) => loc.encoding as u32,
-        None => 127 as u32,
-    }
-}
-
-/// Returns either 0, 1, or 2 for a given optional player.
-fn player_u32(opt_player: Option<Player>) -> u32 {
-    match opt_player {
-        Some(Player::O) => 0,
-        Some(Player::X) => 1,
-        None => 2,
+        _ => panic!("Error 8689"),
     }
 }
