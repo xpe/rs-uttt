@@ -70,7 +70,6 @@ fn run_random_game<R: Rng>(trials: u16, rng: &mut R) {
     }
 }
 
-#[allow(unused_variables)]
 fn run_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
                                back: Count, depth: Count) {
     if trials > 0 && back > 0 {
