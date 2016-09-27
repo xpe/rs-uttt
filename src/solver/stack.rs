@@ -7,6 +7,21 @@ pub trait Stack {
 
     fn label(&self) -> &str;
 
+    /// First, get a solution for the given game and depth. Second, put this
+    /// solution back to the appropriate places in the stack.
+    fn get_and_put(&self, game: &Game, depth: Count) -> Option<Solution> {
+        let stack_get = self.get(game, depth);
+        let opt_solution = stack_get.0;
+        let devices = stack_get.1;
+        opt_solution.map(|solution| self.put(game, solution, devices));
+        opt_solution
+    }
+
+    #[allow(unused_variables)]
+    fn put(&self, game: &Game, solution: Solution, devices: Vec<Box<Device>>) {
+        unimplemented!()
+    }
+
     /// Returns two things:
     ///
     /// 1. the first suitable solution for a given game and depth from the
