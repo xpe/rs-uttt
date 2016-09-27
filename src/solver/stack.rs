@@ -51,15 +51,15 @@ pub trait Stack {
             match opt_solution {
                 Some(solution) => {
                     if solution.is_deep_enough(depth) {
-                        println!("[+] {}", layer.label());
+                        println!("[RS] {}", layer.label()); // read succeeded
                         return (Some(solution), devices);
                     } else {
-                        println!("[-] {}", layer.label());
+                        println!("[Rs] {}", layer.label()); // 'shallow read
                         devices.push(device);
                     }
                 },
                 None => {
-                    println!("[ ] {}", layer.label());
+                    println!("[R ] {}", layer.label());
                 },
             }
         }
