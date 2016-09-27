@@ -129,8 +129,7 @@ fn run_backwards_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
 // -- solve function(s) --------------------------------------------------------
 
 fn solve(stack: &Stack, game: &Game, depth: Count) -> Solution {
-    let stack_get = stack.get(&game, depth);
-    let opt_solution = stack_get.0;
+    let opt_solution = stack.get_and_put(&game, depth);
     match opt_solution {
         Some(solution) => solution,
         None => panic!("Stack '{}' returned no solution", stack.label())
