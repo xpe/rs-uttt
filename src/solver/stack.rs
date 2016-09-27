@@ -32,7 +32,7 @@ pub trait Stack {
 
     /// Puts to some layer in the stack. Returns true if successful.
     fn simple_put(&self, game: &Game, solution: Solution) -> bool {
-        for layer in self.layers().iter().rev() {
+        for layer in self.layers().iter() {
             let device = layer.device();
             if device.supports_write() {
                 if device.write(game, solution) {
