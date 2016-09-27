@@ -42,9 +42,9 @@ pub trait Stack {
         for layer in self.layers().iter() {
             let device = layer.device();
             let opt_solution = if device.supports_read() {
-                device.read(&game)
+                device.read(game)
             } else if device.supports_compute() {
-                device.compute(&game, depth)
+                device.compute(game, depth)
             } else {
                 None
             };
