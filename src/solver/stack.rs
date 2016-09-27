@@ -26,7 +26,10 @@ pub trait Stack {
         if devices.is_empty() {
             self.simple_put(game, solution)
         } else {
-            unimplemented!()
+            // This is not a generally correct solution. It calls `simple_put`
+            // which will update all devices, which involves extra work. A
+            // correct solution would only update the necessary devices.
+            self.simple_put(game, solution)
         }
     }
 
