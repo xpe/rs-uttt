@@ -149,7 +149,7 @@ pub const CREATE_TABLE: &'static str =
        game_3    INT       NOT NULL, \
        solution  SMALLINT  NOT NULL, \
        PRIMARY KEY (game_1, game_2, game_3)
-     )";
+     ) TABLESPACE uttt_1";
 
 // In case the PRIMARY KEY does not work, use this:
 // CREATE INDEX game_idx ON solutions (game1, game2, game3);
