@@ -24,8 +24,8 @@ fn main() {
 // -- main sub-function(s) -----------------------------------------------------
 
 fn make_rng() -> XorShiftRng {
-    // let seed = random_seed();
-    let seed: [u32; 4] = [2394588627, 2210102940, 2221205224, 2409798786];
+    let seed = random_seed();
+    // let seed: [u32; 4] = [2394588627, 2210102940, 2221205224, 2409798786];
     SeedableRng::from_seed(seed)
 }
 
