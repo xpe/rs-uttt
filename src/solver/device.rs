@@ -1,10 +1,11 @@
 use data::{Count, Game};
-use solver::Solution;
+use solver::{Solution, Stack};
 
 /// A solver device; e.g. RAM, SSD, HDD, or CPU.
 pub trait Device {
     /// Compute a solution to the specified depth.
-    fn compute(&self, game: &Game, depth: Count) -> Option<Solution>;
+    fn compute(&self, game: &Game, depth: Count, stack: &Stack)
+               -> Option<Solution>;
 
     /// Read a solution from the device.
     fn read(&self, game: &Game) -> Option<Solution>;

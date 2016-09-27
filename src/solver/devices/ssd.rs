@@ -23,7 +23,8 @@ impl SSD {
 
 impl Device for SSD {
     #[allow(unused_variables)]
-    fn compute(&self, game: &Game, depth: Count) -> Option<Solution> {
+    fn compute(&self, game: &Game, depth: Count, stack: &Stack)
+               -> Option<Solution> {
         None
     }
 

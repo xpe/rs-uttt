@@ -12,8 +12,9 @@ impl CPU {
 }
 
 impl Device for CPU {
-    fn compute(&self, game: &Game, depth: Count) -> Option<Solution> {
-        Some(game.solve(depth))
+    fn compute(&self, game: &Game, depth: Count, stack: &Stack)
+               -> Option<Solution> {
+        Some(game.solve(depth, stack))
     }
 
     #[allow(unused_variables)]

@@ -9,8 +9,9 @@ pub trait Stack {
 
     /// First, get a solution for the given game and depth. Second, put this
     /// solution back to the appropriate places in the stack.
-    fn get_and_put(&self, game: &Game, depth: Count) -> Option<Solution> {
-        let stack_get = self.get(game, depth);
+    fn get_and_put(&self, game: &Game, depth: Count, stack: &Stack)
+                   -> Option<Solution> {
+        let stack_get = self.get(game, depth, stack);
         let opt_solution = stack_get.0;
         let devices = stack_get.1;
         opt_solution.map(|solution| self.put(game, solution, devices));
@@ -63,7 +64,7 @@ pub trait Stack {
     ///
     /// (Naming note: I chose the name 'get' to convey that it is more general
     /// than 'read' or 'compute'.)
-    fn get(&self, game: &Game, depth: Count)
+    fn get(&self, game: &Game, depth: Count, stack: &Stack)
            -> (Option<Solution>, Vec<Box<Device>>) {
         let mut devices: Vec<Box<Device>> = Vec::new();
         for layer in self.layers().iter() {
@@ -71,7 +72,7 @@ pub trait Stack {
             let opt_solution = if device.supports_read() {
                 device.read(game)
             } else if device.supports_compute() {
-                device.compute(game, depth)
+                device.compute(game, depth, stack)
             } else {
                 None
             };

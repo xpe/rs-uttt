@@ -1,6 +1,7 @@
 use data::*;
 use solver::{Solution, Outcome};
 use std::cmp::Ordering;
+use solver::Stack;
 
 // == solving functions ========================================================
 
@@ -9,11 +10,11 @@ impl Game {
     /// ahead for a number of moves (specified by `depth`). If there are no
     /// valid moves, returns a solution where the optional play is `None` and
     /// the outcome is either a win or a tie.
-    pub fn solve(&self, depth: Count) -> Solution {
+    pub fn solve(&self, depth: Count, stack: &Stack) -> Solution {
         if depth == 0 {
             self.solve_zero_depth()
         } else if depth > 0 {
-            self.solve_positive_depth(depth)
+            self.solve_positive_depth(depth, stack)
         } else {
             panic!("Error 2553: depth < 0");
         }
@@ -48,14 +49,16 @@ impl Game {
     /// depth of `depth`. Merge in the `depth - 1` solution if it has some
     /// value. (Since it might be the optimal solution, even though it was not
     /// dominant.)  Finally, return the best solution.
-    fn solve_positive_depth(&self, depth: Count) -> Solution {
-        let solution = self.solve(depth - 1);
+    fn solve_positive_depth(&self, depth: Count, stack: &Stack) -> Solution {
+        // let solution = self.solve(depth - 1, stack);
+        let solution = stack.get_and_put(self, depth - 1, stack).unwrap();
         match solution.dominant(self.next_player(), depth) {
             Some(dom) => dom,
             None => {
                 let player = self.next_player().unwrap();
                 let solutions = merge_solutions(
-                    solution.if_optimal(), self.candidate_solutions(depth));
+                    solution.if_optimal(),
+                    self.candidate_solutions(depth, stack));
                 best_solution(player, solutions)
             }
         }
@@ -69,11 +72,12 @@ impl Game {
     /// decrease the depth by one as a counterbalance to advancing the game by
     /// one play. Otherwise, this function would not effectively be bounded by
     /// the depth argument.)
-    fn candidate_solutions(&self, depth: Count) -> Vec<Solution> {
+    fn candidate_solutions(&self, depth: Count, stack: &Stack)
+                           -> Vec<Solution> {
         self.valid_plays().iter().map(|&play| {
             let mut game = self.clone();
             game.play(play);
-            game.solve(depth - 1).futurize(play)
+            game.solve(depth - 1, stack).futurize(play)
         }).collect::<Vec<Solution>>()
     }
 }
