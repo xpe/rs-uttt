@@ -15,8 +15,8 @@ pub struct SSD {
 impl SSD {
     pub fn new() -> SSD {
         let conn = db_connect(CONNECTION_STRING);
-        db_drop(&conn);
-        db_create(&conn);
+        // db_drop_table(&conn);
+        db_create_table(&conn);
         SSD { conn: conn }
     }
 }
