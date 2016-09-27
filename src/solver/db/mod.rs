@@ -58,8 +58,13 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
     let sol: i16 = sol_i16(solution);
     let rows_modified = conn.execute(
         "INSERT INTO solutions (game_1, game_2, game_3, solution) \
-         ON CONFLICT DO UPDATE \
-         VALUES ($1, $2, $3, $4)",
+         VALUES ($1, $2, $3, $4) \
+         ON CONFLICT (game_1, game_2, game_3) \
+         DO UPDATE SET solution = $4 \
+         WHERE \
+         solutions.game_1 = $1 AND \
+         solutions.game_2 = $2 AND \
+         solutions.game_3 = $3",
         &[&game_1, &game_2, &game_3, &sol]).unwrap();
     match rows_modified {
         0 => false,
