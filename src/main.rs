@@ -102,13 +102,11 @@ fn run_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
     }
 }
 
-#[allow(unused_variables)]
 fn run_backwards_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
                                          depth: Count, n: Count) {
     if trials > 0 {
         if n > 0 {
             h(0, "Solving Back to Front");
-
             let games = random_games(rng);
             let mut games_iter = games.iter();
             let game_n = games_iter.next_back().unwrap();
