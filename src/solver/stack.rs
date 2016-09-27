@@ -36,10 +36,10 @@ pub trait Stack {
             let device = layer.device();
             if device.supports_write() {
                 if device.write(game, solution) {
-                    println!("[WS] {}", layer.label()); // write succeeded
+                    println!("[>S] {}", layer.label()); // put succeeded
                     return true;
                 } else {
-                    println!("[WF] {}", layer.label()); // write failed
+                    println!("[>F] {}", layer.label()); // put failed
                 }
             }
         }
@@ -76,15 +76,15 @@ pub trait Stack {
             match opt_solution {
                 Some(solution) => {
                     if solution.is_deep_enough(depth) {
-                        println!("[RS] {}", layer.label()); // read succeeded
+                        println!("[<S] {}", layer.label()); // get succeeded
                         return (Some(solution), devices);
                     } else {
-                        println!("[Rs] {}", layer.label()); // 'shallow read
+                        println!("[<s] {}", layer.label()); // get was shallow
                         devices.push(device);
                     }
                 },
                 None => {
-                    println!("[R ] {}", layer.label());
+                    println!("[< ] {}", layer.label());
                 },
             }
         }
