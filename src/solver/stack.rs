@@ -17,9 +17,34 @@ pub trait Stack {
         opt_solution
     }
 
-    #[allow(unused_variables)]
-    fn put(&self, game: &Game, solution: Solution, devices: Vec<Box<Device>>) {
-        unimplemented!()
+    /// Puts to some layer in the stack, guided by the supplied devices which
+    /// have not-deep-enough copies of solutions. Such devices need to be
+    /// updated, otherwise, they will continue to provide 'false positives' in
+    /// the future.
+    fn put(&self, game: &Game, solution: Solution,
+           devices: Vec<Box<Device>>) -> bool{
+        if devices.is_empty() {
+            self.simple_put(game, solution)
+        } else {
+            unimplemented!()
+        }
+    }
+
+    /// Puts to some layer in the stack. Returns true if successful.
+    fn simple_put(&self, game: &Game, solution: Solution) -> bool {
+        for layer in self.layers().iter().rev() {
+            let device = layer.device();
+            if device.supports_write() {
+                if device.write(game, solution) {
+                    println!("[WS] {}", layer.label()); // write succeeded
+                    return true;
+                } else {
+                    println!("[WF] {}", layer.label()); // write failed
+                }
+            }
+        }
+        // Either (a) no device supports writes or (b) no write succeeded.
+        false
     }
 
     /// Returns two things:
