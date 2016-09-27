@@ -119,8 +119,8 @@ fn run_backwards_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
                     if VERBOSE { h(2, label) }
                     let game = games_iter.next_back().unwrap();
                     if VERBOSE { pln(game); }
-                    let solution = solve(stack, &game, depth);
-                    if VERBOSE { p_solution(label, depth, &solution); }
+                    let solution = solve(stack, &game, depth + i);
+                    if VERBOSE { p_solution(label, depth + i, &solution); }
                 }
             }
         }
