@@ -7,12 +7,12 @@ use solver::{Outcome, Solution};
 
 // == public API: table functions ==============================================
 
-pub fn db_create(conn: &Connection) {
+pub fn db_create_table(conn: &Connection) {
     let rows_modified = conn.execute(CREATE_TABLE, &[]).unwrap();
     if rows_modified != 0 { panic!("Error 4014") };
 }
 
-pub fn db_drop(conn: &Connection) {
+pub fn db_drop_table(conn: &Connection) {
     let rows_modified = conn.execute(DROP_TABLE, &[]).unwrap();
     if rows_modified != 0 { panic!("Error 3215") };
 }
