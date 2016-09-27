@@ -30,21 +30,20 @@ pub trait Stack {
         }
     }
 
-    /// Puts to some layer in the stack. Returns true if successful.
+    /// Iterates over the stack and attempt to put to each device in order.
+    /// Returns true if successful; e.g. if one or more devices accepts the
+    /// write.
     fn simple_put(&self, game: &Game, solution: Solution) -> bool {
+        let mut count: u8 = 0;
         for layer in self.layers().iter() {
             let device = layer.device();
             if device.supports_write() {
                 if device.write(game, solution) {
-                    println!("[>S] {}", layer.label()); // put succeeded
-                    return true;
-                } else {
-                    println!("[>F] {}", layer.label()); // put failed
+                    count = count + 1
                 }
             }
         }
-        // Either (a) no device supports writes or (b) no write succeeded.
-        false
+        count > 0
     }
 
     /// Returns two things:
