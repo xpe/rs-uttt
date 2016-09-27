@@ -80,7 +80,7 @@ fn run_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
             let mut games_iter = games.iter();
             // Get the last move in the sequence of games.
             let game_n = games_iter.next_back().unwrap();
-            if VERBOSE { h(1, "Game N"); }
+            if VERBOSE { h(2, "Game N"); }
             if VERBOSE { pln(game_n); }
 
             // TODO: It would be nice to extract out this chunk of code;
@@ -94,7 +94,7 @@ fn run_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
             let game = games_iter.next_back().unwrap();
 
             let label = format!("Game N-{}", back);
-            if VERBOSE { h(1, &label); }
+            if VERBOSE { h(2, &label); }
             if VERBOSE { pln(game); }
             let solution = solve(stack, &game, depth);
             if VERBOSE { p_solution(&label, depth, &solution); }
