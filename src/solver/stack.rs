@@ -76,10 +76,10 @@ pub trait Stack {
             match opt_solution {
                 Some(solution) => {
                     if solution.is_deep_enough(depth) {
-                        println!("[<S] {}", layer.label()); // get succeeded
+                        println!("[<S] {}", layer.label());
                         return (Some(solution), devices);
                     } else {
-                        println!("[<s] {}", layer.label()); // get was shallow
+                        println!("[<s] {}", layer.label());
                         devices.push(device);
                     }
                 },
