@@ -17,8 +17,8 @@ fn main() {
     let stack = SSD_CPU_Stack {};
     run_random_games(0, &mut rng);
     run_random_game(0, &mut rng);
-    run_solve(500, &stack, &mut rng, 4, 6);
-    run_backwards_solve(0, &stack, &mut rng, 4, 8);
+    run_solve(0, &stack, &mut rng, 4, 6);
+    run_backwards_solve(2, &stack, &mut rng, 4, 8);
 }
 
 // -- main sub-function(s) -----------------------------------------------------
@@ -105,20 +105,23 @@ fn run_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
 fn run_backwards_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
                                          depth: Count, n: Count) {
     if trials > 0 {
-        if n > 0 {
-            h(0, "Solving Back to Front");
-            let games = random_games(rng);
-            let mut games_iter = games.iter();
-            let game_n = games_iter.next_back().unwrap();
-            if VERBOSE { h(1, "Game N"); }
-            if VERBOSE { pln(game_n); }
-            for i in 1 .. (n + 1) {
-                let label = &format!("N-{}", i);
-                if VERBOSE { h(1, label) }
-                let game = games_iter.next_back().unwrap();
-                if VERBOSE { pln(game); }
-                let solution = solve(stack, &game, depth);
-                if VERBOSE { p_solution(label, depth, &solution); }
+        h(0, "Solving Back to Front");
+        for i in 0 .. trials {
+            if VERBOSE { h(1, &format!("Trial #{}", i)); }
+            if n > 0 {
+                let games = random_games(rng);
+                let mut games_iter = games.iter();
+                let game_n = games_iter.next_back().unwrap();
+                if VERBOSE { h(2, "Game N"); }
+                if VERBOSE { pln(game_n); }
+                for i in 1 .. (n + 1) {
+                    let label = &format!("N-{}", i);
+                    if VERBOSE { h(2, label) }
+                    let game = games_iter.next_back().unwrap();
+                    if VERBOSE { pln(game); }
+                    let solution = solve(stack, &game, depth);
+                    if VERBOSE { p_solution(label, depth, &solution); }
+                }
             }
         }
     }
