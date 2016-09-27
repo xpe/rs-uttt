@@ -95,10 +95,10 @@ pub trait Stack {
 impl Solution {
     /// Returns true if the provided solution is deep enough. A solution is
     /// deep enough if it is a: (a) win; (b) tie; or (c) unknown to a
-    /// depth equal to or greater than the provided depth.
+    /// depth greater than or equal than the provided depth.
     fn is_deep_enough(self, depth: Count) -> bool {
         match self.outcome {
-            Outcome::Unknown { turns: t } => t < depth,
+            Outcome::Unknown { turns: t } => t >= depth,
             _ => true,
         }
     }
