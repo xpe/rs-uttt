@@ -50,7 +50,6 @@ impl Game {
     /// value. (Since it might be the optimal solution, even though it was not
     /// dominant.)  Finally, return the best solution.
     fn solve_positive_depth(&self, depth: Count, stack: &Stack) -> Solution {
-        // let solution = self.solve(depth - 1, stack);
         let solution = stack.get_and_put(self, depth - 1, stack).unwrap();
         match solution.dominant(self.next_player(), depth) {
             Some(dom) => dom,
