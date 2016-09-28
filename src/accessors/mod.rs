@@ -64,7 +64,7 @@ impl Game {
             None => None,
             Some(loc) => Some(Play {
                 loc: loc,
-                player: self.last_player().unwrap(),
+                player: self.last_player().expect("Error 4225"),
             })
         }
     }

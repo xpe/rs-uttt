@@ -40,7 +40,7 @@ fn run_random_games<R: Rng>(trials: u16, rng: &mut R) {
         for i in 0 .. trials {
             let games = random_games(rng);
             let game_len = games.len();
-            let game = games.iter().last().unwrap();
+            let game = games.iter().last().expect("Error 8528");
             let winner = game.winner();
             println!("Game #{:4}: {} in {}", i, result_str(winner), game_len);
             games_len += game_len;
@@ -80,7 +80,7 @@ fn run_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
             let games = random_games(rng);
             let mut games_iter = games.iter();
             // Get the last move in the sequence of games.
-            let game_n = games_iter.next_back().unwrap();
+            let game_n = games_iter.next_back().expect("Error 9598");
             if VERBOSE { h(2, "Game N"); }
             if VERBOSE { pln(game_n); }
 
@@ -89,10 +89,10 @@ fn run_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
             //
             // Back up `back - 1` times.
             for _ in 0 .. (back - 1) {
-                games_iter.next_back().unwrap();
+                games_iter.next_back().expect("Error 4088");
             }
             // Back up one more time.
-            let game = games_iter.next_back().unwrap();
+            let game = games_iter.next_back().expect("Error 9201");
 
             let label = format!("Game N-{}", back);
             if VERBOSE { h(2, &label); }
@@ -111,13 +111,13 @@ fn run_backwards_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
             if VERBOSE { h(1, &format!("Trial #{}", trial)); }
             let games = random_games(rng);
             let mut games_iter = games.iter();
-            let game_n = games_iter.next_back().unwrap();
+            let game_n = games_iter.next_back().expect("Error 0084");
             if VERBOSE { h(2, "Game N"); }
             if VERBOSE { pln(game_n); }
             for i in 1 .. (n + 1) {
                 let label = &format!("N-{}", i);
                 if VERBOSE { h(2, label) }
-                let game = games_iter.next_back().unwrap();
+                let game = games_iter.next_back().expect("Error 2778");
                 if VERBOSE { pln(game); }
                 let solution = solve(stack, &game, depth + i);
                 if VERBOSE { p_solution(label, depth + i, &solution); }

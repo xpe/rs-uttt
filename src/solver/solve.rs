@@ -50,11 +50,12 @@ impl Game {
     /// value. (Since it might be the optimal solution, even though it was not
     /// dominant.)  Finally, return the best solution.
     fn solve_positive_depth(&self, depth: Count, stack: &Stack) -> Solution {
-        let solution = stack.get_and_put(self, depth - 1, stack).unwrap();
+        let solution = stack.get_and_put(self, depth - 1, stack)
+            .expect("Error 5125");
         match solution.dominant(self.next_player(), depth) {
             Some(dom) => dom,
             None => {
-                let player = self.next_player().unwrap();
+                let player = self.next_player().expect("Error 7751");
                 let solutions = merge_solutions(
                     solution.if_optimal(),
                     self.candidate_solutions(depth, stack));
@@ -111,7 +112,7 @@ impl Solution {
 fn best_solution(p: Player, ss: Vec<Solution>) -> Solution {
     let mut xs = ss.clone();
     xs.sort_by(|a, b| Solution::compare(p, *a, *b));
-    xs.first().unwrap().clone()
+    xs.first().expect("Error 4875").clone()
 }
 
 impl Solution {
@@ -171,8 +172,8 @@ impl Outcome {
 impl Solution {
     /// Compare two solutions.
     fn compare(p: Player, a: Solution, b: Solution) -> Ordering {
-        let play_a = a.opt_play.unwrap();
-        let play_b = b.opt_play.unwrap();
+        let play_a = a.opt_play.expect("Error 2643");
+        let play_b = b.opt_play.expect("Error 4804");
         if play_a == play_b {
             let turns_a = a.outcome.turns();
             let turns_b = b.outcome.turns();

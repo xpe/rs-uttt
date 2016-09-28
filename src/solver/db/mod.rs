@@ -8,19 +8,19 @@ use solver::{Outcome, Solution};
 // == public API: table functions ==============================================
 
 pub fn db_create_table(conn: &Connection) {
-    let rows_modified = conn.execute(CREATE_TABLE, &[]).unwrap();
+    let rows_modified = conn.execute(CREATE_TABLE, &[]).expect("Error 8520");
     if rows_modified != 0 { panic!("Error 4014") };
 }
 
 pub fn db_drop_table(conn: &Connection) {
-    let rows_modified = conn.execute(DROP_TABLE, &[]).unwrap();
+    let rows_modified = conn.execute(DROP_TABLE, &[]).expect("Error 4737");
     if rows_modified != 0 { panic!("Error 3215") };
 }
 
 // == public API: connect / read / write =======================================
 
 pub fn db_connect<T: IntoConnectParams> (params: T) -> Connection {
-    Connection::connect(params, SslMode::None).unwrap()
+    Connection::connect(params, SslMode::None).expect("Error 2759")
 }
 
 /// Read function.
@@ -34,7 +34,7 @@ pub fn db_read(conn: &Connection, game: &Game) -> Option<Solution> {
         "SELECT solution \
          FROM solutions \
          WHERE game_1 = $1 AND game_2 = $2 AND game_3 = $3",
-        &[&game_1, &game_2, &game_3]).unwrap();
+        &[&game_1, &game_2, &game_3]).expect("Error 5203");
     match rows.len() {
         0 => None,
         1 => {
@@ -65,7 +65,7 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
          solutions.game_1 = $1 AND \
          solutions.game_2 = $2 AND \
          solutions.game_3 = $3",
-        &[&game_1, &game_2, &game_3, &sol]).unwrap();
+        &[&game_1, &game_2, &game_3, &sol]).expect("Error 8326");
     match rows_modified {
         0 => false,
         1 => true,
@@ -80,9 +80,10 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
 // the prepare and prepare_cached methods."
 //
 // let stmt =
-//     conn.prepare_cached("UPDATE foo SET bar = $1 WHERE baz = $2").unwrap();
+//     conn.prepare_cached("UPDATE foo SET bar = $1 WHERE baz = $2")
+//       .expect("Error 2465");
 // for (bar, baz) in updates {
-//     stmt.execute(&[bar, baz]).unwrap();
+//     stmt.execute(&[bar, baz]).expect("Error 3989");
 // }
 
 // == PostgreSQL command strings ===============================================

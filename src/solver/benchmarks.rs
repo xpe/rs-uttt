@@ -11,7 +11,7 @@ fn solve_example_1(k: Count, depth: Count) {
     for _ in 0 .. k {
         games_iter.next_back();
     }
-    let game = games_iter.next_back().unwrap();
+    let game = games_iter.next_back().expect("Error 1405");
     game.solve(depth);
 }
 
