@@ -46,7 +46,7 @@ From a sample of 200 random games.
 
 ## From 1000-Game Trials
 
-In this section, I report 30+ trials. Each trail was based on aggregate totals
+In this section, I report 30+ trials. Each trial was based on aggregate totals
 from 1000 random games.
 
 ### Wins and Ties
