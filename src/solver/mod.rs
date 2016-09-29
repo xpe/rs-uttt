@@ -1,3 +1,6 @@
+/// The 'solver' module.
+
+// Include these submodules into this module.
 pub use self::device::*;
 pub use self::devices::*;
 pub use self::layer::*;
@@ -10,9 +13,6 @@ pub use self::solve::*;
 pub use self::stack::*;
 pub use self::stacks::*;
 
-pub mod cache;
-pub mod db;
-
 mod device;
 mod devices;
 mod layer;
@@ -24,6 +24,10 @@ mod solution;
 mod solve;
 mod stack;
 mod stacks;
+
+// Expose and keep these sub-modules (distinct) below this module.
+pub mod cache;
+pub mod db;
 
 #[cfg(test)]
 mod tests;
