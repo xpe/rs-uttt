@@ -6,6 +6,7 @@ repository = "https://github.com/bluemont/rs-uttt.git"
 homepage = "https://github.com/bluemont/rs-uttt.git"
 
 [dependencies]
+bit-vec = "0.4.3"
 lru-cache = "0.0.7"
 rand = "0.3"
 
