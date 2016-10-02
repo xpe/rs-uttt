@@ -15,6 +15,7 @@ impl CPU {
             has_read: false,
             has_write: false,
             conn: None,
+            cache: None,
         }
     }
 

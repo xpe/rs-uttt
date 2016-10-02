@@ -1,6 +1,8 @@
 use data::*;
 use postgres::Connection;
 use solver::*;
+use solver::ram_cache::*;
+use std::cell::RefCell;
 
 /// Device capabilities.
 pub struct Device {
@@ -24,4 +26,7 @@ pub struct Device {
 
     /// An optional PostgreSQL database connection.
     pub conn: Option<Connection>,
+
+    /// An optional RAM cache.
+    pub cache: Option<RefCell<RamCache>>,
 }
