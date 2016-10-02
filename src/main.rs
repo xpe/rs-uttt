@@ -140,6 +140,7 @@ fn run_full_backwards_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R) {
                 if VERBOSE { h(2, label) }
                 if VERBOSE { pln(game); }
                 let solution = solve(stack, &game, depth);
+                if VERBOSE { p_cache(stack); }
                 if VERBOSE { p_solution(label, depth, &solution); }
                 i = i + 1;
             }
@@ -172,4 +173,9 @@ fn result_str(op: Option<Player>) -> &'static str {
         Some(Player::O) => "O wins",
         None => "  tie ",
     }
+}
+
+fn p_cache(stack: &Stack) {
+    let device = stack.devices.get(0).expect("Error 6118");
+    println!("SSD RAM Cache {}", SSD::cache_len(&device));
 }
