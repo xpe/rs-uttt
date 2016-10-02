@@ -22,13 +22,21 @@ impl Stack {
     /// the future.
     fn put(&self, game: &Game, solution: Solution,
            devices: Vec<&Device>) -> bool{
-        if devices.is_empty() {
+        let devices_len: usize = devices.len();
+        if devices_len == 0 {
             self.simple_put(game, solution)
         } else {
-            // This is not a generally correct solution. It calls `simple_put`
-            // which will update all devices, which involves extra work. A
-            // correct solution would only update the necessary devices.
-            self.simple_put(game, solution)
+            let mut count: usize = 0;
+            for device in devices.iter() {
+                if device.has_write {
+                    if (device.write)(&device, game, solution) {
+                        count = count + 1
+                    } else {
+                        panic!("Error 3717");
+                    }
+                }
+            }
+            count == devices_len
         }
     }
 
@@ -36,11 +44,13 @@ impl Stack {
     /// Returns true if successful; e.g. if one or more devices accepts the
     /// write.
     fn simple_put(&self, game: &Game, solution: Solution) -> bool {
-        let mut count: u8 = 0;
+        let mut count: usize = 0;
         for device in self.devices.iter() {
             if device.has_write {
                 if (device.write)(&device, game, solution) {
                     count = count + 1
+                } else {
+                    panic!("Error 2712");
                 }
             }
         }
