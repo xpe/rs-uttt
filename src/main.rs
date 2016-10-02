@@ -177,5 +177,5 @@ fn result_str(op: Option<Player>) -> &'static str {
 
 fn p_cache(stack: &Stack) {
     let device = stack.devices.get(0).expect("Error 6118");
-    println!("SSD RAM Cache {}", SSD::cache_len(&device));
+    println!("SSD RAM cache size : {}", SSD::cache_len(&device));
 }
