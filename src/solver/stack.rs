@@ -54,7 +54,12 @@ impl Stack {
                 }
             }
         }
-        count > 0
+        if count > 0 {
+            true
+        } else {
+            println!("simple_put | devices.len() = {}", self.devices.len());
+            panic!("Error 7259");
+        }
     }
 
     /// Returns two things:

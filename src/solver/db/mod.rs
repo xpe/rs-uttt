@@ -67,7 +67,10 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
          solutions.game_3 = $3",
         &[&game_1, &game_2, &game_3, &sol]).expect("Error 8326");
     match rows_modified {
-        0 => false,
+        0 => {
+            println!("db_write | 0 rows modified -> false");
+            false
+        },
         1 => true,
         _ => panic!("Error 6873"),
     }
