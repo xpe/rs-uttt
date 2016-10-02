@@ -1,27 +1,27 @@
-use data::{Count, Game};
-use solver::{Solution, Stack};
+use data::*;
+use postgres::Connection;
+use solver::*;
 
-/// A solver device; e.g. RAM, SSD, HDD, or CPU.
-pub trait Device {
+/// Device capabilities.
+pub struct Device {
     /// Compute a solution to the specified depth.
-    fn compute(&self, game: &Game, depth: Count, stack: &Stack)
-               -> Option<Solution>;
+    pub compute: fn(&Game, Count, &Stack) -> Option<Solution>,
 
     /// Read a solution from the device.
-    fn read(&self, game: &Game) -> Option<Solution>;
+    pub read: fn(&Device, &Game) -> Option<Solution>,
 
     /// Write a solution from the device.
-    fn write(&self, game: &Game, solution: Solution) -> bool;
+    pub write: fn(&Device, &Game, Solution) -> bool,
 
-    /// Does the device support the `compute` function?
-    fn supports_compute(&self) -> bool;
+    /// Supports the 'compute' function?
+    pub has_compute: bool,
 
-    /// Does the device support the `read` function?
-    fn supports_read(&self) -> bool;
+    /// Supports the 'read' function?
+    pub has_read: bool,
 
-    /// Does the device support the `write` function?
-    fn supports_write(&self) -> bool;
+    /// Supports the 'write' function?
+    pub has_write: bool,
 
-    /// Returns a human-presentable label for the device.
-    fn label(&self) -> &str;
+    /// An optional PostgreSQL database connection.
+    pub conn: Option<Connection>,
 }

@@ -14,7 +14,7 @@ const VERBOSE: bool = true;
 
 fn main() {
     let mut rng = make_rng();
-    let stack = SSD_CPU_Stack {};
+    let stack = SSD_CPU_Stack::new();
     run_random_games(0, &mut rng);
     run_random_game(0, &mut rng);
     run_solve(0, &stack, &mut rng, 4, 6);
@@ -71,8 +71,8 @@ fn run_random_game<R: Rng>(trials: u16, rng: &mut R) {
     }
 }
 
-fn run_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
-                               back: Count, depth: Count) {
+fn run_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R,
+                     back: Count, depth: Count) {
     if trials > 0 && back > 0 {
         h(0, "Solve N-4");
         for i in 0 .. trials {
@@ -103,8 +103,8 @@ fn run_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
     }
 }
 
-fn run_backwards_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
-                                         depth: Count, n: Count) {
+fn run_backwards_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R,
+                               depth: Count, n: Count) {
     if trials > 0 && n > 0 {
         h(0, "Solving Back to Front");
         for trial in 1 .. trials + 1 {
@@ -127,8 +127,7 @@ fn run_backwards_solve<S: Stack, R: Rng>(trials: u16, stack: &S, rng: &mut R,
 }
 
 #[allow(unused_variables)]
-fn run_full_backwards_solve<S: Stack, R: Rng>(trials: u16,
-                                              stack: &S, rng: &mut R) {
+fn run_full_backwards_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R) {
     let depth = 81;
     if trials > 0 {
         h(0, "Fully Solving Back to Front");
@@ -155,7 +154,7 @@ fn solve(stack: &Stack, game: &Game, depth: Count)
     let opt_solution = stack.get_and_put(game, depth, stack);
     match opt_solution {
         Some(solution) => solution,
-        None => panic!("Stack '{}' returned no solution", stack.label())
+        None => panic!("Error 3921"),
     }
 }
 

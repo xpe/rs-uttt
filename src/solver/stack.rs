@@ -1,19 +1,17 @@
-use data::{Count, Game};
-use solver::{Device, Layer, Outcome, Solution};
+use data::*;
+use solver::*;
+
+pub struct Stack {
+    pub devices: Vec<Device>,
+}
 
 /// A solver stack.
-pub trait Stack {
-    fn layers(&self) -> Vec<Box<Layer>>;
-
-    fn label(&self) -> &str;
-
+impl Stack {
     /// First, get a solution for the given game and depth. Second, put this
     /// solution back to the appropriate places in the stack.
-    fn get_and_put(&self, game: &Game, depth: Count, stack: &Stack)
-                   -> Option<Solution> {
-        let stack_get = self.get(game, depth, stack);
-        let opt_solution = stack_get.0;
-        let devices = stack_get.1;
+    pub fn get_and_put(&self, game: &Game, depth: Count, stack: &Stack)
+                       -> Option<Solution> {
+        let (opt_solution, devices) = self.get(game, depth, stack);
         opt_solution.map(|solution| self.put(game, solution, devices));
         opt_solution
     }
@@ -23,7 +21,7 @@ pub trait Stack {
     /// updated, otherwise, they will continue to provide 'false positives' in
     /// the future.
     fn put(&self, game: &Game, solution: Solution,
-           devices: Vec<Box<Device>>) -> bool{
+           devices: Vec<&Device>) -> bool{
         if devices.is_empty() {
             self.simple_put(game, solution)
         } else {
@@ -39,10 +37,9 @@ pub trait Stack {
     /// write.
     fn simple_put(&self, game: &Game, solution: Solution) -> bool {
         let mut count: u8 = 0;
-        for layer in self.layers().iter() {
-            let device = layer.device();
-            if device.supports_write() {
-                if device.write(game, solution) {
+        for device in self.devices.iter() {
+            if device.has_write {
+                if (device.write)(&device, game, solution) {
                     count = count + 1
                 }
             }
@@ -65,14 +62,13 @@ pub trait Stack {
     /// (Naming note: I chose the name 'get' to convey that it is more general
     /// than 'read' or 'compute'.)
     fn get(&self, game: &Game, depth: Count, stack: &Stack)
-           -> (Option<Solution>, Vec<Box<Device>>) {
-        let mut devices: Vec<Box<Device>> = Vec::new();
-        for layer in self.layers().iter() {
-            let device = layer.device();
-            let opt_solution = if device.supports_read() {
-                device.read(game)
-            } else if device.supports_compute() {
-                device.compute(game, depth, stack)
+           -> (Option<Solution>, Vec<&Device>) {
+        let mut devices: Vec<&Device> = Vec::new();
+        for device in self.devices.iter() {
+            let opt_solution = if device.has_read {
+                (device.read)(&device, game)
+            } else if device.has_compute {
+                (device.compute)(game, depth, stack)
             } else {
                 None
             };

@@ -1,46 +1,45 @@
 /// SSD Device.
 
 use data::*;
-use postgres::Connection;
 use solver::*;
 use solver::db::*;
 
-pub const CONNECTION_STRING: &'static str =
-    "postgres://xpe:xpe_0987@localhost";
+pub const CONN_STR: &'static str = "postgres://xpe:xpe_0987@localhost";
 
-pub struct SSD {
-    conn: Connection,
-}
+pub struct SSD {}
 
 impl SSD {
-    pub fn new() -> SSD {
-        let conn = db_connect(CONNECTION_STRING);
-        // db_drop_table(&conn);
+    pub fn new() -> Device {
+        let conn = db_connect(CONN_STR);
         db_create_table(&conn);
-        SSD { conn: conn }
+        Device {
+            compute: SSD::compute,
+            read: SSD::read,
+            write: SSD::write,
+            has_compute: false,
+            has_read: true,
+            has_write: true,
+            conn: Some(conn),
+        }
     }
-}
 
-impl Device for SSD {
     #[allow(unused_variables)]
-    fn compute(&self, game: &Game, depth: Count, stack: &Stack)
-               -> Option<Solution> {
-        None
+    fn compute(game: &Game, depth: Count, stack: &Stack) -> Option<Solution> {
+        unimplemented!();
     }
 
-    fn read(&self, game: &Game) -> Option<Solution> {
-        db_read(&self.conn, game)
+    fn read(device: &Device, game: &Game) -> Option<Solution> {
+        match device.conn {
+            Some(ref conn) => db_read(conn, game),
+            None => panic!("Error 6523"),
+        }
     }
 
-    fn write(&self, game: &Game, solution: Solution) -> bool {
-        db_write(&self.conn, game, solution)
+    fn write(device: &Device, game: &Game, solution: Solution) -> bool {
+        match device.conn {
+            Some(ref conn) => db_write(conn, game, solution),
+            None => panic!("Error 0401"),
+        }
     }
 
-    fn supports_compute(&self) -> bool { false }
-    fn supports_read(&self) -> bool { true }
-    fn supports_write(&self) -> bool { true }
-
-    fn label(&self) -> &str {
-        "SSD"
-    }
 }
