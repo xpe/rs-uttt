@@ -93,6 +93,11 @@ impl Stack {
                     if solution.is_deep_enough(depth) {
                         return (Some(solution), devices);
                     } else {
+                        let sol_depth = match solution.outcome {
+                            Outcome::Unknown { turns : t } => t,
+                            _ => panic!("Error 2702"),
+                        };
+                        println!("sol_depth : {}", sol_depth);
                         devices.push(device);
                     }
                 },
@@ -100,8 +105,8 @@ impl Stack {
             }
         }
         println!("stack.get -> (None, ...)");
-        pln(game);
         println!("depth:{}", depth);
+        pln(game);
         panic!("Error 1263");
         // (None, devices)
     }
