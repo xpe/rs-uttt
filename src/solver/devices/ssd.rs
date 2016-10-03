@@ -20,7 +20,7 @@ pub struct SSD {}
 ///  10_000_000     953.674 MB
 ///  20_000_000    1907.349 MB
 /// 100_000_000    9536.743 MB
-pub const CACHE_CAP: usize = 20_000_000;
+pub const CACHE_CAP: usize = 25_000_000;
 
 impl SSD {
     pub fn new() -> Device {
