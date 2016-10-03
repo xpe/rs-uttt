@@ -24,7 +24,8 @@ pub const CACHE_CAP: usize = 20_000_000;
 
 impl SSD {
     pub fn new() -> Device {
-        let conn = db_connect(CONN_STR);
+        let pool = pool_new(CONN_STR);
+        let conn = pool.get().expect("Error 1865");
         db_create_table(&conn);
         Device {
             compute: SSD::compute,
@@ -33,7 +34,7 @@ impl SSD {
             has_compute: false,
             has_read: true,
             has_write: true,
-            conn: Some(conn),
+            pool: Some(pool),
             cache: Some(RefCell::new(cache_new(CACHE_CAP))),
         }
     }
@@ -44,14 +45,14 @@ impl SSD {
     }
 
     fn read(device: &Device, game: &Game) -> Option<Solution> {
-        match device.conn {
-            Some(ref conn) => {
+        match device.pool {
+            Some(ref pool) => {
                 match device.cache {
                     Some(ref cache) => {
                         let mut mut_cache = &mut *cache.borrow_mut();
                         match cache_get(mut_cache, game) {
                             Some(sol) => Some(sol),
-                            None => db_read(conn, game),
+                            None => pool_read(pool, game),
                         }
                     }
                     None => panic!("Error 1866"),
@@ -62,13 +63,13 @@ impl SSD {
     }
 
     fn write(device: &Device, game: &Game, solution: Solution) -> bool {
-        match device.conn {
-            Some(ref conn) => {
+        match device.pool {
+            Some(ref pool) => {
                 match device.cache {
                     Some(ref cache) => {
                         let mut mut_cache = &mut *cache.borrow_mut();
                         cache_insert(mut_cache, game, solution);
-                        db_write(conn, game, solution)
+                        pool_write(pool, game, solution)
                     },
                     None => panic!("Error 3375"),
                 }
