@@ -240,6 +240,7 @@ impl Outcome {
                         // the unknown is an equal or deeper search
                         Ordering::Greater
                     } else {
+                        // admit defeat when it is certain
                         Ordering::Less
                     }
                 }
@@ -252,6 +253,7 @@ impl Outcome {
                         // the unknown is an equal or deeper search
                         Ordering::Less
                     } else {
+                        // admit defeat when it is certain
                         Ordering::Greater
                     }
                 } else { // p2 == p
