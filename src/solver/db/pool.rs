@@ -14,7 +14,7 @@ pub type PGPool = Pool<PostgresConnectionManager>;
 
 pub fn pool_new<T: IntoConnectParams>(params: T) -> PGPool {
     let config = Config::builder()
-        .pool_size(10)
+        .pool_size(3)
         .connection_timeout(Duration::new(5, 0))
         .build();
     let manager = PostgresConnectionManager::new(params, SslMode::None)
