@@ -80,7 +80,7 @@ impl Stack {
     fn get(&self, game: &Game, depth: Count, stack: &Stack)
            -> (Option<Solution>, Vec<&Device>) {
         let mut devices: Vec<&Device> = Vec::new();
-        let mut depths: Vec<Count> = Vec::new();
+        let mut solutions: Vec<Solution> = Vec::new();
         for device in self.devices.iter() {
             let opt_solution = if device.has_read {
                 (device.read)(&device, game)
@@ -94,11 +94,7 @@ impl Stack {
                     if solution.is_deep_enough(depth) {
                         return (Some(solution), devices);
                     } else {
-                        let sol_depth = match solution.outcome {
-                            Outcome::Unknown { turns : t } => t,
-                            _ => panic!("Error 2702"),
-                        };
-                        depths.push(sol_depth);
+                        solutions.push(solution);
                         devices.push(device);
                     }
                 },
@@ -106,7 +102,10 @@ impl Stack {
             }
         }
         println!("stack.get -> (None, ...)");
-        println!("depth:{} depths:{:?}", depth, depths);
+        println!("depth:{} solutions:", depth);
+        for solution in solutions.iter() {
+            pln(solution);
+        }
         pln(game);
         panic!("Error 1263");
         // (None, devices)
