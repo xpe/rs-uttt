@@ -109,6 +109,11 @@ impl Solution {
 // == helpers for solving functions ============================================
 
 /// Returns the best solution from given solutions for a player.
+///
+/// In some cases, the 'best solution' means 'admitting' defeat honestly. For
+/// example, if one solution is be 'unknown to 9 turns' and another may be 'lose
+/// in 10 turns', then this function returns the latter in this case, since it
+/// is deeper.
 fn best_solution(p: Player, ss: Vec<Solution>) -> Solution {
     let mut xs = ss.clone();
     xs.sort_by(|a, b| Solution::compare(p, *a, *b));
@@ -217,37 +222,61 @@ impl Outcome {
                     Ordering::Greater // prefer to win, not tie
                 }
             },
-            (Outcome::Win { player: p1, turns: _ },
-             Outcome::Unknown { turns: _ }) => {
+            (Outcome::Tie { turns: t1 },
+             Outcome::Tie { turns: t2 }) => {
+                t2.cmp(&t1) // prefer to tie later, not sooner
+            },
+            (Outcome::Unknown { turns: t1 },
+             Outcome::Unknown { turns: t2 }) => {
+                t2.cmp(&t1) // Prefer the unknown later, not sooner
+            },
+            (Outcome::Win { player: p1, turns: t1 },
+             Outcome::Unknown { turns: t2 }) => {
                 if p1 == p {
                     Ordering::Less // prefer to win over the unknown
                 } else { // p1 == o
-                    Ordering::Greater // prefer the unknown over losing
+                    if t2 >= t1 {
+                        // prefer the unknown over losing, provided that
+                        // the unknown is an equal or deeper search
+                        Ordering::Greater
+                    } else {
+                        Ordering::Less
+                    }
                 }
             },
-            (Outcome::Unknown { turns: _ },
-             Outcome::Win { player: p2, turns: _ }) => {
+            (Outcome::Unknown { turns: t1 },
+             Outcome::Win { player: p2, turns: t2 }) => {
                 if p2 == o {
-                    Ordering::Less // prefer the unknown over losing
+                    if t1 >= t2 {
+                        // prefer the unknown over losing, provided that
+                        // the unknown is an equal or deeper search
+                        Ordering::Less
+                    } else {
+                        Ordering::Greater
+                    }
                 } else { // p2 == p
                     Ordering::Greater // prefer to win over the unknown
                 }
             },
             (Outcome::Tie { turns: t1 },
-             Outcome::Tie { turns: t2 }) => {
-                t2.cmp(&t1) // prefer to tie later, not sooner
-            },
-            (Outcome::Tie { turns: _ },
-             Outcome::Unknown { turns: _ }) => {
-                Ordering::Greater // prefer the unknown over the tie
-            },
-            (Outcome::Unknown { turns: _ },
-             Outcome::Tie { turns: _ }) => {
-                Ordering::Less // prefer the unknown over the tie
+             Outcome::Unknown { turns: t2 }) => {
+                if t2 >= t1 {
+                    // prefer the unknown over a tie, provided that the unknown
+                    // is an equal or greater depth
+                    Ordering::Greater
+                } else {
+                    Ordering::Less
+                }
             },
             (Outcome::Unknown { turns: t1 },
-             Outcome::Unknown { turns: t2 }) => {
-                t2.cmp(&t1) // Prefer the unknown later, not sooner
+             Outcome::Tie { turns: t2 }) => {
+                if t1 >= t2 {
+                    // prefer the unknown over a tie, provided that the unknown
+                    // is an equal or greater depth
+                    Ordering::Less
+                } else {
+                    Ordering::Greater
+                }
             },
         }
     }
