@@ -1,6 +1,6 @@
 use data::*;
 use solver::*;
-use utility::pln;
+use utility;
 
 pub struct Stack {
     pub devices: Vec<Device>,
@@ -102,11 +102,11 @@ impl Stack {
             }
         }
         println!("stack.get -> (None, ...)");
-        println!("depth:{} solutions:", depth);
+        println!("depth:{}", depth);
         for solution in solutions.iter() {
-            pln(solution);
+            utility::p(solution);
         }
-        pln(game);
+        utility::pln(game);
         panic!("Error 1263");
         // (None, devices)
     }

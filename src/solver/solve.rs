@@ -56,9 +56,7 @@ impl Game {
             Some(dom) => dom,
             None => {
                 let player = self.next_player().expect("Error 7751");
-                let solutions = merge_solutions(
-                    solution.if_optimal(),
-                    self.candidate_solutions(depth, stack));
+                let solutions = self.candidate_solutions(depth, stack);
                 best_solution(player, solutions)
             }
         }
@@ -118,30 +116,6 @@ fn best_solution(p: Player, ss: Vec<Solution>) -> Solution {
     let mut xs = ss.clone();
     xs.sort_by(|a, b| Solution::compare(p, *a, *b));
     xs.first().expect("Error 4875").clone()
-}
-
-impl Solution {
-    /// If the solution contains an optimal move, returns the solution wrapped
-    /// in `Some`; otherwise, returns `None`. (Put another way, if
-    /// `solution.opt_play` has some value, return `Some(solution)`; otherwise,
-    /// return `None`.)
-    fn if_optimal(self) -> Option<Solution> {
-        self.opt_play.and(Some(self))
-    }
-}
-
-/// Returns the combined (merged) solution vector from an optional solution and
-/// a vector of solutions.
-fn merge_solutions(opt_solution: Option<Solution>, solutions: Vec<Solution>)
-                   -> Vec<Solution> {
-    match opt_solution {
-        None => solutions,
-        Some(solution) => {
-            let mut ss = solutions;
-            ss.push(solution);
-            ss.clone()
-        },
-    }
 }
 
 // == 'modifiers' ==============================================================
