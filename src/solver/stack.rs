@@ -1,5 +1,6 @@
 use data::*;
 use solver::*;
+use utility::pln;
 
 pub struct Stack {
     pub devices: Vec<Device>,
@@ -85,7 +86,7 @@ impl Stack {
             } else if device.has_compute {
                 (device.compute)(game, depth, stack)
             } else {
-                None
+                panic!("Error 2701");
             };
             match opt_solution {
                 Some(solution) => {
@@ -98,7 +99,11 @@ impl Stack {
                 None => {},
             }
         }
-        (None, devices)
+        println!("stack.get -> (None, ...)");
+        pln(game);
+        println!("depth:{}", depth);
+        panic!("Error 1263");
+        // (None, devices)
     }
 }
 
