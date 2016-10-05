@@ -25,7 +25,7 @@ pub const CACHE_CAP: usize = 25_000_000;
 impl SSD {
     pub fn new() -> Device {
         let pool = pool_new(CONN_STR);
-        let conn = pool.get().expect("Error 1865");
+        let conn = pool.get().expect("E1801");
         db_create_table(&conn);
         Device {
             compute: SSD::compute,
@@ -55,10 +55,10 @@ impl SSD {
                             None => pool_read(pool, game),
                         }
                     }
-                    None => panic!("Error 1866"),
+                    None => panic!("E1802"),
                 }
             },
-            None => panic!("Error 6523"),
+            None => panic!("E1803"),
         }
     }
 
@@ -71,10 +71,10 @@ impl SSD {
                         cache_insert(mut_cache, game, solution);
                         pool_write(pool, game, solution)
                     },
-                    None => panic!("Error 3375"),
+                    None => panic!("E1804"),
                 }
             },
-            None => panic!("Error 0401"),
+            None => panic!("E1805"),
         }
     }
 

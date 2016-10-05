@@ -33,7 +33,7 @@ impl Stack {
                     if (device.write)(&device, game, solution) {
                         count = count + 1
                     } else {
-                        panic!("Error 3717");
+                        panic!("E3701");
                     }
                 }
             }
@@ -51,7 +51,7 @@ impl Stack {
                 if (device.write)(&device, game, solution) {
                     count = count + 1
                 } else {
-                    panic!("Error 2712");
+                    panic!("E3702");
                 }
             }
         }
@@ -59,7 +59,7 @@ impl Stack {
             true
         } else {
             println!("simple_put | devices.len() = {}", self.devices.len());
-            panic!("Error 7259");
+            panic!("E3703");
         }
     }
 
@@ -87,7 +87,7 @@ impl Stack {
             } else if device.has_compute {
                 (device.compute)(game, depth, stack)
             } else {
-                panic!("Error 2701");
+                panic!("E3704");
             };
             match opt_solution {
                 Some(solution) => {
@@ -107,8 +107,8 @@ impl Stack {
             utility::p(solution);
         }
         utility::pln(game);
-        panic!("Error 1263");
         // (None, devices)
+        panic!("E3705");
     }
 }
 

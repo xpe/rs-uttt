@@ -8,41 +8,44 @@ use solver::{Outcome, Solution};
 // == public API: table functions ==============================================
 
 pub fn db_create_table(conn: &Connection) {
-    let rows_modified = conn.execute(CREATE_TABLE, &[]).expect("Error 8520");
-    if rows_modified != 0 { panic!("Error 4014") };
+    let rows_modified = conn.execute(CREATE_TABLE, &[]).expect("E8501");
+    if rows_modified != 0 { panic!("E8502") };
 }
 
 pub fn db_drop_table(conn: &Connection) {
-    let rows_modified = conn.execute(DROP_TABLE, &[]).expect("Error 4737");
-    if rows_modified != 0 { panic!("Error 3215") };
+    let rows_modified = conn.execute(DROP_TABLE, &[]).expect("E8503");
+    if rows_modified != 0 { panic!("E8504") };
 }
 
 // == public API: connect / read / write =======================================
 
 pub fn db_connect<T: IntoConnectParams> (params: T) -> Connection {
-    Connection::connect(params, SslMode::None).expect("Error 2759")
+    Connection::connect(params, SslMode::None).expect("E8505")
 }
 
 /// Read function.
-pub fn db_read(conn: &Connection, game: &Game) -> Option<Solution> {
+pub fn db_read(conn: &Connection, game: &Game) -> Vec<Solution> {
     let game_cols: (i64, i64, i32) = game_columns_from(game);
     let game_1: i64 = game_cols.0;
     let game_2: i64 = game_cols.1;
     let game_3: i32 = game_cols.2;
     // TODO: Use a prepared statement instead.
     let rows: DataRows = conn.query(
-        "SELECT solution \
+        "SELECT solutions \
          FROM solutions \
          WHERE game_1 = $1 AND game_2 = $2 AND game_3 = $3",
-        &[&game_1, &game_2, &game_3]).expect("Error 5203");
+        &[&game_1, &game_2, &game_3]).expect("E8506");
     match rows.len() {
-        0 => None,
+        0 => vec![],
         1 => {
+            let next_player: Option<Player> = game.next_player();
             let row: DataRow = rows.get(0);
-            let sol: i16 = row.get(0);
-            Some(solution_from(sol, game.next_player()))
+            let solutions: Vec<i16> = row.get(0);
+            solutions.iter()
+                .map(|sol| solution_from(*sol, next_player))
+                .collect::<Vec<Solution>>()
         },
-        _ => panic!("Error 1143: expected 0 or 1 row"),
+        _ => panic!("E8507"),
     }
 }
 
@@ -72,7 +75,7 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
             false
         },
         1 => true,
-        _ => panic!("Error 6873"),
+        _ => panic!("E8509"),
     }
 }
 
@@ -243,7 +246,7 @@ fn solution_from(sol: i16, player: Option<Player>) -> Solution {
         Some(loc) => {
             Some(Play {
                 loc: loc,
-                player: player.expect("Error 2294: expected some player")
+                player: player.expect("E8510: expected some player")
             })
         },
         None => None,
@@ -265,7 +268,7 @@ fn solution_from(sol: i16, player: Option<Player>) -> Solution {
             outcome: Outcome::Win { turns: turns, player: Player::X },
             opt_play: opt_play,
         },
-        _ => panic!("Error 4771"),
+        _ => panic!("E8511"),
     }
 }
 
@@ -357,6 +360,6 @@ fn opt_loc_from(x: u8) -> Option<Loc> {
         78 => Some(Loc::new(RI::R8, CI::C6)),
         79 => Some(Loc::new(RI::R8, CI::C7)),
         80 => Some(Loc::new(RI::R8, CI::C8)),
-        _ => panic!("Error 8689"),
+        _ => panic!("E8512"),
     }
 }

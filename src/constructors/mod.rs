@@ -117,7 +117,7 @@ impl Row {
             0x18 => Row::OOE,
             0x19 => Row::OOX,
             0x1A => Row::OOO,
-            _ => panic!("Error 0006"),
+            _ => panic!("E1001"),
         }
     }
 }

@@ -80,7 +80,7 @@ impl Rand for Row {
             Row::XOE, Row::XOO, Row::XOX,
             Row::XXE, Row::XXO, Row::XXX,
         ];
-        rng.choose(&CHOICES).expect("Error 6374").clone()
+        rng.choose(&CHOICES).expect("E2601").clone()
     }
 }
 
@@ -92,7 +92,7 @@ pub fn random_valid_play<R: Rng>(game: &Game, rng: &mut R) -> Option<Play> {
         None => None,
         Some(_) => {
             let valid_plays: &[Play] = &game.valid_plays()[..];
-            let play: &Play = rng.choose(valid_plays).expect("Error 6590");
+            let play: &Play = rng.choose(valid_plays).expect("E2602");
             Some(play.clone())
         },
     }
@@ -130,7 +130,7 @@ impl Rand for RI {
             RI::R7,
             RI::R8,
         ];
-        rng.choose(&CHOICES).expect("Error 9348").clone()
+        rng.choose(&CHOICES).expect("E2603").clone()
     }
 }
 
@@ -148,7 +148,7 @@ impl Rand for CI {
             CI::C7,
             CI::C8,
         ];
-        rng.choose(&CHOICES).expect("Error 5333").clone()
+        rng.choose(&CHOICES).expect("E2604").clone()
     }
 }
 
@@ -166,7 +166,7 @@ impl Rand for BI {
             BI::I7,
             BI::I8,
         ];
-        rng.choose(&CHOICES).expect("Error 5171").clone()
+        rng.choose(&CHOICES).expect("E2605").clone()
     }
 }
 
@@ -176,7 +176,7 @@ impl Rand for SRI {
     /// Returns a random sub-board row index.
     fn rand<R: Rng>(rng: &mut R) -> Self {
         const CHOICES: [SRI; 3] = [SRI::R0, SRI::R1, SRI::R2];
-        rng.choose(&CHOICES).expect("Error 9762").clone()
+        rng.choose(&CHOICES).expect("E2606").clone()
     }
 }
 
@@ -184,7 +184,7 @@ impl Rand for SCI {
     /// Returns a random sub-board column index.
     fn rand<R: Rng>(rng: &mut R) -> Self {
         const CHOICES: [SCI; 3] = [SCI::C0, SCI::C1, SCI::C2];
-        rng.choose(&CHOICES).expect("Error 1404").clone()
+        rng.choose(&CHOICES).expect("E2607").clone()
     }
 }
 
@@ -202,7 +202,7 @@ impl Rand for SBI {
             SBI::I7,
             SBI::I8,
         ];
-        rng.choose(&CHOICES).expect("Error 9315").clone()
+        rng.choose(&CHOICES).expect("E2608").clone()
     }
 }
 
@@ -212,7 +212,7 @@ impl Rand for Player {
     /// Returns a random board column index.
     fn rand<R: Rng>(rng: &mut R) -> Self {
         const CHOICES: [Player; 2] = [Player::X, Player::O];
-        rng.choose(&CHOICES).expect("Error 9555").clone()
+        rng.choose(&CHOICES).expect("E2609").clone()
     }
 }
 

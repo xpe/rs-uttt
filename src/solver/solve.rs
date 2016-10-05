@@ -16,7 +16,7 @@ impl Game {
         } else if depth > 0 {
             self.solve_positive_depth(depth, stack)
         } else {
-            panic!("Error 2553: depth < 0");
+            panic!("E2501: depth < 0");
         }
     }
 
@@ -151,8 +151,8 @@ impl Outcome {
 impl Solution {
     /// Compare two solutions.
     fn compare(p: Player, a: Solution, b: Solution) -> Ordering {
-        let play_a = a.opt_play.expect("Error 2643");
-        let play_b = b.opt_play.expect("Error 4804");
+        let play_a = a.opt_play.expect("E2505");
+        let play_b = b.opt_play.expect("E2506");
         if play_a == play_b {
             let turns_a = a.outcome.turns();
             let turns_b = b.outcome.turns();

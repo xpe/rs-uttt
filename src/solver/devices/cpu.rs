@@ -25,12 +25,12 @@ impl CPU {
 
     #[allow(unused_variables)]
     fn read(device: &Device, game: &Game) -> Option<Solution> {
-        panic!("Error 6399");
+        panic!("E6301");
     }
 
     #[allow(unused_variables)]
     fn write(device: &Device, game: &Game, solution: Solution) -> bool {
-        panic!("Error 9250");
+        panic!("E6302");
     }
 
 }
