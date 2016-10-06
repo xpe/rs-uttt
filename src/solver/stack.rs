@@ -14,7 +14,7 @@ impl Stack {
         let (solutions, devices) = self.get(game, depth, stack);
         // Only write solutions with depth greater than 0, since a depth == 0
         // solution can be looked up in a trivial amount of time. To write such
-        // a trivial to solution to a device is wasteful.
+        // a trivial solution to a device would be wasteful.
         if depth > 0 {
             self.put(game, &solutions, devices);
         }
