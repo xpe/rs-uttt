@@ -23,13 +23,13 @@ pub fn pool_new<T: IntoConnectParams>(params: T) -> PGPool {
 }
 
 /// Read from database.
-pub fn pool_read(pool: &PGPool, game: &Game) -> Option<Solution> {
+pub fn pool_read(pool: &PGPool, game: &Game) -> Vec<Solution> {
     let conn = pool.get().expect("E9303");
     db_read(&conn, game)
 }
 
 /// Write to database.
-pub fn pool_write(pool: &PGPool, game: &Game, solution: Solution) -> bool {
-    db_write(&conn, game, solution)
+pub fn pool_write(pool: &PGPool, game: &Game, sols: &Vec<Solution>) -> bool {
     let conn = pool.get().expect("E9304");
+    db_write(&conn, game, sols)
 }

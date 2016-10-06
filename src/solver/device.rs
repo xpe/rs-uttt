@@ -7,14 +7,14 @@ use std::cell::RefCell;
 
 /// Device capabilities.
 pub struct Device {
-    /// Compute a solution to the specified depth.
-    pub compute: fn(&Game, Count, &Stack) -> Option<Solution>,
+    /// Compute one or more solutions to the specified depth.
+    pub compute: fn(&Game, Count, &Stack) -> Vec<Solution>,
 
-    /// Read a solution from the device.
-    pub read: fn(&Device, &Game) -> Option<Solution>,
+    /// Read one or more solutions from the device.
+    pub read: fn(&Device, &Game) -> Vec<Solution>,
 
-    /// Write a solution from the device.
-    pub write: fn(&Device, &Game, Solution) -> bool,
+    /// Write one or more solution from the device.
+    pub write: fn(&Device, &Game, &Vec<Solution>) -> bool,
 
     /// Supports the 'compute' function?
     pub has_compute: bool,

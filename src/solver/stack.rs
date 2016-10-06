@@ -1,6 +1,6 @@
 use data::*;
 use solver::*;
-use utility;
+// use utility::{pln}; // TEMP
 
 pub struct Stack {
     pub devices: Vec<Device>,
@@ -8,29 +8,32 @@ pub struct Stack {
 
 /// A solver stack.
 impl Stack {
-    /// First, get a solution for the given game and depth. Second, put this
-    /// solution back to the appropriate places in the stack.
+    /// First, get one or more solutions for the given game and depth. Second,
+    /// put the solution(s) back to the appropriate places in the stack.
     pub fn get_and_put(&self, game: &Game, depth: Count, stack: &Stack)
-                       -> Option<Solution> {
-        let (opt_solution, devices) = self.get(game, depth, stack);
-        opt_solution.map(|solution| self.put(game, solution, devices));
-        opt_solution
+                       -> Vec<Solution> {
+        // println!(">>>> stack.get_and_put depth:{}\n", depth); // TEMP
+        // pln(game); // TEMP
+        let (solutions, devices) = self.get(game, depth, stack);
+        self.put(game, &solutions, devices);
+        // println!("<<<< stack.get_and_put depth:{}\n", depth); // TEMP
+        solutions
     }
 
     /// Puts to some layer in the stack, guided by the supplied devices which
     /// have not-deep-enough copies of solutions. Such devices need to be
     /// updated, otherwise, they will continue to provide 'false positives' in
     /// the future.
-    fn put(&self, game: &Game, solution: Solution,
-           devices: Vec<&Device>) -> bool{
+    fn put(&self, game: &Game, solutions: &Vec<Solution>,
+           devices: Vec<&Device>) -> bool {
         let devices_len: usize = devices.len();
         if devices_len == 0 {
-            self.simple_put(game, solution)
+            self.simple_put(game, solutions)
         } else {
             let mut count: usize = 0;
             for device in devices.iter() {
                 if device.has_write {
-                    if (device.write)(&device, game, solution) {
+                    if (device.write)(&device, game, solutions) {
                         count = count + 1
                     } else {
                         panic!("E3701");
@@ -44,11 +47,11 @@ impl Stack {
     /// Iterates over the stack and attempt to put to each device in order.
     /// Returns true if successful; e.g. if one or more devices accepts the
     /// write.
-    fn simple_put(&self, game: &Game, solution: Solution) -> bool {
+    fn simple_put(&self, game: &Game, solutions: &Vec<Solution>) -> bool {
         let mut count: usize = 0;
         for device in self.devices.iter() {
             if device.has_write {
-                if (device.write)(&device, game, solution) {
+                if (device.write)(&device, game, solutions) {
                     count = count + 1
                 } else {
                     panic!("E3702");
@@ -65,8 +68,7 @@ impl Stack {
 
     /// Returns two things:
     ///
-    /// 1. the first suitable solution for a given game and depth from the
-    /// stack.
+    /// 1. a vector of solutions for a given game and depth from the stack.
     ///
     /// 2. Returns a vector of devices (that were tried along the way) that
     /// had non-suitable solutions.
@@ -78,36 +80,29 @@ impl Stack {
     /// (Naming note: I chose the name 'get' to convey that it is more general
     /// than 'read' or 'compute'.)
     fn get(&self, game: &Game, depth: Count, stack: &Stack)
-           -> (Option<Solution>, Vec<&Device>) {
+           -> (Vec<Solution>, Vec<&Device>) {
         let mut devices: Vec<&Device> = Vec::new();
-        let mut solutions: Vec<Solution> = Vec::new();
         for device in self.devices.iter() {
-            let opt_solution = if device.has_read {
+            let solutions = if device.has_read {
+                // println!("Reading from device..."); // TEMP
                 (device.read)(&device, game)
             } else if device.has_compute {
+                // println!("Computing on device..."); // TEMP
                 (device.compute)(game, depth, stack)
             } else {
                 panic!("E3704");
             };
-            match opt_solution {
-                Some(solution) => {
-                    if solution.is_deep_enough(depth) {
-                        return (Some(solution), devices);
-                    } else {
-                        solutions.push(solution);
-                        devices.push(device);
-                    }
-                },
-                None => {},
+            // p_solutions("stack.get", depth, &solutions); // TEMP
+            let ss = solutions.iter()
+                .filter(|sol| sol.is_deep_enough(depth))
+                .cloned()
+                .collect::<Vec<Solution>>();
+            if ss.is_empty() {
+                devices.push(device);
+            } else {
+                return (ss, devices);
             }
         }
-        println!("stack.get -> (None, ...)");
-        println!("depth:{}", depth);
-        for solution in solutions.iter() {
-            utility::p(solution);
-        }
-        utility::pln(game);
-        // (None, devices)
         panic!("E3705");
     }
 }

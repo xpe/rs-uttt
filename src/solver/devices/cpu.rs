@@ -19,17 +19,17 @@ impl CPU {
         }
     }
 
-    fn compute(game: &Game, depth: Count, stack: &Stack) -> Option<Solution> {
-        Some(game.solve(depth, stack))
+    fn compute(game: &Game, depth: Count, stack: &Stack) -> Vec<Solution> {
+        game.solve(depth, stack)
     }
 
     #[allow(unused_variables)]
-    fn read(device: &Device, game: &Game) -> Option<Solution> {
+    fn read(device: &Device, game: &Game) -> Vec<Solution> {
         panic!("E6301");
     }
 
     #[allow(unused_variables)]
-    fn write(device: &Device, game: &Game, solution: Solution) -> bool {
+    fn write(device: &Device, game: &Game, sols: &Vec<Solution>) -> bool {
         panic!("E6302");
     }
 

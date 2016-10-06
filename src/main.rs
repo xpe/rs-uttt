@@ -4,7 +4,6 @@ extern crate uttt;
 use rand::{Rng, XorShiftRng, SeedableRng};
 use uttt::data::*;
 use uttt::random::*;
-use uttt::show::*;
 use uttt::solver::*;
 use uttt::utility::{h, p, pln};
 
@@ -17,9 +16,9 @@ fn main() {
     let stack = SSD_CPU_Stack::new();
     run_random_games(0, &mut rng);
     run_random_game(0, &mut rng);
-    run_solve(0, &stack, &mut rng, 4, 6);
+    run_solve(1, &stack, &mut rng, 2, 2);
     run_backwards_solve(0, &stack, &mut rng, 81, 10);
-    run_full_backwards_solve(1, &stack, &mut rng);
+    run_full_backwards_solve(0, &stack, &mut rng);
 }
 
 // -- main sub-function(s) -----------------------------------------------------
@@ -97,8 +96,8 @@ fn run_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R,
             let label = format!("Game N-{}", back);
             if VERBOSE { h(2, &label); }
             if VERBOSE { pln(game); }
-            let solution = solve(stack, &game, depth);
-            if VERBOSE { p_solution(&label, depth, &solution); }
+            let solutions = solve(stack, &game, depth);
+            if VERBOSE { p_solutions(&label, depth, &solutions); }
         }
     }
 }
@@ -119,8 +118,8 @@ fn run_backwards_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R,
                 if VERBOSE { h(2, label) }
                 let game = games_iter.next_back().expect("E9906");
                 if VERBOSE { pln(game); }
-                let solution = solve(stack, &game, depth + i);
-                if VERBOSE { p_solution(label, depth + i, &solution); }
+                let solutions = solve(stack, &game, depth + i);
+                if VERBOSE { p_solutions(label, depth + i, &solutions); }
             }
         }
     }
@@ -139,9 +138,9 @@ fn run_full_backwards_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R) {
                 let label = &format!("Game N-{}", i);
                 if VERBOSE { h(2, label) }
                 if VERBOSE { pln(game); }
-                let solution = solve(stack, &game, depth);
+                let solutions = solve(stack, &game, depth);
                 if VERBOSE { p_cache(stack); }
-                if VERBOSE { p_solution(label, depth, &solution); }
+                if VERBOSE { p_solutions(label, depth, &solutions); }
                 i = i + 1;
             }
         }
@@ -150,19 +149,8 @@ fn run_full_backwards_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R) {
 
 // -- solve function(s) --------------------------------------------------------
 
-fn solve(stack: &Stack, game: &Game, depth: Count)
-         -> Solution {
-    let opt_solution = stack.get_and_put(game, depth, stack);
-    match opt_solution {
-        Some(solution) => solution,
-        None => panic!("E9907"),
-    }
-}
-
-// -- print function(s) --------------------------------------------------------
-
-fn p_solution(k: &str, d: Count, solution: &Solution) {
-    println!("{} sol d={}: {}\n", k, d, solution.show());
+fn solve(stack: &Stack, game: &Game, depth: Count) -> Vec<Solution> {
+    stack.get_and_put(game, depth, stack)
 }
 
 // -- str function(s) ----------------------------------------------------------

@@ -17,10 +17,15 @@ pub fn db_drop_table(conn: &Connection) {
     if rows_modified != 0 { panic!("E8504") };
 }
 
+pub fn db_truncate_table(conn: &Connection) {
+    let rows_modified = conn.execute(TRUNCATE_TABLE, &[]).expect("E8505");
+    if rows_modified != 0 { panic!("E8506") };
+}
+
 // == public API: connect / read / write =======================================
 
 pub fn db_connect<T: IntoConnectParams> (params: T) -> Connection {
-    Connection::connect(params, SslMode::None).expect("E8505")
+    Connection::connect(params, SslMode::None).expect("E8507")
 }
 
 /// Read function.
@@ -34,7 +39,7 @@ pub fn db_read(conn: &Connection, game: &Game) -> Vec<Solution> {
         "SELECT solutions \
          FROM solutions \
          WHERE game_1 = $1 AND game_2 = $2 AND game_3 = $3",
-        &[&game_1, &game_2, &game_3]).expect("E8506");
+        &[&game_1, &game_2, &game_3]).expect("E8508");
     match rows.len() {
         0 => vec![],
         1 => {
@@ -45,7 +50,7 @@ pub fn db_read(conn: &Connection, game: &Game) -> Vec<Solution> {
                 .map(|sol| solution_from(*sol, next_player))
                 .collect::<Vec<Solution>>()
         },
-        _ => panic!("E8507"),
+        _ => panic!("E8509"),
     }
 }
 
@@ -53,29 +58,25 @@ pub fn db_read(conn: &Connection, game: &Game) -> Vec<Solution> {
 /// not responsible for testing if an overwrite is the 'sensible' thing to do;
 /// e.g. a caller could overwrite `Outcome::Unknown { turns: 6 }` to
 /// `Outcome::Unknown { turns : 3 }`.
-pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
-    let game_cols: (i64, i64, i32) = game_columns_from(game);
-    let game_1: i64 = game_cols.0;
-    let game_2: i64 = game_cols.1;
-    let game_3: i32 = game_cols.2;
-    let sol: i16 = sol_i16(solution);
+pub fn db_write(conn: &Connection, game: &Game, sols: &Vec<Solution>) -> bool {
+    let (game_1, game_2, game_3): (i64, i64, i32) = game_columns_from(game);
+    let solutions: Vec<i16> = sols.into_iter()
+        .map(|sol| sol_i16(*sol))
+        .collect::<Vec<i16>>();
     let rows_modified = conn.execute(
-        "INSERT INTO solutions (game_1, game_2, game_3, solution) \
+        "INSERT INTO solutions (game_1, game_2, game_3, solutions) \
          VALUES ($1, $2, $3, $4) \
          ON CONFLICT (game_1, game_2, game_3) \
-         DO UPDATE SET solution = $4 \
+         DO UPDATE SET solutions = $4 \
          WHERE \
          solutions.game_1 = $1 AND \
          solutions.game_2 = $2 AND \
          solutions.game_3 = $3",
-        &[&game_1, &game_2, &game_3, &sol]).expect("Error 8326");
+        &[&game_1, &game_2, &game_3, &solutions]).expect("E8510");
     match rows_modified {
-        0 => {
-            println!("db_write | 0 rows modified -> false");
-            false
-        },
+        0 => false,
         1 => true,
-        _ => panic!("E8509"),
+        _ => panic!("E8511"),
     }
 }
 
@@ -84,13 +85,6 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
 // TODO: From the postgres crate documentation: "If the same statement will be
 // repeatedly executed (perhaps with different query parameters), consider using
 // the prepare and prepare_cached methods."
-//
-// let stmt =
-//     conn.prepare_cached("UPDATE foo SET bar = $1 WHERE baz = $2")
-//       .expect("Error 2465");
-// for (bar, baz) in updates {
-//     stmt.execute(&[bar, baz]).expect("Error 3989");
-// }
 
 // == PostgreSQL command strings ===============================================
 
@@ -98,14 +92,14 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
 ///
 /// Mapping between PostgreSQL and Rust types:
 ///
-/// column     PostgreSQL   Rust
-/// ------     ----------   ----
-/// game_1     BIGINT       i64
-/// game_2     BIGINT       i64
-/// game_3     INT          i32
-/// solution   SMALLINT     i16
+/// column      PostgreSQL   Rust
+/// ------      ----------   ----
+/// game_1      BIGINT       i64
+/// game_2      BIGINT       i64
+/// game_3      INT          i32
+/// solutions   SMALLINT[]   i16
 ///
-/// Note: game1, game2, game3 form a composite primary key.
+/// Note: game_1, game_2, game_3 form a composite primary key.
 ///
 /// Bit mapping for the 'game_1' (BIGINT = 64 bits) column:
 ///
@@ -151,18 +145,16 @@ pub fn db_write(conn: &Connection, game: &Game, solution: Solution) -> bool {
 /// player from the 'game_3' column.
 pub const CREATE_TABLE: &'static str =
     "CREATE TABLE IF NOT EXISTS solutions (\
-       game_1    BIGINT    NOT NULL, \
-       game_2    BIGINT    NOT NULL, \
-       game_3    INT       NOT NULL, \
-       solution  SMALLINT  NOT NULL, \
+       game_1     BIGINT      NOT NULL, \
+       game_2     BIGINT      NOT NULL, \
+       game_3     INT         NOT NULL, \
+       solutions  SMALLINT[]  NOT NULL, \
        PRIMARY KEY (game_1, game_2, game_3)
      ) TABLESPACE uttt_1";
 
-// In case the PRIMARY KEY does not work, use this:
-// CREATE INDEX game_idx ON solutions (game1, game2, game3);
+pub const DROP_TABLE: &'static str = "DROP TABLE IF EXISTS solutions";
 
-pub const DROP_TABLE: &'static str =
-    "DROP TABLE IF EXISTS solutions";
+pub const TRUNCATE_TABLE: &'static str = "TRUNCATE TABLE solutions";
 
 // == conversions (structs -> database values) =================================
 
@@ -246,7 +238,7 @@ fn solution_from(sol: i16, player: Option<Player>) -> Solution {
         Some(loc) => {
             Some(Play {
                 loc: loc,
-                player: player.expect("E8510: expected some player")
+                player: player.expect("E8512: expected some player")
             })
         },
         None => None,
@@ -268,7 +260,7 @@ fn solution_from(sol: i16, player: Option<Player>) -> Solution {
             outcome: Outcome::Win { turns: turns, player: Player::X },
             opt_play: opt_play,
         },
-        _ => panic!("E8511"),
+        _ => panic!("E8513"),
     }
 }
 
@@ -360,6 +352,6 @@ fn opt_loc_from(x: u8) -> Option<Loc> {
         78 => Some(Loc::new(RI::R8, CI::C6)),
         79 => Some(Loc::new(RI::R8, CI::C7)),
         80 => Some(Loc::new(RI::R8, CI::C8)),
-        _ => panic!("E8512"),
+        _ => panic!("E8514"),
     }
 }

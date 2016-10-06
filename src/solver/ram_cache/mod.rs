@@ -10,24 +10,24 @@ use data::*;
 use solver::*;
 use lru_cache::LruCache;
 
-pub type RamCache = LruCache<Game, Solution>;
+pub type RamCache = LruCache<Game, Vec<Solution>>;
 
 /// Construct and return a least-recently-used cache.
 pub fn cache_new(capacity: usize) -> RamCache {
     RamCache::new(capacity)
 }
 
-/// If present, returns Some(solution). Otherwise returns None.
-pub fn cache_get(cache: &mut RamCache, game: &Game) -> Option<Solution> {
+/// Returns a vector of solutions (0 or more).
+pub fn cache_get(cache: &mut RamCache, game: &Game) -> Vec<Solution> {
     match cache.get_mut(game) {
-        Some(sol) => Some(*sol),
-        None => None,
+        Some(solutions) => solutions.clone(),
+        None => vec![],
     }
 }
 
 /// Cache a (Game + Solution) key-value pair.
-pub fn cache_insert(cache: &mut RamCache, game: &Game, sol: Solution) {
-    cache.insert(*game, sol);
+pub fn cache_insert(cache: &mut RamCache, game: &Game, sols: &Vec<Solution>) {
+    cache.insert(*game, sols.clone());
 }
 
 pub fn cache_print(cache: &RamCache) {

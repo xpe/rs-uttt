@@ -27,6 +27,7 @@ impl SSD {
         let pool = pool_new(CONN_STR);
         let conn = pool.get().expect("E1801");
         db_create_table(&conn);
+        // db_truncate_table(&conn);
         Device {
             compute: SSD::compute,
             read: SSD::read,
@@ -40,19 +41,21 @@ impl SSD {
     }
 
     #[allow(unused_variables)]
-    fn compute(game: &Game, depth: Count, stack: &Stack) -> Option<Solution> {
+    fn compute(game: &Game, depth: Count, stack: &Stack) -> Vec<Solution> {
         unimplemented!();
     }
 
-    fn read(device: &Device, game: &Game) -> Option<Solution> {
+    fn read(device: &Device, game: &Game) -> Vec<Solution> {
         match device.pool {
             Some(ref pool) => {
                 match device.cache {
                     Some(ref cache) => {
                         let mut mut_cache = &mut *cache.borrow_mut();
-                        match cache_get(mut_cache, game) {
-                            Some(sol) => Some(sol),
-                            None => pool_read(pool, game),
+                        let solutions = cache_get(mut_cache, game);
+                        if solutions.is_empty() {
+                            pool_read(pool, game)
+                        } else {
+                            solutions
                         }
                     }
                     None => panic!("E1802"),
@@ -62,14 +65,14 @@ impl SSD {
         }
     }
 
-    fn write(device: &Device, game: &Game, solution: Solution) -> bool {
+    fn write(device: &Device, game: &Game, solutions: &Vec<Solution>) -> bool {
         match device.pool {
             Some(ref pool) => {
                 match device.cache {
                     Some(ref cache) => {
                         let mut mut_cache = &mut *cache.borrow_mut();
-                        cache_insert(mut_cache, game, solution);
-                        pool_write(pool, game, solution)
+                        cache_insert(mut_cache, game, solutions);
+                        pool_write(pool, game, solutions)
                     },
                     None => panic!("E1804"),
                 }
