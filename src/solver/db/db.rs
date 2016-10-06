@@ -30,10 +30,7 @@ pub fn db_connect<T: IntoConnectParams> (params: T) -> Connection {
 
 /// Read function.
 pub fn db_read(conn: &Connection, game: &Game) -> Vec<Solution> {
-    let game_cols: (i64, i64, i32) = game_columns_from(game);
-    let game_1: i64 = game_cols.0;
-    let game_2: i64 = game_cols.1;
-    let game_3: i32 = game_cols.2;
+    let (game_1, game_2, game_3): (i64, i64, i32) = game_columns_from(game);
     // TODO: Use a prepared statement instead.
     let rows: DataRows = conn.query(
         "SELECT solutions \
