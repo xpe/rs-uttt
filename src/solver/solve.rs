@@ -54,18 +54,13 @@ impl Game {
         let sols = stack.get_and_put(self, depth - 1, stack);
         if sols.is_empty() { panic!("E2502"); }
         let opt_player = self.next_player();
-        // p_solutions("sols", depth, &sols); // TEMP
         let dom_sols: Vec<Solution> = sols.iter()
             .filter(|sol| sol.is_dominant(opt_player, depth))
             .cloned().collect::<Vec<Solution>>();
-        // p_solutions("dom_sols", depth, &dom_sols); // TEMP
         if dom_sols.is_empty() {
             let player = opt_player.expect("E2503");
             let solutions = self.candidate_solutions(depth, stack);
-            // p_solutions("candidate_solutions", depth, &solutions); // TEMP
-            let best_sols = best_solutions(player, solutions);
-            // p_solutions("best_solutions", depth, &best_sols); // TEMP
-            best_sols
+            best_solutions(player, solutions)
         } else {
             dom_sols
         }

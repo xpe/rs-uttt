@@ -1,6 +1,5 @@
 use data::*;
 use solver::*;
-// use utility::{pln}; // TEMP
 
 pub struct Stack {
     pub devices: Vec<Device>,
@@ -12,11 +11,8 @@ impl Stack {
     /// put the solution(s) back to the appropriate places in the stack.
     pub fn get_and_put(&self, game: &Game, depth: Count, stack: &Stack)
                        -> Vec<Solution> {
-        // println!(">>>> stack.get_and_put depth:{}\n", depth); // TEMP
-        // pln(game); // TEMP
         let (solutions, devices) = self.get(game, depth, stack);
         self.put(game, &solutions, devices);
-        // println!("<<<< stack.get_and_put depth:{}\n", depth); // TEMP
         solutions
     }
 
@@ -84,15 +80,12 @@ impl Stack {
         let mut devices: Vec<&Device> = Vec::new();
         for device in self.devices.iter() {
             let solutions = if device.has_read {
-                // println!("Reading from device..."); // TEMP
                 (device.read)(&device, game)
             } else if device.has_compute {
-                // println!("Computing on device..."); // TEMP
                 (device.compute)(game, depth, stack)
             } else {
                 panic!("E3704");
             };
-            // p_solutions("stack.get", depth, &solutions); // TEMP
             let ss = solutions.iter()
                 .filter(|sol| sol.is_deep_enough(depth))
                 .cloned()
