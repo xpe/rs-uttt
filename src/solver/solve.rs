@@ -128,6 +128,8 @@ fn best_solutions(p: Player, ss: Vec<Solution>) -> Vec<Solution> {
             for x in x_rest {
                 if x.is_equal(*x_first) {
                     solutions.push(*x);
+                } else {
+                    break;
                 }
             }
             solutions
