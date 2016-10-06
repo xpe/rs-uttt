@@ -12,7 +12,12 @@ impl Stack {
     pub fn get_and_put(&self, game: &Game, depth: Count, stack: &Stack)
                        -> Vec<Solution> {
         let (solutions, devices) = self.get(game, depth, stack);
-        self.put(game, &solutions, devices);
+        // Only write solutions with depth greater than 0, since a depth == 0
+        // solution can be looked up in a trivial amount of time. To write such
+        // a trivial to solution to a device is wasteful.
+        if depth > 0 {
+            self.put(game, &solutions, devices);
+        }
         solutions
     }
 
