@@ -16,7 +16,7 @@ impl Game {
         } else if depth > 0 {
             self.solve_positive_depth(depth, stack)
         } else {
-            panic!("E2501: depth < 0");
+            panic!("E2501");
         }
     }
 
