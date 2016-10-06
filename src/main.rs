@@ -16,9 +16,9 @@ fn main() {
     let stack = SSD_CPU_Stack::new();
     run_random_games(0, &mut rng);
     run_random_game(0, &mut rng);
-    run_solve(1, &stack, &mut rng, 5, 7);
+    run_solve(0, &stack, &mut rng, 5, 7);
     run_backwards_solve(0, &stack, &mut rng, 81, 10);
-    run_full_backwards_solve(0, &stack, &mut rng);
+    run_full_backwards_solve(1, &stack, &mut rng);
 }
 
 // -- main sub-function(s) -----------------------------------------------------
