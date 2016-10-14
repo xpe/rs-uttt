@@ -69,17 +69,20 @@ pub fn db_write(conn: &Connection, game: &Game, sols: &Vec<Solution>) -> bool {
         .map(|sol| sol_i16(*sol))
         .collect::<Vec<i16>>();
     let plays: i16 = game.board.play_count() as i16;
-    let sol_turns: i16 = solution_turns(sols) as i16;
+    let (sol_turns, unknown) = turns_and_unknown(sols);
     let rows_modified = conn.execute(
-        "INSERT INTO solutions (game_1, game_2, game_3, plays, solutions, sol_turns) \
-         VALUES ($1, $2, $3, $4, $5, $6) \
+        "INSERT INTO solutions
+         (game_1, game_2, game_3, plays, solutions, sol_turns, unknown) \
+         VALUES ($1, $2, $3, $4, $5, $6, $7) \
          ON CONFLICT (game_1, game_2, game_3) \
-         DO UPDATE SET (plays, solutions, sol_turns) = ($4, $5, $6) \
+         DO UPDATE \
+         SET (plays, solutions, sol_turns, unknown) = ($4, $5, $6, $7) \
          WHERE \
          solutions.game_1 = $1 AND \
          solutions.game_2 = $2 AND \
          solutions.game_3 = $3",
-        &[&game_1, &game_2, &game_3, &plays, &solutions, &sol_turns]).expect("E8512");
+        &[&game_1, &game_2, &game_3, &plays, &solutions, &sol_turns, &unknown])
+        .expect("E8512");
     match rows_modified {
         0 => false,
         1 => true,
@@ -87,16 +90,29 @@ pub fn db_write(conn: &Connection, game: &Game, sols: &Vec<Solution>) -> bool {
     }
 }
 
-/// Returns the (shared / equal) turns value in each of the vector of solutions.
-fn solution_turns(solutions: &Vec<Solution>) -> Count {
-    let mut turns: HashSet<Count> = HashSet::new();
+/// Returns a tuple with two elements:
+/// 1. The (shared / equal) turns value in each of the vector of solutions.
+/// 2. A boolean indicating if each of the solutions is unknown. (If one
+///    is unknown, then they must all be unknown)
+fn turns_and_unknown(solutions: &Vec<Solution>) -> (i16, bool) {
+    let mut turns_set: HashSet<Count> = HashSet::new();
+    let mut wins: usize = 0;
+    let mut ties: usize = 0;
+    let mut unknowns: usize = 0;
     for solution in solutions {
-        turns.insert(solution.outcome.turns());
+        let turns = match solution.outcome {
+            Outcome::Win { player: _, turns: t } => { wins += 1; t },
+            Outcome::Tie { turns: t } => { ties += 1; t },
+            Outcome::Unknown { turns: t } => { unknowns += 1; t },
+        };
+        turns_set.insert(turns);
     }
-    if turns.len() == 1 {
-        turns.into_iter().next().expect("E8514")
+    if turns_set.len() == 1 {
+        let turns: i16 = turns_set.into_iter().next().expect("E8514") as i16;
+        if unknowns > 0 && (ties > 0 || wins > 0) { panic!("E8515"); }
+        (turns, unknowns > 0)
     } else {
-        panic!("E8515");
+        panic!("E8516");
     }
 }
 
@@ -173,12 +189,14 @@ pub const CREATE_TABLE: &'static str =
        plays      SMALLINT    NOT NULL, \
        solutions  SMALLINT[]  NOT NULL, \
        sol_turns  SMALLINT    NOT NULL, \
+       unknown    BOOLEAN     NOT NULL, \
        PRIMARY KEY (game_1, game_2, game_3) \
      ) TABLESPACE uttt_1";
 
 pub const CREATE_INDEXES: &'static [ &'static str ] = &[
     "CREATE INDEX ON solutions (plays)",
     "CREATE INDEX ON solutions (sol_turns)",
+    "CREATE INDEX ON solutions (unknown)",
 ];
 
 pub const DROP_TABLE: &'static str = "DROP TABLE IF EXISTS solutions";
@@ -267,7 +285,7 @@ fn solution_from(sol: i16, player: Option<Player>) -> Solution {
         Some(loc) => {
             Some(Play {
                 loc: loc,
-                player: player.expect("E8516")
+                player: player.expect("E8519")
             })
         },
         None => None,
@@ -289,7 +307,7 @@ fn solution_from(sol: i16, player: Option<Player>) -> Solution {
             outcome: Outcome::Win { turns: turns, player: Player::X },
             opt_play: opt_play,
         },
-        _ => panic!("E8517"),
+        _ => panic!("E8520"),
     }
 }
 
@@ -381,6 +399,6 @@ fn opt_loc_from(x: u8) -> Option<Loc> {
         78 => Some(Loc::new(RI::R8, CI::C6)),
         79 => Some(Loc::new(RI::R8, CI::C7)),
         80 => Some(Loc::new(RI::R8, CI::C8)),
-        _ => panic!("E8518"),
+        _ => panic!("E8521"),
     }
 }
