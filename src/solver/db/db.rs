@@ -235,7 +235,7 @@ fn solution_from(sol: i16, player: Option<Player>) -> Solution {
         Some(loc) => {
             Some(Play {
                 loc: loc,
-                player: player.expect("E8512: expected some player")
+                player: player.expect("E8516")
             })
         },
         None => None,
