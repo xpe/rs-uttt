@@ -125,7 +125,6 @@ fn run_backwards_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R,
     }
 }
 
-#[allow(unused_variables)]
 fn run_full_backwards_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R) {
     let depth = 81;
     if trials > 0 {
