@@ -1,9 +1,10 @@
 /// Database.
 
 use data::*;
-use postgres::rows::{Row as DataRow, Rows as DataRows};
 use postgres::{Connection, IntoConnectParams, SslMode};
+use postgres::rows::{Row as DataRow, Rows as DataRows};
 use solver::{Outcome, Solution};
+use std::collections::HashSet;
 
 // == public API: table functions ==============================================
 
@@ -22,10 +23,17 @@ pub fn db_truncate_table(conn: &Connection) {
     if rows_modified != 0 { panic!("E8506") };
 }
 
+pub fn db_create_indexes(conn: &Connection) {
+    for command in CREATE_INDEXES {
+        let rows_modified = conn.execute(command, &[]).expect("E8507");
+        if rows_modified != 0 { panic!("E8508") };
+    }
+}
+
 // == public API: connect / read / write =======================================
 
 pub fn db_connect<T: IntoConnectParams> (params: T) -> Connection {
-    Connection::connect(params, SslMode::None).expect("E8507")
+    Connection::connect(params, SslMode::None).expect("E8509")
 }
 
 /// Read function.
@@ -36,7 +44,7 @@ pub fn db_read(conn: &Connection, game: &Game) -> Vec<Solution> {
         "SELECT solutions \
          FROM solutions \
          WHERE game_1 = $1 AND game_2 = $2 AND game_3 = $3",
-        &[&game_1, &game_2, &game_3]).expect("E8508");
+        &[&game_1, &game_2, &game_3]).expect("E8510");
     match rows.len() {
         0 => vec![],
         1 => {
@@ -47,7 +55,7 @@ pub fn db_read(conn: &Connection, game: &Game) -> Vec<Solution> {
                 .map(|sol| solution_from(*sol, next_player))
                 .collect::<Vec<Solution>>()
         },
-        _ => panic!("E8509"),
+        _ => panic!("E8511"),
     }
 }
 
@@ -60,20 +68,35 @@ pub fn db_write(conn: &Connection, game: &Game, sols: &Vec<Solution>) -> bool {
     let solutions: Vec<i16> = sols.into_iter()
         .map(|sol| sol_i16(*sol))
         .collect::<Vec<i16>>();
+    let plays: i16 = game.board.play_count() as i16;
+    let sol_turns: i16 = solution_turns(sols) as i16;
     let rows_modified = conn.execute(
-        "INSERT INTO solutions (game_1, game_2, game_3, solutions) \
-         VALUES ($1, $2, $3, $4) \
+        "INSERT INTO solutions (game_1, game_2, game_3, plays, solutions, sol_turns) \
+         VALUES ($1, $2, $3, $4, $5, $6) \
          ON CONFLICT (game_1, game_2, game_3) \
-         DO UPDATE SET solutions = $4 \
+         DO UPDATE SET (plays, solutions, sol_turns) = ($4, $5, $6) \
          WHERE \
          solutions.game_1 = $1 AND \
          solutions.game_2 = $2 AND \
          solutions.game_3 = $3",
-        &[&game_1, &game_2, &game_3, &solutions]).expect("E8510");
+        &[&game_1, &game_2, &game_3, &plays, &solutions, &sol_turns]).expect("E8512");
     match rows_modified {
         0 => false,
         1 => true,
-        _ => panic!("E8511"),
+        _ => panic!("E8513"),
+    }
+}
+
+/// Returns the (shared / equal) turns value in each of the vector of solutions.
+fn solution_turns(solutions: &Vec<Solution>) -> Count {
+    let mut turns: HashSet<Count> = HashSet::new();
+    for solution in solutions {
+        turns.insert(solution.outcome.turns());
+    }
+    if turns.len() == 1 {
+        turns.into_iter().next().expect("E8514")
+    } else {
+        panic!("E8515");
     }
 }
 
@@ -94,7 +117,9 @@ pub fn db_write(conn: &Connection, game: &Game, sols: &Vec<Solution>) -> bool {
 /// game_1      BIGINT       i64
 /// game_2      BIGINT       i64
 /// game_3      INT          i32
+/// plays       SMALLINT     i16
 /// solutions   SMALLINT[]   i16
+/// sol_turns   SMALLINT     i16
 ///
 /// Note: game_1, game_2, game_3 form a composite primary key.
 ///
@@ -145,9 +170,16 @@ pub const CREATE_TABLE: &'static str =
        game_1     BIGINT      NOT NULL, \
        game_2     BIGINT      NOT NULL, \
        game_3     INT         NOT NULL, \
+       plays      SMALLINT    NOT NULL, \
        solutions  SMALLINT[]  NOT NULL, \
-       PRIMARY KEY (game_1, game_2, game_3)
+       sol_turns  SMALLINT    NOT NULL, \
+       PRIMARY KEY (game_1, game_2, game_3) \
      ) TABLESPACE uttt_1";
+
+pub const CREATE_INDEXES: &'static [ &'static str ] = &[
+    "CREATE INDEX ON solutions (plays)",
+    "CREATE INDEX ON solutions (sol_turns)",
+];
 
 pub const DROP_TABLE: &'static str = "DROP TABLE IF EXISTS solutions";
 
@@ -257,7 +289,7 @@ fn solution_from(sol: i16, player: Option<Player>) -> Solution {
             outcome: Outcome::Win { turns: turns, player: Player::X },
             opt_play: opt_play,
         },
-        _ => panic!("E8513"),
+        _ => panic!("E8517"),
     }
 }
 
@@ -349,6 +381,6 @@ fn opt_loc_from(x: u8) -> Option<Loc> {
         78 => Some(Loc::new(RI::R8, CI::C6)),
         79 => Some(Loc::new(RI::R8, CI::C7)),
         80 => Some(Loc::new(RI::R8, CI::C8)),
-        _ => panic!("E8514"),
+        _ => panic!("E8518"),
     }
 }

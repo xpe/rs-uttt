@@ -27,6 +27,7 @@ impl SSD {
         let pool = pool_new(CONN_STR);
         let conn = pool.get().expect("E1801");
         db_create_table(&conn);
+        db_create_indexes(&conn);
         // db_truncate_table(&conn);
         Device {
             compute: SSD::compute,
