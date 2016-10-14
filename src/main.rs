@@ -19,7 +19,7 @@ fn main() {
     run_solve(0, &stack, &mut rng, 5, 7);
     run_backwards_solve(0, &stack, &mut rng, 81, 10);
     run_full_backwards_solve(0, &stack, &mut rng);
-    run_ongoing_backwards_solve(true, &stack, &mut rng, 7, 10);
+    run_ongoing_backwards_solve(true, &stack, &mut rng, 6, 8);
 }
 
 // -- main sub-function(s) -----------------------------------------------------
