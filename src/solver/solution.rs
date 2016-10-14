@@ -112,4 +112,5 @@ pub fn p_solutions(label: &str, depth: Count, solutions: &Vec<Solution>) {
             println!("    {}", solution.show());
         }
     }
+    println!("");
 }
