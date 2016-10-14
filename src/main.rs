@@ -158,11 +158,11 @@ fn run_ongoing_backwards_solve<R: Rng>
             let games = random_games(rng);
             let mut games_iter = games.iter();
             let game_n = games_iter.next_back().expect("E9907");
-            if VERBOSE { h(2, "Game N"); }
+            if VERBOSE { h(2, &format!("Trial #{} Game N", trial)); }
             if VERBOSE { pln(game_n); }
             for i in 1 .. (n + 1) {
-                let label = &format!("N-{}", i);
-                if VERBOSE { h(2, label) }
+                let label = &format!("Trial #{} Game N-{}", trial, i);
+                if VERBOSE { h(2, label); }
                 let game = games_iter.next_back().expect("E9908");
                 if VERBOSE { pln(game); }
                 let solutions = solve(stack, &game, depth + i);
