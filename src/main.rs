@@ -18,7 +18,8 @@ fn main() {
     run_random_game(0, &mut rng);
     run_solve(0, &stack, &mut rng, 5, 7);
     run_backwards_solve(0, &stack, &mut rng, 81, 10);
-    run_full_backwards_solve(1, &stack, &mut rng);
+    run_full_backwards_solve(0, &stack, &mut rng);
+    run_ongoing_backwards_solve(true, &stack, &mut rng, 7, 10);
 }
 
 // -- main sub-function(s) -----------------------------------------------------
@@ -146,6 +147,31 @@ fn run_full_backwards_solve<R: Rng>(trials: u16, stack: &Stack, rng: &mut R) {
     }
 }
 
+fn run_ongoing_backwards_solve<R: Rng>
+    (active: bool, stack: &Stack, rng: &mut R, depth: Count, n: Count) {
+    if active {
+        let mut trial: usize = 0;
+        h(0, "Backwards Solve (Ongoing)");
+        loop {
+            trial += 1;
+            if VERBOSE { h(1, &format!("Trial #{}", trial)); }
+            let games = random_games(rng);
+            let mut games_iter = games.iter();
+            let game_n = games_iter.next_back().expect("E9907");
+            if VERBOSE { h(2, "Game N"); }
+            if VERBOSE { pln(game_n); }
+            for i in 1 .. (n + 1) {
+                let label = &format!("N-{}", i);
+                if VERBOSE { h(2, label) }
+                let game = games_iter.next_back().expect("E9908");
+                if VERBOSE { pln(game); }
+                let solutions = solve(stack, &game, depth + i);
+                if VERBOSE { p_solutions(label, depth + i, &solutions); }
+            }
+        }
+    }
+}
+
 // -- solve function(s) --------------------------------------------------------
 
 fn solve(stack: &Stack, game: &Game, depth: Count) -> Vec<Solution> {
@@ -163,6 +189,6 @@ fn result_str(op: Option<Player>) -> &'static str {
 }
 
 fn p_cache(stack: &Stack) {
-    let device = stack.devices.get(0).expect("E9908");
+    let device = stack.devices.get(0).expect("E9909");
     println!("SSD RAM cache size : {}", SSD::cache_len(&device));
 }
