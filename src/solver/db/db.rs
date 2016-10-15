@@ -194,9 +194,14 @@ pub const CREATE_TABLE: &'static str =
      ) TABLESPACE uttt_1";
 
 pub const CREATE_INDEXES: &'static [ &'static str ] = &[
-    "CREATE INDEX ON solutions (plays)",
-    "CREATE INDEX ON solutions (sol_turns)",
-    "CREATE INDEX ON solutions (unknown)",
+    "CREATE INDEX IF NOT EXISTS solutions_plays_idx \
+    ON solutions (plays) TABLESPACE uttt_1",
+
+    "CREATE INDEX IF NOT EXISTS solutions_sol_turns_idx \
+    ON solutions (sol_turns) TABLESPACE uttt_1",
+
+    "CREATE INDEX IF NOT EXISTS solutions_unknown_idx \
+    ON solutions (unknown) TABLESPACE uttt_1",
 ];
 
 pub const DROP_TABLE: &'static str = "DROP TABLE IF EXISTS solutions";
