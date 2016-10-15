@@ -190,7 +190,7 @@ pub const CREATE_TABLE: &'static str =
        solutions  SMALLINT[]  NOT NULL, \
        sol_turns  SMALLINT    NOT NULL, \
        unknown    BOOLEAN     NOT NULL, \
-       PRIMARY KEY (game_1, game_2, game_3) \
+       PRIMARY KEY (game_1, game_2, game_3) USING INDEX TABLESPACE uttt_1 \
      ) TABLESPACE uttt_1";
 
 pub const CREATE_INDEXES: &'static [ &'static str ] = &[
