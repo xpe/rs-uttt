@@ -165,8 +165,8 @@ fn run_ongoing_backwards_solve<R: Rng>
                 if VERBOSE { h(2, label); }
                 let game = games_iter.next_back().expect("E9908");
                 if VERBOSE { pln(game); }
-                let solutions = solve(stack, &game, depth + i);
-                if VERBOSE { p_solutions(label, depth + i, &solutions); }
+                let solutions = solve(stack, &game, depth);
+                if VERBOSE { p_solutions(label, depth, &solutions); }
             }
         }
     }
