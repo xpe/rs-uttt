@@ -51,7 +51,7 @@ impl Game {
     /// dominant.)  Finally, return the best solution.
     fn solve_positive_depth(&self, depth: Count, stack: &Stack)
                             -> Vec<Solution> {
-        let sols = stack.get_and_put(self, depth - 1, stack);
+        let sols = stack.get_and_put(self, depth - 1);
         if sols.is_empty() { panic!("E2502"); }
         let opt_player = self.next_player();
         let dom_sols: Vec<Solution> = sols.iter()

@@ -175,7 +175,7 @@ fn run_ongoing_backwards_solve<R: Rng>
 // -- solve function(s) --------------------------------------------------------
 
 fn solve(stack: &Stack, game: &Game, depth: Count) -> Vec<Solution> {
-    stack.get_and_put(game, depth, stack)
+    stack.get_and_put(game, depth)
 }
 
 // -- str function(s) ----------------------------------------------------------

@@ -9,9 +9,9 @@ pub struct Stack {
 impl Stack {
     /// First, get one or more solutions for the given game and depth. Second,
     /// put the solution(s) back to the appropriate places in the stack.
-    pub fn get_and_put(&self, game: &Game, depth: Count, stack: &Stack)
+    pub fn get_and_put(&self, game: &Game, depth: Count)
                        -> Vec<Solution> {
-        let (solutions, devices) = self.get(game, depth, stack);
+        let (solutions, devices) = self.get(game, depth);
         // Only write solutions with depth greater than 0, since a depth == 0
         // solution can be looked up in a trivial amount of time. To write such
         // a trivial solution to a device would be wasteful.
@@ -80,8 +80,7 @@ impl Stack {
     ///
     /// (Naming note: I chose the name 'get' to convey that it is more general
     /// than 'read' or 'compute'.)
-    fn get(&self, game: &Game, depth: Count, stack: &Stack)
-           -> (Vec<Solution>, Vec<&Device>) {
+    fn get(&self, game: &Game, depth: Count) -> (Vec<Solution>, Vec<&Device>) {
         let mut devices: Vec<&Device> = Vec::new();
         for device in self.devices.iter() {
             let solutions = if device.has_read {
@@ -95,7 +94,7 @@ impl Stack {
                     continue;
                 }
             } else if device.has_compute {
-                (device.compute)(game, depth, stack)
+                (device.compute)(game, depth, self)
             } else {
                 panic!("E3704");
             };
