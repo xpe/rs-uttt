@@ -13,7 +13,7 @@ pub struct Device {
     /// Read one or more solutions from the device.
     pub read: fn(&Device, &Game) -> Vec<Solution>,
 
-    /// Write one or more solution from the device.
+    /// Write one or more solution to the device.
     pub write: fn(&Device, &Game, &Vec<Solution>) -> bool,
 
     /// Supports the 'compute' function?
