@@ -11,11 +11,14 @@ impl CPU {
             compute: CPU::compute,
             read: CPU::read,
             write: CPU::write,
+            flush: CPU::flush,
             has_compute: true,
             has_read: false,
             has_write: false,
+            has_flush: false,
             pool: None,
-            cache: None,
+            cache_1: None,
+            cache_2: None,
         }
     }
 
@@ -33,4 +36,8 @@ impl CPU {
         panic!("E6302");
     }
 
+    #[allow(unused_variables)]
+    fn flush(device: &Device) -> bool {
+        panic!("E6303");
+    }
 }

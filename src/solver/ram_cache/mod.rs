@@ -30,6 +30,11 @@ pub fn cache_insert(cache: &mut RamCache, game: &Game, sols: &Vec<Solution>) {
     cache.insert(*game, sols.clone());
 }
 
+/// Remove the least-recently-used key-value pair.
+pub fn cache_remove_lru(cache: &mut RamCache) -> Option<(Game, Vec<Solution>)> {
+    cache.remove_lru()
+}
+
 pub fn cache_print(cache: &RamCache) {
     println!("Cache utilization: {} of {}\n", cache.len(), cache.capacity());
 }

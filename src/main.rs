@@ -19,7 +19,7 @@ fn main() {
     run_solve(0, &stack, &mut rng, 5, 7);
     run_backwards_solve(0, &stack, &mut rng, 81, 10);
     run_full_backwards_solve(0, &stack, &mut rng);
-    run_ongoing_backwards_solve(true, &stack, &mut rng, 7, 9);
+    run_ongoing_backwards_solve(true, &stack, &mut rng, 5, 7); // ..., 7, 9
 }
 
 // -- main sub-function(s) -----------------------------------------------------
@@ -159,10 +159,12 @@ fn run_ongoing_backwards_solve<R: Rng>
             let mut games_iter = games.iter();
             let game_n = games_iter.next_back().expect("E9907");
             if VERBOSE { h(2, &format!("Trial #{} Game N", trial)); }
+            if VERBOSE { p_cache(stack); }
             if VERBOSE { pln(game_n); }
             for i in 1 .. (n + 1) {
                 let label = &format!("Trial #{} Game N-{}", trial, i);
                 if VERBOSE { h(2, label); }
+                if VERBOSE { p_cache(stack); }
                 let game = games_iter.next_back().expect("E9908");
                 if VERBOSE { pln(game); }
                 let solutions = solve(stack, &game, depth);
@@ -190,5 +192,6 @@ fn result_str(op: Option<Player>) -> &'static str {
 
 fn p_cache(stack: &Stack) {
     let device = stack.devices.get(0).expect("E9909");
-    println!("SSD RAM cache size : {}", SSD::cache_len(&device));
+    println!("SSD RAM cache_1 size : {}", SSD::cache_1_len(&device));
+    println!("SSD RAM cache_2 size : {}\n", SSD::cache_2_len(&device));
 }

@@ -16,6 +16,9 @@ pub struct Device {
     /// Write one or more solution to the device.
     pub write: fn(&Device, &Game, &Vec<Solution>) -> bool,
 
+    /// Flush any cached solutions to the device.
+    pub flush: fn(&Device) -> bool,
+
     /// Supports the 'compute' function?
     pub has_compute: bool,
 
@@ -25,9 +28,15 @@ pub struct Device {
     /// Supports the 'write' function?
     pub has_write: bool,
 
+    /// Supports the 'flush' function?
+    pub has_flush: bool,
+
     /// An optional R2D2 PostgreSQL database connection pool.
     pub pool: Option<Pool<PostgresConnectionManager>>,
 
-    /// An optional RAM cache.
-    pub cache: Option<RefCell<RamCache>>,
+    /// An optional (small) RAM cache.
+    pub cache_1: Option<RefCell<RamCache>>,
+
+    /// An optional (large) RAM cache.
+    pub cache_2: Option<RefCell<RamCache>>,
 }

@@ -110,6 +110,18 @@ impl Stack {
         }
         panic!("E3705");
     }
+
+    pub fn flush(&self) -> bool {
+        let mut result = true;
+        for device in self.devices.iter() {
+            if device.has_flush {
+                if !(device.flush)(&device) {
+                    result = false;
+                }
+            }
+        }
+        result
+    }
 }
 
 impl Solution {
