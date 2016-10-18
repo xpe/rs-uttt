@@ -84,10 +84,10 @@ impl Stack {
         let mut devices: Vec<&Device> = Vec::new();
         for device in self.devices.iter() {
             let solutions = if device.has_read {
-                // Only read solutions with depth greater than 0, since a depth
-                // == 0 solution can be computing in a trivial amount of
-                // time. To read such a trivial to solution from a device would
-                // be wasteful.
+                // Only read solutions with depth greater than 0, since a
+                // zero-depth solution can be computed in a trivial amount of
+                // time. To read such a trivial to solution from a device
+                // would be wasteful.
                 if depth > 0 {
                     (device.read)(&device, game)
                 } else {
