@@ -1,9 +1,9 @@
 /// Database Connection Pool.
 
 use data::*;
-use postgres::IntoConnectParams;
+use postgres::params::IntoConnectParams;
+use r2d2_postgres::{PostgresConnectionManager, TlsMode};
 use r2d2::{Config, Pool};
-use r2d2_postgres::{PostgresConnectionManager, SslMode};
 use solver::db::db::*;
 use solver::Solution;
 use std::time::Duration;
@@ -17,7 +17,7 @@ pub fn pool_new<T: IntoConnectParams>(params: T) -> PGPool {
         .pool_size(3)
         .connection_timeout(Duration::new(5, 0))
         .build();
-    let manager = PostgresConnectionManager::new(params, SslMode::None)
+    let manager = PostgresConnectionManager::new(params, TlsMode::None)
         .expect("E9301");
     Pool::new(config, manager).expect("E9302")
 }

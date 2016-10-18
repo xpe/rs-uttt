@@ -1,7 +1,8 @@
 /// Database.
 
 use data::*;
-use postgres::{Connection, IntoConnectParams, SslMode};
+use postgres::{Connection, TlsMode};
+use postgres::params::IntoConnectParams;
 use postgres::rows::{Row as DataRow, Rows as DataRows};
 use solver::{Outcome, Solution};
 use std::collections::HashSet;
@@ -33,7 +34,7 @@ pub fn db_create_indexes(conn: &Connection) {
 // == public API: connect / read / write =======================================
 
 pub fn db_connect<T: IntoConnectParams> (params: T) -> Connection {
-    Connection::connect(params, SslMode::None).expect("E8509")
+    Connection::connect(params, TlsMode::None).expect("E8509")
 }
 
 /// Read function.
