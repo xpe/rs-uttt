@@ -6,6 +6,8 @@ repository = "https://github.com/bluemont/rs-uttt.git"
 homepage = "https://github.com/bluemont/rs-uttt.git"
 
 [dependencies]
+chan = "0.1.18"
+chan-signal = "0.1.7"
 lru-cache = "0.1.0"
 postgres = "0.12.0"
 r2d2 = "0.7.0"

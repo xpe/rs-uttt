@@ -1,7 +1,14 @@
 extern crate rand;
 extern crate uttt;
 
+#[macro_use]
+extern crate chan;
+
+extern crate chan_signal;
+
+use chan_signal::Signal;
 use rand::{Rng, XorShiftRng, SeedableRng};
+use std::thread;
 use uttt::data::*;
 use uttt::random::*;
 use uttt::solver::*;
@@ -12,6 +19,20 @@ const VERBOSE: bool = true;
 // -- main ---------------------------------------------------------------------
 
 fn main() {
+    let signal = chan_signal::notify(&[Signal::INT, Signal::TERM]);
+    let (tx_done, rx_done) = chan::sync(0);
+    thread::spawn(move || run(tx_done));
+    chan_select! {
+        signal.recv() -> signal => {
+            println!("Received signal: {:?}", signal);
+        },
+        rx_done.recv() => {
+            println!("Program completed normally.")
+        },
+    }
+}
+
+fn run(_done: chan::Sender<()>) {
     let mut rng = make_rng();
     let stack = SSD_CPU_Stack::new();
     run_random_games(0, &mut rng);
