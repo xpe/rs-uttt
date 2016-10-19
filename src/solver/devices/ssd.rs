@@ -124,25 +124,27 @@ impl SSD {
     }
 
     // Drain cache_1 and write to SSD. This is useful if the program gets
-    // interrupted.
-    pub fn flush(device: &Device) -> bool {
+    // interrupted. Returns a (success, write_count) tuple.
+    pub fn flush(device: &Device) -> (bool, usize) {
         match device.pool {
             Some(ref pool) => {
                 match device.cache_1 {
                     Some(ref cache) => {
                         let mut mut_cache = &mut *cache.borrow_mut();
-                        let mut result = true;
+                        let mut success = true;
+                        let mut count: usize = 0;
                         loop {
                             match cache_remove_lru(mut_cache) {
                                 Some((game, solutions)) => {
+                                    count += 1;
                                     if !pool_write(pool, &game, &solutions) {
-                                        result = false;
+                                        success = false;
                                     }
                                 },
                                 None => break,
                             }
                         }
-                        result
+                        (success, count)
                     }
                     None => panic!("E18XX"),
                 }

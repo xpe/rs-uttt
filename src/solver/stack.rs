@@ -111,16 +111,17 @@ impl Stack {
         panic!("E3705");
     }
 
-    pub fn flush(&self) -> bool {
-        let mut result = true;
+    pub fn flush(&self) -> (bool, usize) {
+        let mut success = true;
+        let mut count: usize = 0;
         for device in self.devices.iter() {
             if device.has_flush {
-                if !(device.flush)(&device) {
-                    result = false;
-                }
+                let (device_success, device_count) = (device.flush)(&device);
+                if !device_success { success = false; }
+                count += device_count;
             }
         }
-        result
+        (success, count)
     }
 }
 

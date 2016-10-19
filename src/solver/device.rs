@@ -1,6 +1,6 @@
 use data::*;
-use r2d2::Pool;
 use r2d2_postgres::PostgresConnectionManager;
+use r2d2::Pool;
 use solver::*;
 use solver::ram_cache::*;
 use std::cell::RefCell;
@@ -17,7 +17,7 @@ pub struct Device {
     pub write: fn(&Device, &Game, &Vec<Solution>) -> bool,
 
     /// Flush any cached solutions to the device.
-    pub flush: fn(&Device) -> bool,
+    pub flush: fn(&Device) -> (bool, usize),
 
     /// Supports the 'compute' function?
     pub has_compute: bool,

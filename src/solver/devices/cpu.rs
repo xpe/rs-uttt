@@ -37,7 +37,7 @@ impl CPU {
     }
 
     #[allow(unused_variables)]
-    fn flush(device: &Device) -> bool {
+    fn flush(device: &Device) -> (bool, usize) {
         panic!("E6303");
     }
 }
