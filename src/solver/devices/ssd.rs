@@ -198,8 +198,8 @@ fn save_to_db(turns: i16, stats: &mut [u32; MAX_DEPTH]) -> bool {
         if *val != 0 {
             if *val > max { max = *val; }
             match nonzero_min {
-                Some(min) => { if *val < min { nonzero_min = Some(min); } },
-                None => { nonzero_min = Some(*val) },
+                Some(min) => if *val < min { nonzero_min = Some(*val); },
+                None => nonzero_min = Some(*val),
             }
         }
     }
