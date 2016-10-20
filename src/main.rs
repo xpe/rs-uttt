@@ -67,7 +67,7 @@ fn run(stack: Arc<Mutex<Stack>>, quit: Receiver<()>, _done: Sender<()>) {
             run_solve(0, &stack, &mut rng, 5, 7);
             run_backwards_solve(0, &stack, &mut rng, 81, 10);
             run_full_backwards_solve(0, &stack, &mut rng);
-            run_ongoing_backwards_solve(true, &stack, quit, &mut rng, 5, 7);
+            run_ongoing_backwards_solve(true, &stack, quit, &mut rng, 6, 10);
         },
         Err(_) => panic!("E99XX"),
     }
