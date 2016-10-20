@@ -210,5 +210,9 @@ fn save_to_db(turns: i16, stats: &mut [u32; MAX_DEPTH]) -> bool {
 }
 
 fn threshold(min: u32) -> u32 {
-    if min < 50 { 100 } else { min * 2 } // TODO: what about overflow?
+    if min < 250 {
+        5000
+    } else {
+        min * 20
+    } // TODO: what about overflow?
 }
