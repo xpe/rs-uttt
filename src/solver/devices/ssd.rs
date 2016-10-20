@@ -23,7 +23,7 @@ pub const CONN_STR: &'static str = "postgres://xpe:xpe_0987@localhost";
 
 pub struct SSD {}
 
-pub const CACHE_1_CAP: usize =     10_000;
+pub const CACHE_1_CAP: usize =    100_000;
 pub const CACHE_2_CAP: usize = 50_000_000;
 
 impl SSD {
