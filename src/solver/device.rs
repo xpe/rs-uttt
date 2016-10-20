@@ -17,7 +17,7 @@ pub struct Device {
     pub write: fn(&Device, &Game, &Vec<Solution>) -> bool,
 
     /// Flush any cached solutions to the device.
-    pub flush: fn(&Device) -> (bool, usize),
+    pub flush: fn(&Device) -> (bool, u32),
 
     /// Supports the 'compute' function?
     pub has_compute: bool,

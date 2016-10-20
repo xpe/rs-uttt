@@ -202,7 +202,7 @@ fn run_ongoing_backwards_solve<R: Rng>
     (active: bool, stack: &Stack, quit: Receiver<()>,
         rng: &mut R, depth: Count, n: Count) {
     if active {
-        let mut trial: usize = 0;
+        let mut trial: u32 = 0;
         h(0, "Backwards Solve (Ongoing)");
         'outer: loop {
             trial += 1;

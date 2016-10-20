@@ -95,11 +95,11 @@ pub fn db_write(conn: &Connection, game: &Game, sols: &Vec<Solution>) -> bool {
 /// 1. The (shared / equal) turns value in each of the vector of solutions.
 /// 2. A boolean indicating if each of the solutions is unknown. (If one
 ///    is unknown, then they must all be unknown)
-fn turns_and_unknown(solutions: &Vec<Solution>) -> (i16, bool) {
+pub fn turns_and_unknown(solutions: &Vec<Solution>) -> (i16, bool) {
     let mut turns_set: HashSet<Count> = HashSet::new();
-    let mut wins: usize = 0;
-    let mut ties: usize = 0;
-    let mut unknowns: usize = 0;
+    let mut wins: u32 = 0;
+    let mut ties: u32 = 0;
+    let mut unknowns: u32 = 0;
     for solution in solutions {
         let turns = match solution.outcome {
             Outcome::Win { player: _, turns: t } => { wins += 1; t },
