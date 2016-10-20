@@ -5,6 +5,8 @@ use solver::*;
 use solver::ram_cache::*;
 use std::cell::RefCell;
 
+pub const MAX_DEPTH: usize = 81;
+
 /// Device capabilities.
 pub struct Device {
     /// Compute one or more solutions to the specified depth.
@@ -39,4 +41,7 @@ pub struct Device {
 
     /// An optional (large) RAM cache.
     pub cache_2: Option<RefCell<RamCache>>,
+
+    /// An array where the index=solver_depth and value=count.
+    pub stats: Option<RefCell<[u32; MAX_DEPTH]>>,
 }

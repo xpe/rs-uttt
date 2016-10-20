@@ -19,6 +19,7 @@ impl CPU {
             pool: None,
             cache_1: None,
             cache_2: None,
+            stats: None,
         }
     }
 

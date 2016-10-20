@@ -45,6 +45,7 @@ impl SSD {
             pool: Some(pool),
             cache_1: Some(RefCell::new(cache_new(CACHE_1_CAP))),
             cache_2: Some(RefCell::new(cache_new(CACHE_2_CAP))),
+            stats: Some(RefCell::new([0; MAX_DEPTH])),
         }
     }
 
@@ -104,7 +105,7 @@ impl SSD {
                                         Some(ref cache_2) => {
                                             let mut mut_cache_2 = &mut *cache_2.borrow_mut();
                                             cache_insert(mut_cache_2, &game_, &solutions_);
-                                            pool_write(pool, &game_, &solutions_)
+                                            maybe_write(device, pool, &game_, &solutions_)
                                         },
 
                                     }
@@ -136,7 +137,7 @@ impl SSD {
                                 None => break,
                                 Some((game, solutions)) => {
                                     count += 1;
-                                    if !pool_write(pool, &game, &solutions) {
+                                    if !maybe_write(device, pool, &game, &solutions) {
                                         success = false;
                                     }
                                 },
@@ -168,4 +169,46 @@ impl SSD {
             None => 0,
         }
     }
+}
+
+fn maybe_write(device: &Device, pool: &PGPool, game: &Game,
+    solutions: &Vec<Solution>) -> bool {
+    match device.stats {
+        Some(ref stats) => {
+            let (turns, _) = turns_and_unknown(solutions);
+            let mut mut_stats = &mut *stats.borrow_mut();
+            if save_to_db(turns, mut_stats) {
+                mut_stats[turns as usize] += 1;
+                pool_write(pool, game, solutions)
+            } else {
+                true
+            }
+        },
+        None => panic!("E18XX"),
+    }
+}
+
+/// Should the SSD write a solution of 'depth' turns given the current
+/// statistical information?
+fn save_to_db(turns: i16, stats: &mut [u32; MAX_DEPTH]) -> bool {
+    if turns == 0 { return false; }
+    let mut max: u32 = 0;
+    let mut nonzero_min: Option<u32> = None;
+    for val in stats.into_iter() {
+        if *val != 0 {
+            if *val > max { max = *val; }
+            match nonzero_min {
+                Some(min) => { if *val < min { nonzero_min = Some(min); } },
+                None => { nonzero_min = Some(*val) },
+            }
+        }
+    }
+    match nonzero_min {
+        Some(min) => stats[turns as usize] < threshold(min),
+        None => true,
+    }
+}
+
+fn threshold(min: u32) -> u32 {
+    if min < 50 { 100 } else { min * 2 } // TODO: what about overflow?
 }

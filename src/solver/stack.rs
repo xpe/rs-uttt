@@ -49,7 +49,7 @@ impl Stack {
     /// Returns true if successful; e.g. if one or more devices accepts the
     /// write.
     fn simple_put(&self, game: &Game, solutions: &Vec<Solution>) -> bool {
-        let mut count: usize = 0;
+        let mut count: u32 = 0;
         for device in self.devices.iter() {
             if device.has_write {
                 if (device.write)(&device, game, solutions) {
@@ -111,9 +111,9 @@ impl Stack {
         panic!("E3705");
     }
 
-    pub fn flush(&self) -> (bool, usize) {
+    pub fn flush(&self) -> (bool, u32) {
         let mut success = true;
-        let mut count: usize = 0;
+        let mut count: u32 = 0;
         for device in self.devices.iter() {
             if device.has_flush {
                 let (device_success, device_count) = (device.flush)(&device);
