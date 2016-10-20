@@ -152,21 +152,21 @@ impl SSD {
 
     pub fn cache_1_len(device: &Device) -> usize {
         match device.cache_1 {
+            None => 0,
             Some(ref cache) => {
                 let cache = & *cache.borrow();
                 cache.len()
             },
-            None => 0,
         }
     }
 
     pub fn cache_2_len(device: &Device) -> usize {
         match device.cache_2 {
+            None => 0,
             Some(ref cache) => {
                 let cache = & *cache.borrow();
                 cache.len()
             },
-            None => 0,
         }
     }
 }
