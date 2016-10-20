@@ -26,13 +26,17 @@ pub struct SSD {}
 pub const CACHE_1_CAP: usize =    100_000;
 pub const CACHE_2_CAP: usize = 50_000_000;
 
+pub const CREATE_TABLE: bool = false;
+pub const CREATE_INDEXES: bool = false;
+pub const TRUNCATE_TABLE: bool = false;
+
 impl SSD {
     pub fn new() -> Device {
         let pool = pool_new(CONN_STR);
         let conn = pool.get().expect("E1801");
-        db_create_table(&conn);
-        db_create_indexes(&conn);
-        // db_truncate_table(&conn);
+        if CREATE_TABLE { db_create_table(&conn); }
+        if CREATE_INDEXES { db_create_indexes(&conn); }
+        if TRUNCATE_TABLE { db_truncate_table(&conn); }
         Device {
             compute: SSD::compute,
             read: SSD::read,
