@@ -32,12 +32,13 @@ fn main() {
         chan_select! {
             signal.recv() -> signal => {
                 println!("Received signal: {:?}", signal);
+                println!("Waiting for solver thread to finish...");
                 tx_quit.send(());
             },
             rx_done.recv() => {
-                print!("Waiting for main thread to finish... ");
                 child.join().expect("E99XX");
-                print!("done.\nFlushing the solver stack... ");
+                println!("Solver thread is done.");
+                print!("Flushing the solver stack... ");
                 match stack.lock() {
                     Ok(guard) => {
                         let stack: &Stack = guard.deref();
@@ -107,7 +108,7 @@ fn run_random_games<R: Rng>(trials: u16, rng: &mut R) {
         println!("  ties: {:4}", ties);
         println!("");
         println!("average game length: {}",
-                 (games_len as f64) / (trials as f64));
+            (games_len as f64) / (trials as f64));
     }
 }
 
