@@ -137,6 +137,7 @@ pub fn turns_and_unknown(solutions: &Vec<Solution>) -> (i16, bool) {
 /// plays       SMALLINT     i16
 /// solutions   SMALLINT[]   i16
 /// sol_turns   SMALLINT     i16
+/// unknown     BOOLEAN      bool
 ///
 /// Note: game_1, game_2, game_3 form a composite primary key.
 ///
