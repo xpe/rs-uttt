@@ -196,9 +196,7 @@ fn maybe_write(device: &Device, conn: &Connection, game: &Game,
 /// statistical information?
 fn save_to_db(turns: i16, unknown: bool,
     stats: &mut [u32; MAX_DEPTH]) -> bool {
-    if unknown || turns == 0 {
-        return false;
-    }
+    if unknown { return false; }
     let mut max: u32 = 0;
     let mut nonzero_min: Option<u32> = None;
     for val in stats.into_iter() {
