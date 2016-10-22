@@ -15,16 +15,15 @@
 
 use data::*;
 use postgres::Connection;
+use postgres::stmt::Statement;
 use solver::*;
 use solver::db::*;
 use solver::ram_cache::*;
 use std::cell::RefCell;
 
-pub const CONN_STR: &'static str = "postgres://xpe:xpe_0987@localhost";
-
 pub struct SSD {}
 
-pub const CACHE_1_CAP: usize =    100_000;
+pub const CACHE_1_CAP: usize =      1_000;
 pub const CACHE_2_CAP: usize = 50_000_000;
 
 pub const CREATE_TABLE: bool = false;
@@ -32,11 +31,12 @@ pub const CREATE_INDEXES: bool = false;
 pub const TRUNCATE_TABLE: bool = false;
 
 impl SSD {
-    pub fn new() -> Device {
-        let conn = db_connect(CONN_STR);
-        if CREATE_TABLE { db_create_table(&conn); }
-        if CREATE_INDEXES { db_create_indexes(&conn); }
-        if TRUNCATE_TABLE { db_truncate_table(&conn); }
+    pub fn new<'c>(conn: &'c Connection) -> Device<'c> {
+        let read_stmt: Statement = db_read_stmt(conn);
+        let write_stmt: Statement = db_write_stmt(conn);
+        if CREATE_TABLE { db_create_table(conn); }
+        if CREATE_INDEXES { db_create_indexes(conn); }
+        if TRUNCATE_TABLE { db_truncate_table(conn); }
         Device {
             compute: SSD::compute,
             read: SSD::read,
@@ -46,44 +46,44 @@ impl SSD {
             has_read: true,
             has_write: true,
             has_flush: true,
-            conn: Some(conn),
             cache_1: Some(RefCell::new(cache_new(CACHE_1_CAP))),
             cache_2: Some(RefCell::new(cache_new(CACHE_2_CAP))),
             stats: Some(RefCell::new([0; MAX_DEPTH])),
+            conn: Some(conn),
+            read_stmt: Some(read_stmt),
+            write_stmt: Some(write_stmt),
         }
     }
 
     #[allow(unused_variables)]
     fn compute(game: &Game, depth: Count, stack: &Stack) -> Vec<Solution> {
-        unimplemented!();
+        panic!("E18XX");
     }
 
     /// Try reading from cache_1, then cache_2, then from the SSD.
     fn read(device: &Device, game: &Game) -> Vec<Solution> {
-        match device.conn {
+        match device.cache_1 {
             None => panic!("E18XX"),
-            Some(ref conn) => {
-                match device.cache_1 {
-                    None => panic!("E18XX"),
-                    Some(ref cache_1) => {
-                        let mut mut_cache_1 = &mut *cache_1.borrow_mut();
-                        let solutions_1 = cache_get(mut_cache_1, game);
-                        if solutions_1.is_empty() {
-                            match device.cache_2 {
-                                None => panic!("E18XX"),
-                                Some(ref cache_2) => {
-                                    let mut_cache_2 = &mut *cache_2.borrow_mut();
-                                    let solutions_2 = cache_get(mut_cache_2, game);
-                                    if solutions_2.is_empty() {
-                                        db_read(conn, game)
-                                    } else {
-                                        solutions_2
-                                    }
-                                },
+            Some(ref cache_1) => {
+                let mut mut_cache_1 = &mut *cache_1.borrow_mut();
+                let solutions_1 = cache_get(mut_cache_1, game);
+                if solutions_1.is_empty() {
+                    match device.cache_2 {
+                        None => panic!("E18XX"),
+                        Some(ref cache_2) => {
+                            let mut_cache_2 = &mut *cache_2.borrow_mut();
+                            let solutions_2 = cache_get(mut_cache_2, game);
+                            if solutions_2.is_empty() {
+                                match device.read_stmt {
+                                    Some(ref stmt) => db_read(stmt, game),
+                                    _ => panic!("E18XX"),
+                                }
+                            } else {
+                                solutions_2
                             }
-                        } else { solutions_1 }
-                    },
-                }
+                        },
+                    }
+                } else { solutions_1 }
             },
         }
     }
@@ -91,35 +91,29 @@ impl SSD {
     /// Write to cache_1. If it overflows, write to cache_2 and SSD. Returns
     /// true unless the write to SSD fails.
     fn write(device: &Device, game: &Game, solutions: &Vec<Solution>) -> bool {
-        match device.conn {
+        match device.cache_1 {
             None => panic!("E18XX"),
-            Some(ref conn) => {
-                match device.cache_1 {
-                    None => panic!("E18XX"),
-                    Some(ref cache_1) => {
-                        let mut mut_cache_1 = &mut *cache_1.borrow_mut();
-                        // If cache_1 would overflow, remove and write to
-                        // cache_2 and SSD.
-                        let result = if mut_cache_1.len() == CACHE_1_CAP {
-                            match cache_remove_lru(mut_cache_1) {
+            Some(ref cache_1) => {
+                let mut mut_cache_1 = &mut *cache_1.borrow_mut();
+                // If cache_1 would overflow, remove and write to
+                // cache_2 and SSD.
+                let result = if mut_cache_1.len() == CACHE_1_CAP {
+                    match cache_remove_lru(mut_cache_1) {
+                        None => panic!("E18XX"),
+                        Some((game_, solutions_)) => {
+                            match device.cache_2 {
                                 None => panic!("E18XX"),
-                                Some((game_, solutions_)) => {
-                                    match device.cache_2 {
-                                        None => panic!("E18XX"),
-                                        Some(ref cache_2) => {
-                                            let mut mut_cache_2 = &mut *cache_2.borrow_mut();
-                                            cache_insert(mut_cache_2, &game_, &solutions_);
-                                            maybe_write(device, conn, &game_, &solutions_)
-                                        },
-
-                                    }
+                                Some(ref cache_2) => {
+                                    let mut mut_cache_2 = &mut *cache_2.borrow_mut();
+                                    cache_insert(mut_cache_2, &game_, &solutions_);
+                                    maybe_write(device, &game_, &solutions_)
                                 },
                             }
-                        } else { true };
-                        cache_insert(mut_cache_1, game, solutions);
-                        result
-                    },
-                }
+                        },
+                    }
+                } else { true };
+                cache_insert(mut_cache_1, game, solutions);
+                result
             },
         }
     }
@@ -127,29 +121,24 @@ impl SSD {
     // Drain cache_1 and write to SSD. This is useful if the program gets
     // interrupted. Returns a (success, write_count) tuple.
     pub fn flush(device: &Device) -> (bool, u32) {
-        match device.conn {
+        match device.cache_1 {
             None => panic!("E18XX"),
-            Some(ref conn) => {
-                match device.cache_1 {
-                    None => panic!("E18XX"),
-                    Some(ref cache) => {
-                        let mut mut_cache = &mut *cache.borrow_mut();
-                        let mut success = true;
-                        let mut count: u32 = 0;
-                        loop {
-                            match cache_remove_lru(mut_cache) {
-                                None => break,
-                                Some((game, solutions)) => {
-                                    count += 1;
-                                    if !maybe_write(device, conn, &game, &solutions) {
-                                        success = false;
-                                    }
-                                },
+            Some(ref cache) => {
+                let mut mut_cache = &mut *cache.borrow_mut();
+                let mut success = true;
+                let mut count: u32 = 0;
+                loop {
+                    match cache_remove_lru(mut_cache) {
+                        None => break,
+                        Some((game, solutions)) => {
+                            count += 1;
+                            if !maybe_write(device, &game, &solutions) {
+                                success = false;
                             }
-                        }
-                        (success, count)
-                    },
+                        },
+                    }
                 }
+                (success, count)
             },
         }
     }
@@ -175,18 +164,18 @@ impl SSD {
     }
 }
 
-fn maybe_write(device: &Device, conn: &Connection, game: &Game,
-    solutions: &Vec<Solution>) -> bool {
+fn maybe_write(device: &Device, game: &Game, sols: &Vec<Solution>) -> bool {
     match device.stats {
         Some(ref stats) => {
-            let (turns, unknown) = turns_and_unknown(solutions);
+            let (turns, unknown) = turns_and_unknown(sols);
             let mut mut_stats = &mut *stats.borrow_mut();
             if save_to_db(turns, unknown, mut_stats) {
                 mut_stats[turns as usize] += 1;
-                db_write(conn, game, solutions)
-            } else {
-                true
-            }
+                match device.write_stmt {
+                    Some(ref stmt) => db_write(stmt, game, sols),
+                    _ => panic!("E18XX"),
+                }
+            } else { true }
         },
         None => panic!("E18XX"),
     }

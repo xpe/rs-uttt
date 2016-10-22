@@ -4,48 +4,52 @@ use data::*;
 use postgres::{Connection, TlsMode};
 use postgres::params::IntoConnectParams;
 use postgres::rows::{Row as DataRow, Rows as DataRows};
+use postgres::stmt::Statement;
 use solver::{Outcome, Solution};
 use std::collections::HashSet;
 
 // == public API: table functions ==============================================
 
 pub fn db_create_table(conn: &Connection) {
-    let rows_modified = conn.execute(CREATE_TABLE, &[]).expect("E8501");
-    if rows_modified != 0 { panic!("E8502") };
+    let rows_modified = conn.execute(CREATE_TABLE, &[]).expect("E85011");
+    if rows_modified != 0 { panic!("E85012") };
 }
 
 pub fn db_drop_table(conn: &Connection) {
-    let rows_modified = conn.execute(DROP_TABLE, &[]).expect("E8503");
-    if rows_modified != 0 { panic!("E8504") };
+    let rows_modified = conn.execute(DROP_TABLE, &[]).expect("E85021");
+    if rows_modified != 0 { panic!("E85022") };
 }
 
 pub fn db_truncate_table(conn: &Connection) {
-    let rows_modified = conn.execute(TRUNCATE_TABLE, &[]).expect("E8505");
-    if rows_modified != 0 { panic!("E8506") };
+    let rows_modified = conn.execute(TRUNCATE_TABLE, &[]).expect("E85031");
+    if rows_modified != 0 { panic!("E85032") };
 }
 
 pub fn db_create_indexes(conn: &Connection) {
     for command in CREATE_INDEXES {
-        let rows_modified = conn.execute(command, &[]).expect("E8507");
-        if rows_modified != 0 { panic!("E8508") };
+        let rows_modified = conn.execute(command, &[]).expect("E85041");
+        if rows_modified != 0 { panic!("E85042") };
     }
 }
 
 // == public API: connect / read / write =======================================
 
 pub fn db_connect<T: IntoConnectParams> (params: T) -> Connection {
-    Connection::connect(params, TlsMode::None).expect("E8509")
+    Connection::connect(params, TlsMode::None).expect("E85051")
+}
+
+pub fn db_read_stmt<'c>(conn: &'c Connection) -> Statement<'c> {
+    conn.prepare(
+        "SELECT solutions \
+         FROM solutions \
+         WHERE game_1 = $1 AND game_2 = $2 AND game_3 = $3").expect("E85061")
 }
 
 /// Read function.
-pub fn db_read(conn: &Connection, game: &Game) -> Vec<Solution> {
+pub fn db_read(stmt: &Statement, game: &Game) -> Vec<Solution> {
     let (game_1, game_2, game_3): (i64, i64, i32) = game_columns_from(game);
-    // TODO: Use a prepared statement instead.
-    let rows: DataRows = conn.query(
-        "SELECT solutions \
-         FROM solutions \
-         WHERE game_1 = $1 AND game_2 = $2 AND game_3 = $3",
-        &[&game_1, &game_2, &game_3]).expect("E8510");
+    let rows: DataRows = stmt.query(
+        &[&game_1, &game_2, &game_3]).expect("E85062");
     match rows.len() {
         0 => vec![],
         1 => {
@@ -56,22 +60,12 @@ pub fn db_read(conn: &Connection, game: &Game) -> Vec<Solution> {
                 .map(|sol| solution_from(*sol, next_player))
                 .collect::<Vec<Solution>>()
         },
-        _ => panic!("E8511"),
+        _ => panic!("E85063"),
     }
 }
 
-/// Write to database, inserting or updating as appropriate. This function is
-/// not responsible for testing if an overwrite is the 'sensible' thing to do;
-/// e.g. a caller could overwrite `Outcome::Unknown { turns: 6 }` to
-/// `Outcome::Unknown { turns : 3 }`.
-pub fn db_write(conn: &Connection, game: &Game, sols: &Vec<Solution>) -> bool {
-    let (game_1, game_2, game_3): (i64, i64, i32) = game_columns_from(game);
-    let solutions: Vec<i16> = sols.into_iter()
-        .map(|sol| sol_i16(*sol))
-        .collect::<Vec<i16>>();
-    let plays: i16 = game.board.play_count() as i16;
-    let (sol_turns, unknown) = turns_and_unknown(sols);
-    let rows_modified = conn.execute(
+pub fn db_write_stmt<'c>(conn: &'c Connection) -> Statement<'c> {
+    conn.prepare(
         "INSERT INTO solutions
          (game_1, game_2, game_3, plays, solutions, sol_turns, unknown) \
          VALUES ($1, $2, $3, $4, $5, $6, $7) \
@@ -81,13 +75,27 @@ pub fn db_write(conn: &Connection, game: &Game, sols: &Vec<Solution>) -> bool {
          WHERE \
          solutions.game_1 = $1 AND \
          solutions.game_2 = $2 AND \
-         solutions.game_3 = $3",
+         solutions.game_3 = $3").expect("E85071")
+}
+
+/// Write to database, inserting or updating as appropriate. This function is
+/// not responsible for testing if an overwrite is the 'sensible' thing to do;
+/// e.g. a caller could overwrite `Outcome::Unknown { turns: 6 }` to
+/// `Outcome::Unknown { turns : 3 }`.
+pub fn db_write(stmt: &Statement, game: &Game, sols: &Vec<Solution>) -> bool {
+    let (game_1, game_2, game_3): (i64, i64, i32) = game_columns_from(game);
+    let solutions: Vec<i16> = sols.into_iter()
+        .map(|sol| sol_i16(*sol))
+        .collect::<Vec<i16>>();
+    let plays: i16 = game.board.play_count() as i16;
+    let (sol_turns, unknown) = turns_and_unknown(sols);
+    let rows_modified = stmt.execute(
         &[&game_1, &game_2, &game_3, &plays, &solutions, &sol_turns, &unknown])
-        .expect("E8512");
+        .expect("E85072");
     match rows_modified {
         0 => false,
         1 => true,
-        _ => panic!("E8513"),
+        _ => panic!("E85073"),
     }
 }
 
@@ -109,11 +117,11 @@ pub fn turns_and_unknown(solutions: &Vec<Solution>) -> (i16, bool) {
         turns_set.insert(turns);
     }
     if turns_set.len() == 1 {
-        let turns: i16 = turns_set.into_iter().next().expect("E8514") as i16;
-        if unknowns > 0 && (ties > 0 || wins > 0) { panic!("E8515"); }
+        let turns: i16 = turns_set.into_iter().next().expect("E85081") as i16;
+        if unknowns > 0 && (ties > 0 || wins > 0) { panic!("E85082"); }
         (turns, unknowns > 0)
     } else {
-        panic!("E8516");
+        panic!("E85083");
     }
 }
 
@@ -292,7 +300,7 @@ fn solution_from(sol: i16, player: Option<Player>) -> Solution {
         Some(loc) => {
             Some(Play {
                 loc: loc,
-                player: player.expect("E8519")
+                player: player.expect("E85091")
             })
         },
         None => None,
@@ -314,7 +322,7 @@ fn solution_from(sol: i16, player: Option<Player>) -> Solution {
             outcome: Outcome::Win { turns: turns, player: Player::X },
             opt_play: opt_play,
         },
-        _ => panic!("E8520"),
+        _ => panic!("E85092"),
     }
 }
 
@@ -406,6 +414,6 @@ fn opt_loc_from(x: u8) -> Option<Loc> {
         78 => Some(Loc::new(RI::R8, CI::C6)),
         79 => Some(Loc::new(RI::R8, CI::C7)),
         80 => Some(Loc::new(RI::R8, CI::C8)),
-        _ => panic!("E8521"),
+        _ => panic!("E85101"),
     }
 }

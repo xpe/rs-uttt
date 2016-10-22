@@ -6,7 +6,7 @@ use solver::*;
 pub struct CPU_Stack {}
 
 impl CPU_Stack {
-    pub fn new() -> Stack {
+    pub fn new<'c>() -> Stack<'c> {
         Stack {
             devices: vec![CPU::new()],
         }

@@ -1,12 +1,12 @@
 use data::*;
 use solver::*;
 
-pub struct Stack {
-    pub devices: Vec<Device>,
+pub struct Stack<'c> {
+    pub devices: Vec<Device<'c>>,
 }
 
 /// A solver stack.
-impl Stack {
+impl<'c> Stack<'c> {
     /// First, get one or more solutions for the given game and depth. Second,
     /// put the solution(s) back to the appropriate places in the stack.
     pub fn get_and_put(&self, game: &Game, depth: Count)

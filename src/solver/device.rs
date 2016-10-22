@@ -1,5 +1,6 @@
 use data::*;
 use postgres::Connection;
+use postgres::stmt::Statement;
 use solver::*;
 use solver::ram_cache::*;
 use std::cell::RefCell;
@@ -7,7 +8,7 @@ use std::cell::RefCell;
 pub const MAX_DEPTH: usize = 81;
 
 /// Device capabilities.
-pub struct Device {
+pub struct Device<'c> {
     /// Compute one or more solutions to the specified depth.
     pub compute: fn(&Game, Count, &Stack) -> Vec<Solution>,
 
@@ -32,9 +33,6 @@ pub struct Device {
     /// Supports the 'flush' function?
     pub has_flush: bool,
 
-    /// An optional PostgreSQL database connection.
-    pub conn: Option<Connection>,
-
     /// An optional (small) RAM cache.
     pub cache_1: Option<RefCell<RamCache>>,
 
@@ -43,4 +41,13 @@ pub struct Device {
 
     /// An array where the index=solver_depth and value=count.
     pub stats: Option<RefCell<[u32; MAX_DEPTH]>>,
+
+    /// An optional PostgreSQL database connection.
+    pub conn: Option<&'c Connection>,
+
+    /// An optional PostgreSQL prepared statement for device reads.
+    pub read_stmt: Option<Statement<'c>>,
+
+    /// An optional PostgreSQL prepared statement for device writes.
+    pub write_stmt: Option<Statement<'c>>,
 }

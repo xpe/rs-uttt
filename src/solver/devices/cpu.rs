@@ -6,7 +6,7 @@ use solver::*;
 pub struct CPU {}
 
 impl CPU {
-    pub fn new() -> Device {
+    pub fn new<'c>() -> Device<'c> {
         Device {
             compute: CPU::compute,
             read: CPU::read,
@@ -16,10 +16,12 @@ impl CPU {
             has_read: false,
             has_write: false,
             has_flush: false,
-            conn: None,
             cache_1: None,
             cache_2: None,
             stats: None,
+            conn: None,
+            read_stmt: None,
+            write_stmt: None,
         }
     }
 
