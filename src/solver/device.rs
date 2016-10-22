@@ -1,6 +1,5 @@
 use data::*;
-use r2d2_postgres::PostgresConnectionManager;
-use r2d2::Pool;
+use postgres::Connection;
 use solver::*;
 use solver::ram_cache::*;
 use std::cell::RefCell;
@@ -33,8 +32,8 @@ pub struct Device {
     /// Supports the 'flush' function?
     pub has_flush: bool,
 
-    /// An optional R2D2 PostgreSQL database connection pool.
-    pub pool: Option<Pool<PostgresConnectionManager>>,
+    /// An optional PostgreSQL database connection.
+    pub conn: Option<Connection>,
 
     /// An optional (small) RAM cache.
     pub cache_1: Option<RefCell<RamCache>>,

@@ -14,6 +14,7 @@
 /// 100_000_000    9536.743 MB
 
 use data::*;
+use postgres::Connection;
 use solver::*;
 use solver::db::*;
 use solver::ram_cache::*;
@@ -32,8 +33,7 @@ pub const TRUNCATE_TABLE: bool = false;
 
 impl SSD {
     pub fn new() -> Device {
-        let pool = pool_new(CONN_STR);
-        let conn = pool.get().expect("E1801");
+        let conn = db_connect(CONN_STR);
         if CREATE_TABLE { db_create_table(&conn); }
         if CREATE_INDEXES { db_create_indexes(&conn); }
         if TRUNCATE_TABLE { db_truncate_table(&conn); }
@@ -46,7 +46,7 @@ impl SSD {
             has_read: true,
             has_write: true,
             has_flush: true,
-            pool: Some(pool),
+            conn: Some(conn),
             cache_1: Some(RefCell::new(cache_new(CACHE_1_CAP))),
             cache_2: Some(RefCell::new(cache_new(CACHE_2_CAP))),
             stats: Some(RefCell::new([0; MAX_DEPTH])),
@@ -60,9 +60,9 @@ impl SSD {
 
     /// Try reading from cache_1, then cache_2, then from the SSD.
     fn read(device: &Device, game: &Game) -> Vec<Solution> {
-        match device.pool {
+        match device.conn {
             None => panic!("E18XX"),
-            Some(ref pool) => {
+            Some(ref conn) => {
                 match device.cache_1 {
                     None => panic!("E18XX"),
                     Some(ref cache_1) => {
@@ -75,7 +75,7 @@ impl SSD {
                                     let mut_cache_2 = &mut *cache_2.borrow_mut();
                                     let solutions_2 = cache_get(mut_cache_2, game);
                                     if solutions_2.is_empty() {
-                                        pool_read(pool, game)
+                                        db_read(conn, game)
                                     } else {
                                         solutions_2
                                     }
@@ -91,9 +91,9 @@ impl SSD {
     /// Write to cache_1. If it overflows, write to cache_2 and SSD. Returns
     /// true unless the write to SSD fails.
     fn write(device: &Device, game: &Game, solutions: &Vec<Solution>) -> bool {
-        match device.pool {
+        match device.conn {
             None => panic!("E18XX"),
-            Some(ref pool) => {
+            Some(ref conn) => {
                 match device.cache_1 {
                     None => panic!("E18XX"),
                     Some(ref cache_1) => {
@@ -109,7 +109,7 @@ impl SSD {
                                         Some(ref cache_2) => {
                                             let mut mut_cache_2 = &mut *cache_2.borrow_mut();
                                             cache_insert(mut_cache_2, &game_, &solutions_);
-                                            maybe_write(device, pool, &game_, &solutions_)
+                                            maybe_write(device, conn, &game_, &solutions_)
                                         },
 
                                     }
@@ -127,9 +127,9 @@ impl SSD {
     // Drain cache_1 and write to SSD. This is useful if the program gets
     // interrupted. Returns a (success, write_count) tuple.
     pub fn flush(device: &Device) -> (bool, u32) {
-        match device.pool {
+        match device.conn {
             None => panic!("E18XX"),
-            Some(ref pool) => {
+            Some(ref conn) => {
                 match device.cache_1 {
                     None => panic!("E18XX"),
                     Some(ref cache) => {
@@ -141,7 +141,7 @@ impl SSD {
                                 None => break,
                                 Some((game, solutions)) => {
                                     count += 1;
-                                    if !maybe_write(device, pool, &game, &solutions) {
+                                    if !maybe_write(device, conn, &game, &solutions) {
                                         success = false;
                                     }
                                 },
@@ -175,7 +175,7 @@ impl SSD {
     }
 }
 
-fn maybe_write(device: &Device, pool: &PGPool, game: &Game,
+fn maybe_write(device: &Device, conn: &Connection, game: &Game,
     solutions: &Vec<Solution>) -> bool {
     match device.stats {
         Some(ref stats) => {
@@ -183,7 +183,7 @@ fn maybe_write(device: &Device, pool: &PGPool, game: &Game,
             let mut mut_stats = &mut *stats.borrow_mut();
             if save_to_db(turns, unknown, mut_stats) {
                 mut_stats[turns as usize] += 1;
-                pool_write(pool, game, solutions)
+                db_write(conn, game, solutions)
             } else {
                 true
             }
