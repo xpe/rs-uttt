@@ -277,7 +277,7 @@ fn player_u32(opt_player: Option<Player>) -> u32 {
 
 fn location_u16(opt_play: Option<Play>) -> u16 {
     match opt_play {
-        None => 127_u16,
+        None => 0x7F,
         Some(play) => {
             let location: Loc = play.loc;
             let row_idx = location.row().as_u8();
