@@ -262,7 +262,7 @@ fn sol_i16(solution: Solution) -> i16 {
 fn last_location_u32(game: &Game) -> u32 {
     match game.last_loc {
         Some(loc) => loc.encoding as u32,
-        None => 127 as u32,
+        None => 0xFF,
     }
 }
 
