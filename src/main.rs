@@ -12,5 +12,5 @@ fn main() {
     let stack = SSD_CPU_Stack::new(&conn);
     let mut rng = make_rng();
     let (_tx_quit, rx_quit) = chan::sync(0);
-    run_ongoing_backwards_solve(true, &stack, rx_quit, &mut rng, 8, 5, true);
+    run_ongoing_backwards_solve(true, &stack, rx_quit, &mut rng, 9, 6, true);
 }
