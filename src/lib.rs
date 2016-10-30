@@ -12,10 +12,6 @@ pub mod show;
 pub mod solver;
 pub mod utility;
 
-#[macro_use]
-extern crate chan;
-
-extern crate chan_signal;
 extern crate lru_cache;
 extern crate postgres;
 extern crate rand;

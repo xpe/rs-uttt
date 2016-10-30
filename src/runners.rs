@@ -1,4 +1,3 @@
-use chan::Receiver;
 use data::*;
 use rand::{Rng, XorShiftRng, SeedableRng};
 use random::*;
@@ -123,9 +122,8 @@ pub fn run_full_backwards_solve<R: Rng>(trials: u16, stack: &Stack,
     }
 }
 
-pub fn run_ongoing_backwards_solve<R: Rng>
-    (active: bool, stack: &Stack, quit: Receiver<()>,
-        rng: &mut R, depth: Count, n: Count, verbose: bool) {
+pub fn run_ongoing_backwards_solve<R: Rng>(active: bool, stack: &Stack,
+    rng: &mut R, depth: Count, n: Count, verbose: bool) {
     if active {
         let mut trial: u32 = 0;
         h(0, "Backwards Solve (Ongoing)");
@@ -141,23 +139,15 @@ pub fn run_ongoing_backwards_solve<R: Rng>
                 pln(game_n);
             }
             for i in 1 .. (n + 1) {
-                chan_select! {
-                    default => {
-                        let label = &format!("Trial #{} Game N-{}", trial, i);
-                        if verbose {
-                            h(2, label);
-                            p_cache(stack);
-                        }
-                        let game = games_iter.next_back().expect("E99XX");
-                        if verbose { pln(game); }
-                        let solutions = solve(stack, &game, depth);
-                        if verbose { p_solutions(label, depth, &solutions); }
-                    },
-                    quit.recv() => {
-                        h(0, "Ending Backwards Solve");
-                        break 'outer;
-                    },
+                let label = &format!("Trial #{} Game N-{}", trial, i);
+                if verbose {
+                    h(2, label);
+                    p_cache(stack);
                 }
+                let game = games_iter.next_back().expect("E99XX");
+                if verbose { pln(game); }
+                let solutions = solve(stack, &game, depth);
+                if verbose { p_solutions(label, depth, &solutions); }
             }
         }
     }
