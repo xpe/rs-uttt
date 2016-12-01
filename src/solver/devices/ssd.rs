@@ -205,8 +205,8 @@ fn save_to_db(turns: i16, unknown: bool,
 
 fn threshold(min: u32) -> u32 {
     if min < 100 {
-        50000
+        1000000
     } else {
-        min * 500
+        min * 10000
     } // TODO: what about overflow?
 }

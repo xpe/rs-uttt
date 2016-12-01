@@ -2,6 +2,7 @@ use data::*;
 use rand::{Rng, XorShiftRng, SeedableRng};
 use random::*;
 use solver::*;
+use solver::db::{turns_and_unknown};
 use utility::{h, p, pln};
 
 pub fn run_random_games<R: Rng>(trials: u16, rng: &mut R) {
@@ -122,6 +123,7 @@ pub fn run_full_backwards_solve<R: Rng>(trials: u16, stack: &Stack,
     }
 }
 
+/// If the inner loop finds an unknown solution, skip ahead.
 pub fn run_ongoing_backwards_solve<R: Rng>(active: bool, stack: &Stack,
     rng: &mut R, depth: Count, n: Count, verbose: bool) {
     if active {
@@ -147,6 +149,8 @@ pub fn run_ongoing_backwards_solve<R: Rng>(active: bool, stack: &Stack,
                 let game = games_iter.next_back().expect("E99XX");
                 if verbose { pln(game); }
                 let solutions = solve(stack, &game, depth);
+                let (_, unknown) = turns_and_unknown(&solutions);
+                if unknown == true { break }
                 if verbose { p_solutions(label, depth, &solutions); }
             }
         }
