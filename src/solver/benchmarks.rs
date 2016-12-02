@@ -1,6 +1,7 @@
 use data::*;
 use rand::{SeedableRng, XorShiftRng};
 use random::{random_games};
+use solver::*;
 use test::Bencher;
 
 fn solve_example_1(k: Count, depth: Count) {
@@ -12,7 +13,8 @@ fn solve_example_1(k: Count, depth: Count) {
         games_iter.next_back();
     }
     let game = games_iter.next_back().expect("E1401");
-    game.solve(depth);
+    let stack = CPU_Stack::new();
+    game.solve(depth, &stack);
 }
 
 #[bench]

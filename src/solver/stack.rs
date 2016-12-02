@@ -26,44 +26,13 @@ impl<'c> Stack<'c> {
     /// updated, otherwise, they will continue to provide 'false positives' in
     /// the future.
     fn put(&self, game: &Game, solutions: &Vec<Solution>,
-           devices: Vec<&Device>) -> bool {
-        let devices_len: usize = devices.len();
-        if devices_len == 0 {
-            self.simple_put(game, solutions)
-        } else {
-            let mut count: usize = 0;
-            for device in devices.iter() {
-                if device.has_write {
-                    if (device.write)(&device, game, solutions) {
-                        count = count + 1
-                    } else {
-                        panic!("E3701");
-                    }
-                }
-            }
-            count == devices_len
-        }
-    }
-
-    /// Iterates over the stack and attempt to put to each device in order.
-    /// Returns true if successful; e.g. if one or more devices accepts the
-    /// write.
-    fn simple_put(&self, game: &Game, solutions: &Vec<Solution>) -> bool {
-        let mut count: u32 = 0;
-        for device in self.devices.iter() {
+           devices: Vec<&Device>) {
+        for device in devices.iter() {
             if device.has_write {
-                if (device.write)(&device, game, solutions) {
-                    count = count + 1
-                } else {
-                    panic!("E3702");
+                if !(device.write)(&device, game, solutions) {
+                    panic!("E3701");
                 }
             }
-        }
-        if count > 0 {
-            true
-        } else {
-            println!("simple_put | devices.len() = {}", self.devices.len());
-            panic!("E3703");
         }
     }
 

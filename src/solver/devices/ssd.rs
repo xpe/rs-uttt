@@ -1,17 +1,4 @@
 /// SSD Device.
-///
-/// Cache Sizes
-///
-/// If each item requires 100 bytes (just a guess) then:
-///
-/// cache items    memory size
-/// -----------    -----------
-///      10_000       0.976 MB
-///     100_000       9.534 MB
-///   1_000_000      95.367 MB
-///  10_000_000     953.674 MB
-///  20_000_000    1907.349 MB
-/// 100_000_000    9536.743 MB
 
 use data::*;
 use postgres::Connection;
@@ -23,6 +10,18 @@ use std::cell::RefCell;
 
 pub struct SSD {}
 
+// Cache Sizes
+//
+// If each item requires 100 bytes (just a guess) then:
+//
+// cache items    memory size
+// -----------    -----------
+//      10_000       0.976 MB
+//     100_000       9.534 MB
+//   1_000_000      95.367 MB
+//  10_000_000     953.674 MB
+//  20_000_000    1907.349 MB
+// 100_000_000    9536.743 MB
 pub const CACHE_1_CAP: usize =      1_000;
 pub const CACHE_2_CAP: usize = 50_000_000;
 
