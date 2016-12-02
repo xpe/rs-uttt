@@ -10,5 +10,5 @@ fn main() {
     let conn = db_connect(conn_str);
     let stack = SSD_CPU_Stack::new(&conn);
     let mut rng = make_rng();
-    run_ongoing_backwards_solve(true, &stack, &mut rng, 11, 7, true);
+    run_ongoing_backwards_solve(true, &stack, &mut rng, 6, 5, true);
 }
