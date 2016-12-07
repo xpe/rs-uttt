@@ -35,12 +35,6 @@ use solver::*;
 /// current player will beat an optimal opponent in no more than N turns
 /// (i.e. plays). The beating may happen sooner if the opponent is non-optimal.
 ///
-/// (Side note: Because I sometimes free-associate, I can't help but think of the saying
-/// about good management: "The beatings will continue until morale improves."
-/// This phrase may be appropos here; if a player's performance improves with
-/// better morale, then the player chances of being beaten decrease as his
-/// morale improves.)
-///
 /// (Comparative note: our approach here differs from other techniques, such as
 /// reinforcement learning, that may capitalize on an opponent's imperfections
 /// in order to win more quickly most of the time. However, to do so is a
