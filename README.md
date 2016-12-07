@@ -174,7 +174,7 @@ enough state space is intractable.
 Even so, I wanted to experiment with this problem myself. By randomly exploring
 the state space and solving simpler game states first, I built up a large
 collection of training examples. I wanted to see if there was some inherent
-structure the algorithms could exploit. To that end, I explored some neural
+structure machine learning algorithms could exploit. To that end, I explored some neural
 network approaches. Traditional NN's have not generalized well so far, which is
 not a surprise, but I think there are many interesting aspects of the problem
 space to explore.
