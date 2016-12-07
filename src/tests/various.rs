@@ -22,11 +22,11 @@ fn test_empty_game() {
 fn test_game_play() {
     let mut game = EMPTY_GAME;
     game.play(Play {
-        loc: Loc::new(RI::R6, CI::C3),
+        loc: Loc::from_row_col(RI::R6, CI::C3),
         player: Player::X,
     });
     assert!(game != EMPTY_GAME);
-    assert!(game.last_loc == Some(Loc::new(RI::R6, CI::C3)));
+    assert!(game.last_loc == Some(Loc::from_row_col(RI::R6, CI::C3)));
     assert!(game.state() == GameState::Ongoing);
     assert!(game.is_over() == false);
     assert!(game.winner() == None);

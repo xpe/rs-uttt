@@ -105,7 +105,7 @@ pub fn random_valid_play<R: Rng>(game: &Game, rng: &mut R) -> Option<Play> {
 /// Returns a random location. By design, this function does not look for valid
 /// locations efficiently.
 pub fn random_loc<R: Rng>(rng: &mut R) -> Loc {
-    Loc::new(rng.gen::<RI>(), rng.gen::<CI>())
+    Loc::from_row_col(rng.gen::<RI>(), rng.gen::<CI>())
 }
 
 // -- sub-board location -------------------------------------------------------
