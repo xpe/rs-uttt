@@ -328,7 +328,6 @@ impl Board {
     /// Returns a vector of valid locations for board plays for a given board
     /// index (that points to a particular sub-board).
     fn valid_locs_for(self, bi: BI) -> Vec<Loc> {
-        // TODO: combine the lines below (style)
         let sbis: Vec<SBI> = self.sboard_at_idx(bi).valid_indexes();
         sbis.iter().map(|&sbi| Loc::from_indexes(bi, sbi))
             .collect::<Vec<Loc>>()
@@ -489,7 +488,6 @@ impl Board {
 
     /// Does the board have an open sub-board?
     fn has_open_sboard(self) -> bool {
-        // TODO: Do I need |&sb| instead?
         self.sboards.iter().any(|sb| sb.is_open())
     }
 
