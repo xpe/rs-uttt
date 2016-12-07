@@ -1,7 +1,9 @@
 # rs-uttt
 
-This is a minimax solver (with pruning) of Ultimate Tic Tac Toe (UTTT) written
-in Rust.
+This Rust program as contains two major parts:
+
+* The game rules for Ultimate Tic Tac Toe (UTTT).
+* A minimax solver (with pruning).
 
 ## About UTTT
 
@@ -12,6 +14,15 @@ There are various online versions available, including:
 * [UTTT by Yannick Rietz](http://bejofo.net/ttt)
 
 Both links have instructions on how to play.
+
+## Program Goals
+
+I wrote an earlier version of this program in Clojure. My main goals for writing
+a Rust version was to achieve a smaller memory footprint and faster speed.
+Clojure relies on the JVM, which has considerable overhead for objects. By
+contract, Rust has very compact data structures.
+
+Another goal was to learn Rust!
 
 ## Setup
 
@@ -145,3 +156,21 @@ positions.
 is used to delay writes to the PostgreSQL database. This effectively reduces
 "write-thrashing" since the minimax algorithm explores many of the same board
 positions with varying depths.
+
+## Broader Goals
+
+To be clear, this program "only" contains the game rules and a minimax solver,
+but it fits into a larger project context.
+
+Many of the teams building machine intelligence to solve complex perfect
+information games rely on a mix of minimax with pruning and heuristics -- and
+for good reason! Conventional thinking suggests that solving a game with a large
+enough state space is intractable.
+
+Even so, I wanted to experiment with this problem myself. By randomly exploring
+the state space and solving simpler game states first, I built up a large
+collection of training examples. I wanted to see if there was some inherent
+structure the algorithms could exploit. To that end, I explored some neural
+network approaches. Traditional NN's have not generalized well so far, which is
+not a surprise, but I think there are many interesting aspects of the problem
+space to explore.
