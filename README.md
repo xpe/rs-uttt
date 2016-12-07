@@ -136,9 +136,10 @@ ensures a win for X in 11 moves.
 
 The top two lines reflect the two RAM caches. In reverse order:
 
-* The second cache has 6,509,731 filled slots out of `CACHE_2_CAP` (50,000,000)
-total. This is a general purpose RAM cache, used to speed read access over
-previous computed board positions.
+* The second cache has used ~6 million slots. The upper limit is defined by the
+`CACHE_2_CAP` constant (currently set to 50 million). This is a general
+purpose RAM cache, used to speed read access over previous computed board
+positions.
 
 * The first cache has 1000 filled slots of out `CACHE_1_CAP` (1000) total. It
 is used to delay writes to the PostgreSQL database. This effectively reduces
