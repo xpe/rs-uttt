@@ -125,12 +125,6 @@ pub fn turns_and_unknown(solutions: &Vec<Solution>) -> (i16, bool) {
     }
 }
 
-// == internal database read/write functions ===================================
-
-// TODO: From the postgres crate documentation: "If the same statement will be
-// repeatedly executed (perhaps with different query parameters), consider using
-// the prepare and prepare_cached methods."
-
 // == PostgreSQL command strings ===============================================
 
 /// Command to create the 'solutions' table.
