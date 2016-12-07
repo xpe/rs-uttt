@@ -1,6 +1,6 @@
 # rs-uttt
 
-This Rust program as contains two major parts:
+This Rust program contains two major parts:
 
 * The game rules for Ultimate Tic Tac Toe (UTTT).
 * A minimax solver (with pruning).
@@ -18,7 +18,7 @@ Both links have instructions on how to play.
 ## Program Goals
 
 I wrote an earlier version of this program in Clojure. My main goals for writing
-a Rust version was to achieve a smaller memory footprint and faster speed.
+a Rust version were to achieve a smaller memory footprint and faster speed.
 Clojure relies on the JVM, which has considerable overhead for objects. By
 contract, Rust has very compact data structures.
 
