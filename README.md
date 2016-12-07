@@ -44,7 +44,11 @@ want additional context, I recommend reading the [rustup README][1].
 
 ### PostgreSQL Setup
 
-Please install a recent version of PostgreSQL. I have tested on version 9.5.4.
+Please install a recent version of PostgreSQL. I have tested on version 9.5.4. I
+recommend using either:
+
+* The [Nix package manager](http://nixos.org/nix/) (for various OS's)
+* [Homebrew](http://brew.sh) (for macOS)
 
 #### Tablespace Creation
 
