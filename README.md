@@ -31,9 +31,48 @@ want additional context, I recommend reading the [rustup README][1].
 
 [nightly-rust]: https://doc.rust-lang.org/book/nightly-rust.html
 
-### Database Setup
+### PostgreSQL Setup
 
-TODO
+Please install a recent version of PostgreSQL. I have tested on version 9.5.4.
+
+#### Tablespace Creation
+
+Per the [PostgreSQL documentation on Tablespaces][tablespaces]:
+
+> Tablespaces in PostgreSQL allow database administrators to define locations in
+the file system where the files representing database objects can be stored.
+Once created, a tablespace can be referred to by name when creating database
+objects.
+
+Create the "uttt_1" tablespace at a location of your choice by running this
+command in [psql]:
+
+```
+CREATE TABLESPACE uttt_1 LOCATION '/usr/local/var/postgres_uttt_1';
+```
+
+On my linux server, I change the location to point to an different drive. On my
+laptop, the '/usr/local/var/postgres_uttt_1' location is adjacent to the
+Homebrew default location of '/usr/local/var/postgres_uttt_1'.
+
+To list all tablespaces, run `\db` in psql.
+
+[psql]: https://www.postgresql.org/docs/9.5/static/app-psql.html
+
+[tablespaces]: https://www.postgresql.org/docs/9.5/static/manage-ag-tablespaces.html
+
+### Table and Index Creation
+
+The first time you compile and run the program, change two values in "db.rs" to
+true:
+
+```
+pub const CREATE_TABLE: bool = false;
+pub const CREATE_INDEXES: bool = false;
+```
+
+After the first run, change the constants back to false. This could be more
+streamlined -- my apologies!
 
 ## Running
 
