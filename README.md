@@ -68,7 +68,7 @@ CREATE TABLESPACE uttt_1 LOCATION '/usr/local/var/postgres_uttt_1';
 
 On my linux server, I change the location to point to an different drive. On my
 laptop, the '/usr/local/var/postgres_uttt_1' location is adjacent to the
-Homebrew default location of '/usr/local/var/postgres_uttt_1'.
+Homebrew default location of '/usr/local/var/postgres'.
 
 To list all tablespaces, run `\db` in psql.
 
