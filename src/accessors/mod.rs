@@ -81,17 +81,17 @@ impl Game {
 impl Board {
     /// Returns an array of 81 slots for a given board.
     pub fn slots(&self) -> [Slot; 81] {
-	let mut a = [SE; 81];
-	a[ 0 ..  9].copy_from_slice(&self.sboards[0].slots());
-	a[ 9 .. 18].copy_from_slice(&self.sboards[1].slots());
-	a[18 .. 27].copy_from_slice(&self.sboards[2].slots());
-	a[27 .. 36].copy_from_slice(&self.sboards[3].slots());
-	a[36 .. 45].copy_from_slice(&self.sboards[4].slots());
-	a[45 .. 54].copy_from_slice(&self.sboards[5].slots());
-	a[54 .. 63].copy_from_slice(&self.sboards[6].slots());
-	a[63 .. 72].copy_from_slice(&self.sboards[7].slots());
-	a[72 .. 81].copy_from_slice(&self.sboards[8].slots());
-	a
+    	let mut a = [SE; 81];
+    	a[ 0 ..  9].copy_from_slice(&self.sboards[0].slots());
+    	a[ 9 .. 18].copy_from_slice(&self.sboards[1].slots());
+    	a[18 .. 27].copy_from_slice(&self.sboards[2].slots());
+    	a[27 .. 36].copy_from_slice(&self.sboards[3].slots());
+    	a[36 .. 45].copy_from_slice(&self.sboards[4].slots());
+    	a[45 .. 54].copy_from_slice(&self.sboards[5].slots());
+    	a[54 .. 63].copy_from_slice(&self.sboards[6].slots());
+    	a[63 .. 72].copy_from_slice(&self.sboards[7].slots());
+    	a[72 .. 81].copy_from_slice(&self.sboards[8].slots());
+    	a
     }
 
     /// Returns a two dimensional array (9x9) of slots for a given board.
@@ -114,11 +114,11 @@ impl SBoard {
     /// Returns an array of 9 slots for a given sub-board.
     pub fn slots(self) -> [Slot; 9] {
         let rs: [Row; 3] = self.rows();
-	let mut a = [SE; 9];
-	a[0 .. 3].copy_from_slice(&Row::slots(rs[0]));
-	a[3 .. 6].copy_from_slice(&Row::slots(rs[1]));
-	a[6 .. 9].copy_from_slice(&Row::slots(rs[2]));
-	a
+    	let mut a = [SE; 9];
+    	a[0 .. 3].copy_from_slice(&Row::slots(rs[0]));
+    	a[3 .. 6].copy_from_slice(&Row::slots(rs[1]));
+    	a[6 .. 9].copy_from_slice(&Row::slots(rs[2]));
+    	a
     }
 
     /// Returns a two dimensional array (3x3) of slots for a given sub-board.
