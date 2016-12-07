@@ -5,7 +5,8 @@ pub struct Stack<'c> {
     pub devices: Vec<Device<'c>>,
 }
 
-/// A solver stack.
+/// A solver stack, an abstraction that decouples the caching from the solving
+/// algorithm.
 impl<'c> Stack<'c> {
     /// First, get one or more solutions for the given game and depth. Second,
     /// put the solution(s) back to the appropriate places in the stack.
