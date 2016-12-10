@@ -202,8 +202,8 @@ fn save_to_db(turns: i16, unknown: bool,
     }
 }
 
-const LOW_MARK: u32 = 100;
-const MULTIPLIER: u32 = 10000;
+const LOW_MARK: u32 = 200;
+const MULTIPLIER: u32 = 20000;
 
 fn threshold(min: u32) -> u32 {
     if min < LOW_MARK {
