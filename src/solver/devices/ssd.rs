@@ -184,6 +184,7 @@ fn maybe_write(device: &Device, game: &Game, sols: &Vec<Solution>) -> bool {
 /// statistical information?
 fn save_to_db(turns: i16, unknown: bool, stats: &mut [u32; MAX_DEPTH]) -> bool {
     if unknown { return false; }
+    // Find maximum and minimum of stats array.
     let mut max: u32 = 0;
     let mut nonzero_min: Option<u32> = None;
     for val in stats.into_iter() {
@@ -195,6 +196,7 @@ fn save_to_db(turns: i16, unknown: bool, stats: &mut [u32; MAX_DEPTH]) -> bool {
             }
         }
     }
+    // Determine to save or not based on 'stats' and threshold function.
     match nonzero_min {
         Some(min) => stats[turns as usize] < threshold(min),
         None => true,
