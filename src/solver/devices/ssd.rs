@@ -182,8 +182,7 @@ fn maybe_write(device: &Device, game: &Game, sols: &Vec<Solution>) -> bool {
 
 /// Should the SSD write a solution of 'depth' turns given the current
 /// statistical information?
-fn save_to_db(turns: i16, unknown: bool,
-    stats: &mut [u32; MAX_DEPTH]) -> bool {
+fn save_to_db(turns: i16, unknown: bool, stats: &mut [u32; MAX_DEPTH]) -> bool {
     if unknown { return false; }
     let mut max: u32 = 0;
     let mut nonzero_min: Option<u32> = None;
