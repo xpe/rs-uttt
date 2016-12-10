@@ -202,10 +202,13 @@ fn save_to_db(turns: i16, unknown: bool,
     }
 }
 
+const LOW_MARK: u32 = 100;
+const MULTIPLIER: u32 = 10000;
+
 fn threshold(min: u32) -> u32 {
-    if min < 100 {
-        1000000
+    if min < LOW_MARK {
+        LOW_MARK * MULTIPLIER
     } else {
-        min * 10000
-    } // TODO: what about overflow?
+        min * MULTIPLIER
+    }
 }
