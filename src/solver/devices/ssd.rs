@@ -22,7 +22,7 @@ pub struct SSD {}
 //  10_000_000     953.674 MB
 //  20_000_000    1907.349 MB
 // 100_000_000    9536.743 MB
-pub const CACHE_1_CAP: usize =      1_000;
+pub const CACHE_1_CAP: usize =      5_000;
 pub const CACHE_2_CAP: usize = 50_000_000;
 
 pub const CREATE_TABLE: bool = false;
